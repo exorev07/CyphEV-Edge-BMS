@@ -1,6 +1,5 @@
 export enum AlertSeverity {
-  INFO = 'INFO',
-  WARNING = 'WARNING',
+  ATTENTION_REQUIRED = 'ATTENTION_REQUIRED',
   CRITICAL = 'CRITICAL'
 }
 
@@ -54,6 +53,7 @@ export interface BMSData {
   capacityFadeDetected: boolean;
   thermalRunawayRisk: boolean;
   voltageAnomaly: boolean;
+  currentAnomaly: boolean;
   batterySwellDetected: boolean;
   waterLeakageDetected: boolean;
   

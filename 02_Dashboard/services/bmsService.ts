@@ -69,8 +69,9 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
     isCharging: isCharging,
     
     capacityFadeDetected: Math.random() > 0.98,
-    thermalRunawayRisk: temp > 65,
+    thermalRunawayRisk: temp > 60, // lowered for more frequent occurrence
     voltageAnomaly: voltage > 445 || Math.random() > 0.98,
+    currentAnomaly: current > 50 || (Math.random() > 0.98 && !isCharging), // Current spike detection
     batterySwellDetected: swellRandom > 0.995,
     waterLeakageDetected: leakRandom > 0.995,
     
@@ -110,19 +111,27 @@ export const useBMSData = () => {
         const timestamp = Date.now();
 
         if (newData.waterLeakageDetected) {
-          newAlerts.push({ id: `leak-${timestamp}`, code: 'HUM-01', message: 'CRITICAL: Water Leakage Detected!', severity: AlertSeverity.CRITICAL, timestamp });
+          newAlerts.push({ id: `leak-${timestamp}`, code: 'HUM-01', message: 'Humidity detected in Battery compartment!', severity: AlertSeverity.CRITICAL, timestamp });
         }
         if (newData.batterySwellDetected) {
-          newAlerts.push({ id: `swell-${timestamp}`, code: 'PRS-01', message: 'CRITICAL: Cell Swelling Detected!', severity: AlertSeverity.CRITICAL, timestamp });
+          newAlerts.push({ id: `swell-${timestamp}`, code: 'PRS-01', message: 'Battery Pack Swelling Detected!', severity: AlertSeverity.CRITICAL, timestamp });
         }
         if (newData.voltageAnomaly) {
-          newAlerts.push({ id: `volt-${timestamp}`, code: 'VOL-01', message: 'CRITICAL: Abnormal Voltage Detected!', severity: AlertSeverity.CRITICAL, timestamp });
+          newAlerts.push({ id: `volt-${timestamp}`, code: 'VOL-01', message: 'Abnormal Voltage Spikes!', severity: AlertSeverity.CRITICAL, timestamp });
         }
-        if (newData.capacityFadeDetected) {
-          newAlerts.push({ id: `cap-${timestamp}`, code: 'CAP-01', message: 'Warning: Abnormal Capacity Fade', severity: AlertSeverity.WARNING, timestamp });
+        if (newData.currentAnomaly) {
+          newAlerts.push({ id: `curr-${timestamp}`, code: 'CUR-01', message: 'Abnormal Current Spikes!', severity: AlertSeverity.CRITICAL, timestamp });
         }
         if (newData.thermalRunawayRisk) {
-          newAlerts.push({ id: `therm-${timestamp}`, code: 'THM-01', message: 'Warning: Thermal Limit Approached', severity: AlertSeverity.WARNING, timestamp });
+          newAlerts.push({ id: `therm-${timestamp}`, code: 'THM-01', message: 'High Pack Temperature!', severity: AlertSeverity.CRITICAL, timestamp }); // Changed logic based on request
+        }
+        
+        // Attention Required alerts
+        if (newData.capacityFadeDetected) {
+          newAlerts.push({ id: `cap-${timestamp}`, code: 'CAP-01', message: 'Abnormal Capacity Fade', severity: AlertSeverity.ATTENTION_REQUIRED, timestamp });
+        }
+        if (newData.soc < 20) {
+          newAlerts.push({ id: `soc-${timestamp}`, code: 'SOC-01', message: 'Low Battery Charge', severity: AlertSeverity.ATTENTION_REQUIRED, timestamp });
         }
         
         if (newAlerts.length > 0) {
