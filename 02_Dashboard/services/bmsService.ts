@@ -135,7 +135,7 @@ export const useBMSData = () => {
         }
         
         if (newAlerts.length > 0) {
-            setAlerts(prev => [...newAlerts, ...prev].slice(0, 10));
+            setAlerts(prev => [...newAlerts, ...prev].slice(0, 200));
         }
 
         return newData;

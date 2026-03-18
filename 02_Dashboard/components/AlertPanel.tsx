@@ -1,5 +1,5 @@
-import React from 'react';
-import { AlertTriangle, AlertOctagon, Info, ArrowRight, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, AlertOctagon, Info, ArrowRight, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BMSAlert, AlertSeverity } from '../types';
 
 interface AlertPanelProps {
@@ -9,6 +9,9 @@ interface AlertPanelProps {
 }
 
 export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, onViewAll }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   if (alerts.length === 0) {
     return (
       <div className="card-hover bg-dark-800/30 backdrop-blur-md shadow-xl border border-dark-700/50 rounded-2xl p-6 h-full flex flex-col items-center justify-center text-cyphgray font-doto">
@@ -26,8 +29,13 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
   }
 
   // Map alerts and force descending chronological order (newest first)
-  const displayAlerts = [...(isMini ? alerts.slice(0, 1) : alerts)]
+  const sortedAlerts = [...(isMini ? alerts.slice(0, 1) : alerts)]
     .sort((a, b) => b.timestamp - a.timestamp);
+
+  const totalPages = Math.ceil(alerts.length / itemsPerPage);
+  const paginatedAlerts = isMini 
+    ? sortedAlerts 
+    : sortedAlerts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleExport = () => {
     if (alerts.length === 0) return;
@@ -88,7 +96,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
 
       <div className={`space-y-2 flex flex-col ${isMini ? 'flex-1 overflow-hidden px-2' : 'pr-4 overflow-y-auto custom-scrollbar flex-1 rounded-xl bg-dark-900/40 border border-dark-700/30 p-4'}`}>
         {!isMini && alerts.length > 0 && (
-          <div className="grid grid-cols-12 gap-4 pb-2 border-b border-dark-700/50 text-[10px] text-cyphgray font-black uppercase tracking-widest mb-4 px-2">
+          <div className="grid grid-cols-12 gap-4 pb-2 border-b border-dark-700/50 text-[12px] text-header-purple font-black uppercase tracking-[0.2em] mb-4 px-2">
             <div className="col-span-2">TIMESTAMP</div>
             <div className="col-span-3 text-center">SEVERITY</div>
             <div className="col-span-4 text-center">SYS CODE</div>
@@ -96,7 +104,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
           </div>
         )}
         
-        {displayAlerts.map((alert) => (
+        {paginatedAlerts.map((alert) => (
           isMini ? (
             // Mini View
             <div key={alert.id} className="flex flex-col w-full h-full relative z-10 pt-2 pb-1">
@@ -127,8 +135,9 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
               key={alert.id} 
               className="grid grid-cols-12 gap-4 items-center py-3 px-2 border-b border-dark-700/30 hover:bg-dark-800/40 transition-colors group/row rounded-lg"
             >
-              <div className="col-span-2 text-[12px] font-handjet font-medium text-gray-300 tracking-wider">
-                {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}.<span className="text-[10px] text-gray-500">{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
+              <div className="col-span-2 text-[14px] font-handjet text-gray-200 tracking-widest flex items-baseline">
+                {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                <span className="text-[11px] text-gray-500 ml-0.5 font-medium">.{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
               </div>
               
               <div className="col-span-3 flex items-center justify-center gap-2">
@@ -161,6 +170,35 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
           </div>
         )}
       </div>
+      
+      {!isMini && (
+        <div className="flex items-center justify-between pt-4 mt-2 px-4 w-full shrink-0">
+          <span className="text-[10px] text-cyphgray font-black uppercase tracking-widest">
+            Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, alerts.length)} of {alerts.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              aria-label="Previous Page"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <span className="text-[10px] text-amethyst-300 font-bold tracking-widest px-2">
+              PAGE {currentPage} / {totalPages}
+            </span>
+            <button
+              aria-label="Next Page"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {isMini && onViewAll && (
         <button 
