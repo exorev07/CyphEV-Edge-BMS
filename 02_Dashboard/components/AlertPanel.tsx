@@ -25,8 +25,9 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
     );
   }
 
-  // If mini, only show the first alert (most recent)
-  const displayAlerts = isMini ? alerts.slice(0, 1) : alerts;
+  // Map alerts and force descending chronological order (newest first)
+  const displayAlerts = [...(isMini ? alerts.slice(0, 1) : alerts)]
+    .sort((a, b) => b.timestamp - a.timestamp);
 
   const handleExport = () => {
     if (alerts.length === 0) return;
@@ -85,45 +86,38 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
         )}
       </div>
 
-      <div className={`pr-4 space-y-2 overflow-y-auto custom-scrollbar ${isMini ? 'max-h-[140px]' : 'flex-1 rounded-xl bg-dark-900/40 border border-dark-700/30 p-4'}`}>
+      <div className={`space-y-2 flex flex-col ${isMini ? 'flex-1 overflow-hidden px-2' : 'pr-4 overflow-y-auto custom-scrollbar flex-1 rounded-xl bg-dark-900/40 border border-dark-700/30 p-4'}`}>
         {!isMini && alerts.length > 0 && (
           <div className="grid grid-cols-12 gap-4 pb-2 border-b border-dark-700/50 text-[10px] text-cyphgray font-black uppercase tracking-widest mb-4 px-2">
             <div className="col-span-2">TIMESTAMP</div>
-            <div className="col-span-2">SEVERITY</div>
-            <div className="col-span-2">SYS CODE</div>
-            <div className="col-span-6">DIAGNOSTIC MESSAGE</div>
+            <div className="col-span-3 text-center">SEVERITY</div>
+            <div className="col-span-4 text-center">SYS CODE</div>
+            <div className="col-span-3 text-right">DIAGNOSTIC MESSAGE</div>
           </div>
         )}
         
         {displayAlerts.map((alert) => (
           isMini ? (
             // Mini View
-            <div 
-              key={alert.id} 
-              className={`p-4 rounded-xl border-l-4 flex gap-4 items-start transition-all ${
-                alert.severity === AlertSeverity.CRITICAL 
-                  ? 'bg-red-950/20 border-red-500/50 shadow-[inset_0_0_20px_rgba(239,68,68,0.05)]' 
-                  : alert.severity === AlertSeverity.ATTENTION_REQUIRED 
-                    ? 'bg-yellow-950/20 border-yellow-500/50' 
-                    : 'bg-blue-950/20 border-blue-500/50'
-              }`}
-            >
-              <div className="mt-1 flex-shrink-0">
-                 {alert.severity === AlertSeverity.CRITICAL ? (
-                   <AlertOctagon size={18} className="text-red-400 animate-pulse" />
-                 ) : (
-                   <AlertTriangle size={18} className="text-yellow-400" />
-                 )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-xs font-black uppercase tracking-tight leading-relaxed ${
-                  alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 'text-gray-200'
+            <div key={alert.id} className="flex flex-col w-full h-full relative z-10 pt-2 pb-1">
+              <div className="flex items-center gap-2 mb-2 w-full">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]'
+                }`}></div>
+                <span className={`text-[10px] font-black uppercase tracking-widest ${
+                  alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 'text-yellow-400'
                 }`}>
+                  {alert.severity.replace('_', ' ')}
+                </span>
+              </div>
+              
+              <div className="pl-4 flex-1 flex flex-col justify-between">
+                <p className="text-[12px] font-bold uppercase tracking-wide leading-relaxed text-gray-200">
                   {alert.message}
                 </p>
-                <div className="flex justify-between w-full mt-3 border-t border-white/5 pt-2 font-handjet font-extralight">
-                  <span className="text-[14px] text-cyphgray uppercase">{alert.code}</span>
-                  <span className="text-[14px] text-cyphgray uppercase tracking-widest">{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                <div className="flex justify-between w-full mt-3 pt-3 border-t border-dark-700/30 font-handjet font-medium text-gray-400">
+                  <span className="text-[14px] uppercase">{alert.code}</span>
+                  <span className="text-[14px] uppercase tracking-widest">{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                 </div>
               </div>
             </div>
@@ -137,7 +131,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                 {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}.<span className="text-[10px] text-gray-500">{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
               </div>
               
-              <div className="col-span-2 flex items-center gap-2">
+              <div className="col-span-3 flex items-center justify-center gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${
                   alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 
                   alert.severity === AlertSeverity.ATTENTION_REQUIRED ? 'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]' : 'bg-blue-500'
@@ -148,11 +142,11 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                 }`}>{alert.severity.replace('_', ' ')}</span>
               </div>
               
-              <div className="col-span-2 text-[12px] text-amethyst-300 font-doto font-bold uppercase tracking-widest">
+              <div className="col-span-4 text-center text-[12px] text-amethyst-300 font-doto font-bold uppercase tracking-widest">
                 {alert.code}
               </div>
               
-              <div className="col-span-6 text-[11px] font-bold uppercase tracking-wide truncate text-gray-300">
+              <div className="col-span-3 text-[11px] font-bold uppercase tracking-wide truncate text-gray-300 text-right">
                 {alert.message}
               </div>
             </div>

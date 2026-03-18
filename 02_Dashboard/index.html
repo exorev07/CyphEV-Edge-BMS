@@ -86,6 +86,11 @@
         transform: translateY(-6px);
         box-shadow: 0 20px 50px -12px rgba(155, 115, 211, 0.5);
       }
+      /* Hide native Edge/Chromium password reveal button to fix duplicate icons */
+      input[type="password"]::-ms-reveal,
+      input[type="password"]::-ms-clear {
+        display: none;
+      }
     </style>
   <script type="importmap">
 {
