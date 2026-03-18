@@ -38,10 +38,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-doto relative overflow-hidden z-20">
-      {/* Background overlay for better contrast */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm -z-10"></div>
-      
+    <div className="min-h-screen flex font-doto relative overflow-hidden z-20">
+      {/* Background image */}
+      <div className="absolute inset-0 -z-10" style={{ backgroundImage: "url('/AUDI_RS5_Sportback_BG.png')", backgroundSize: 'cover', backgroundPosition: 'center left', backgroundRepeat: 'no-repeat' }}></div>
+
+      {/* Left half — empty, shows car */}
+      <div className="hidden lg:flex flex-1" />
+
+      {/* Right half — login panel */}
+      <div className="w-full lg:w-[480px] shrink-0 flex items-center justify-center p-8 lg:mr-24">
       <div className="w-full max-w-md card-hover bg-dark-800/40 backdrop-blur-xl border border-dark-700/50 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl relative">
         {/* Glowing accent dots */}
         <div className="absolute top-10 right-10 w-20 h-20 bg-amethyst-500/20 rounded-full blur-3xl"></div>
@@ -135,6 +140,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             Unified Plug-and-Play Edge-based Cyber-Physical Intrusion Detection and Battery Monitoring System for Electric Vehicles.
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

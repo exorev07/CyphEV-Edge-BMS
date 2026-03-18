@@ -76,7 +76,7 @@ const App = () => {
             <RadialGauge value={data.motorTorque} max={500} label="Motor Torque" unit="NM" size={160} color="text-amethyst-500" />
           </div>
           <div className="flex justify-center">
-            <RadialGauge value={data.longitudinalAccel} max={10} label="Long. Accel" unit="M/S²" size={160} color="text-amethyst-500" />
+            <RadialGauge value={data.longitudinalAccel} max={10} label="Long. Acceleration" unit="M/S²" size={160} color="text-amethyst-500" />
           </div>
         </div>
       </div>
@@ -316,14 +316,14 @@ const App = () => {
   );
 
   return (
-    <div className="min-h-screen text-gray-100 font-sans selection:bg-amethyst-500 selection:text-white pb-10">
+    <div className="h-screen flex flex-col overflow-hidden text-gray-100 font-sans selection:bg-amethyst-500 selection:text-white">
       <MouseFollower />
-      
+
       {!isLoggedIn ? (
         <Login onLogin={handleLogin} />
       ) : (
         <>
-          <header className="sticky top-0 z-50 bg-dark-900/70 backdrop-blur-lg border-b border-dark-700/50 px-6 py-5 grid grid-cols-3 items-center shadow-lg font-doto">
+          <header className="shrink-0 bg-dark-900/70 backdrop-blur-lg border-b border-dark-700/50 px-6 py-5 grid grid-cols-3 items-center shadow-lg font-doto z-50">
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setCurrentView('dashboard')} 
@@ -354,8 +354,16 @@ const App = () => {
                 </div>
                 <span className="text-[10px] text-cyphgray uppercase tracking-[0.1em] font-black border-t border-dark-700/50 pt-1 w-full text-right">System Status</span>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className={`w-2 h-2 rounded-full ${alerts.some(a => a.severity === 'CRITICAL') ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`}></span>
-                  <span className="text-[10px] font-black tracking-widest uppercase">{alerts.some(a => a.severity === 'CRITICAL') ? 'ATTENTION' : 'NOMINAL'}</span>
+                  {(() => {
+                    const hasCritical = data.thermalRunawayRisk || data.voltageAnomaly || data.currentAnomaly || data.waterLeakageDetected || data.batterySwellDetected;
+                    const hasWarning = data.capacityFadeDetected || data.soc < 20;
+                    return (
+                      <>
+                        <span className={`w-2 h-2 rounded-full ${hasCritical ? 'bg-red-500 animate-pulse' : hasWarning ? 'bg-yellow-500' : 'bg-emerald-500'}`}></span>
+                        <span className="text-[10px] font-black tracking-widest uppercase">{hasCritical ? 'CRITICAL' : hasWarning ? 'WARNING' : 'NOMINAL'}</span>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               <button 
@@ -368,23 +376,25 @@ const App = () => {
             </div>
           </header>
           
-          <main className="max-w-[1800px] mx-auto px-4 sm:px-6 mt-8 font-doto relative z-20">
-            {!data ? (
-               <div className="min-h-[60vh] flex items-center justify-center text-amethyst-400 flex-col gap-4 font-doto">
-                 <div className="w-16 h-16 border-4 border-amethyst-600 border-t-transparent rounded-full animate-spin"></div>
-                 <p className="animate-pulse tracking-widest text-sm uppercase">INITIALIZING SYSTEM...</p>
-               </div>
-            ) : (
-              <>
-                {currentView === 'dashboard' && renderDashboard()}
-                {currentView === 'logs' && (
-                  <div className="animate-in fade-in slide-in-from-right-8 duration-300 h-[calc(100vh-180px)]">
-                    <AlertPanel alerts={alerts} />
-                  </div>
-                )}
-              </>
-            )}
-          </main>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <main className="max-w-[1800px] mx-auto px-4 sm:px-6 mt-8 pb-10 font-doto relative z-20">
+              {!data ? (
+                <div className="min-h-[60vh] flex items-center justify-center text-amethyst-400 flex-col gap-4 font-doto">
+                  <div className="w-16 h-16 border-4 border-amethyst-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="animate-pulse tracking-widest text-sm uppercase">INITIALIZING SYSTEM...</p>
+                </div>
+              ) : (
+                <>
+                  {currentView === 'dashboard' && renderDashboard()}
+                  {currentView === 'logs' && (
+                    <div className="animate-in fade-in slide-in-from-right-8 duration-300 h-[calc(100vh-180px)]">
+                      <AlertPanel alerts={alerts} />
+                    </div>
+                  )}
+                </>
+              )}
+            </main>
+          </div>
         </>
       )}
     </div>

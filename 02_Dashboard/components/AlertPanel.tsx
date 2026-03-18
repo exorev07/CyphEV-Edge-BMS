@@ -109,12 +109,11 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
             }
             <span className="text-[12px] text-cyphgray uppercase font-black tracking-widest">RELAY STATUS</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest ${
+          <div className={`px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest ${
             relayStatus === 'CONNECTED'
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
               : 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_8px_rgba(239,68,68,0.15)]'
           }`}>
-            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${relayStatus === 'CONNECTED' ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}></div>
             {relayStatus}
           </div>
         </div>
@@ -129,14 +128,11 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                 <p className="text-[12px] font-bold uppercase tracking-wide leading-relaxed text-gray-200 flex-1">
                   {alert.message}
                 </p>
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest shrink-0 ${
+                <div className={`px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest shrink-0 ${
                   alert.severity === AlertSeverity.CRITICAL
                     ? 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
                     : 'bg-yellow-500/15 border-yellow-500/50 text-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.1)]'
                 }`}>
-                  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                    alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'
-                  }`}></div>
                   {alert.severity.replace('_', ' ')}
                 </div>
               </div>
@@ -176,11 +172,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                   {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   <span className="text-[11px] text-gray-500 ml-0.5 font-medium">.{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
                 </div>
-                <div className="col-span-3 flex items-center justify-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${
-                    alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' :
-                    'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]'
-                  }`}></div>
+                <div className="col-span-3 flex items-center justify-center">
                   <span className={`text-[10px] font-black uppercase tracking-widest ${
                     alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 'text-yellow-400'
                   }`}>{alert.severity.replace('_', ' ')}</span>
