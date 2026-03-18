@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
-import { AlertTriangle, AlertOctagon, Info, ArrowRight, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertTriangle, AlertOctagon, Info, ArrowRight, Download, ChevronLeft, ChevronRight, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { BMSAlert, AlertSeverity } from '../types';
 
 interface AlertPanelProps {
   alerts: BMSAlert[];
   isMini?: boolean;
+  relayStatus?: 'CONNECTED' | 'DISCONNECTED';
   onViewAll?: () => void;
 }
 
-export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, onViewAll }) => {
+export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, relayStatus, onViewAll }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
   if (alerts.length === 0) {
     return (
-      <div className="card-hover bg-dark-800/30 backdrop-blur-md shadow-xl border border-dark-700/50 rounded-2xl p-6 h-full flex flex-col items-center justify-center text-cyphgray font-doto">
+      <div className="card-hover bg-dark-800/30 backdrop-blur-md shadow-xl border border-dark-700/50 rounded-2xl p-6 h-full flex flex-col text-cyphgray font-doto">
         <div className="w-full flex justify-center mb-6">
           <h2 className="text-lg text-header-purple font-black uppercase tracking-[0.4em] border-b border-dark-700/30 pb-4 px-10">
             SYSTEM ALERTS
           </h2>
         </div>
-        <div className="p-3 bg-dark-700/30 rounded-full mb-2">
-          <Info size={24} className="text-amethyst-500/50" />
+        <div className="flex-1 flex flex-col items-center justify-center gap-2">
+          <div className="p-3 bg-dark-700/30 rounded-full">
+            <Info size={24} className="text-amethyst-500/50" />
+          </div>
+          <span className="text-xs uppercase tracking-widest font-bold opacity-70">System Nominal</span>
         </div>
-        <span className="text-xs uppercase tracking-widest font-bold opacity-70">System Nominal</span>
       </div>
     );
   }
@@ -42,8 +45,10 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
     
     const headers = ['Timestamp', 'Severity', 'Code', 'Message'];
     const csvRows = alerts.map(alert => {
-      const time = new Date(alert.timestamp).toISOString();
-      return `${time},${alert.severity},${alert.code},"${alert.message}"`;
+      const d = new Date(alert.timestamp);
+      const time = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}.${String(d.getMilliseconds()).padStart(3,'0')}`;
+      const severity = alert.severity.replace('_', ' ');
+      return `"${time}",${severity},${alert.code},"${alert.message}"`;
     });
     
     // Create the CSV content with UTF-8 BOM
@@ -67,7 +72,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
   };
 
   return (
-    <div className={`group ${isMini ? 'card-hover bg-dark-800/30 shadow-xl border-dark-700/50 rounded-2xl overflow-hidden' : 'bg-transparent border-transparent'} backdrop-blur-md border p-6 h-full flex flex-col font-doto relative`}>
+    <div className={`group ${isMini ? 'card-hover bg-dark-800/30 shadow-xl border-dark-700/50 rounded-2xl' : 'bg-transparent border-transparent h-full'} backdrop-blur-md border p-6 flex flex-col font-doto relative`}>
       
       {/* Primary Centered Heading */}
       <div className="w-full flex justify-center mb-6 relative">
@@ -94,111 +99,133 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
         )}
       </div>
 
-      <div className={`space-y-2 flex flex-col ${isMini ? 'flex-1 overflow-hidden px-2' : 'flex-1 overflow-y-auto custom-scrollbar rounded-xl bg-[#121519] border border-dark-700/30 p-4'}`}>
-        {!isMini && alerts.length > 0 && (
-          <div className="grid grid-cols-12 gap-4 pt-5 pb-3 border-b border-dark-700/50 text-[12px] text-header-purple font-black uppercase tracking-[0.2em] mb-2 px-2 sticky top-0 z-10 bg-[#121519] -mt-4">
+      {/* Relay status — mini only, below heading */}
+      {isMini && relayStatus && (
+        <div className="flex items-center justify-between mx-2 pb-4 mb-2 border-b border-dark-700/30">
+          <div className="flex items-center gap-1.5">
+            {relayStatus === 'CONNECTED'
+              ? <ShieldCheck size={12} className="text-emerald-400" />
+              : <ShieldAlert size={12} className="text-red-400" />
+            }
+            <span className="text-[12px] text-cyphgray uppercase font-black tracking-widest">RELAY STATUS</span>
+          </div>
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest ${
+            relayStatus === 'CONNECTED'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_8px_rgba(239,68,68,0.15)]'
+          }`}>
+            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${relayStatus === 'CONNECTED' ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}></div>
+            {relayStatus}
+          </div>
+        </div>
+      )}
+
+      {isMini ? (
+        // Mini view
+        <div className="flex flex-col flex-1 overflow-hidden px-2">
+          {paginatedAlerts.map((alert) => (
+            <div key={alert.id} className="flex flex-col w-full relative z-10 py-2 gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-[12px] font-bold uppercase tracking-wide leading-relaxed text-gray-200 flex-1">
+                  {alert.message}
+                </p>
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[12px] font-black uppercase tracking-widest shrink-0 ${
+                  alert.severity === AlertSeverity.CRITICAL
+                    ? 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.15)]'
+                    : 'bg-yellow-500/15 border-yellow-500/50 text-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.1)]'
+                }`}>
+                  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                    alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'
+                  }`}></div>
+                  {alert.severity.replace('_', ' ')}
+                </div>
+              </div>
+              <div className="flex justify-between w-full pt-2 border-t border-dark-700/30 font-handjet font-medium text-gray-400">
+                <span className="text-[14px] uppercase">{alert.code}</span>
+                <span className="text-[14px] uppercase tracking-widest">{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+              </div>
+            </div>
+          ))}
+          {alerts.length > 1 && (
+            <div className="text-center pt-2">
+              <span className="text-[9px] text-cyphgray uppercase font-black tracking-[0.4em] opacity-80">
+                + {alerts.length - 1} QUEUED ENTRIES
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        // Full logs view — header / scrollable rows / pagination all in one bounded box
+        <div className="flex-1 min-h-0 rounded-xl bg-[#121519] border border-dark-700/30 overflow-hidden" style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto' }}>
+          {/* Fixed column headers */}
+          <div className="grid grid-cols-12 gap-4 py-3 px-6 border-b border-dark-700/50 text-[12px] text-header-purple font-black uppercase tracking-[0.2em] bg-dark-900/70 backdrop-blur-lg">
             <div className="col-span-2">TIMESTAMP</div>
             <div className="col-span-3 text-center">SEVERITY</div>
             <div className="col-span-4 text-center">SYS CODE</div>
             <div className="col-span-3 text-right">DIAGNOSTIC MESSAGE</div>
           </div>
-        )}
-        
-        {paginatedAlerts.map((alert) => (
-          isMini ? (
-            // Mini View
-            <div key={alert.id} className="flex flex-col w-full h-full relative z-10 pt-2 pb-1">
-              <div className="flex items-center gap-2 mb-2 w-full">
-                <div className={`w-2 h-2 rounded-full shrink-0 ${
-                  alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]'
-                }`}></div>
-                <span className={`text-[10px] font-black uppercase tracking-widest ${
-                  alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 'text-yellow-400'
-                }`}>
-                  {alert.severity.replace('_', ' ')}
-                </span>
-              </div>
-              
-              <div className="pl-4 flex-1 flex flex-col justify-between">
-                <p className="text-[12px] font-bold uppercase tracking-wide leading-relaxed text-gray-200">
+
+          {/* Scrollable rows */}
+          <div className="overflow-y-auto custom-scrollbar p-4">
+            {paginatedAlerts.map((alert) => (
+              <div
+                key={alert.id}
+                className="grid grid-cols-12 gap-4 items-center py-3 px-2 border-b border-dark-700/30 hover:bg-dark-800/40 transition-colors rounded-lg"
+              >
+                <div className="col-span-2 text-[14px] font-handjet text-gray-200 tracking-widest flex items-baseline">
+                  {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  <span className="text-[11px] text-gray-500 ml-0.5 font-medium">.{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
+                </div>
+                <div className="col-span-3 flex items-center justify-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' :
+                    'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]'
+                  }`}></div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${
+                    alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 'text-yellow-400'
+                  }`}>{alert.severity.replace('_', ' ')}</span>
+                </div>
+                <div className="col-span-4 text-center text-[12px] text-amethyst-300 font-doto font-bold uppercase tracking-widest">
+                  {alert.code}
+                </div>
+                <div className="col-span-3 text-[11px] font-bold uppercase tracking-wide truncate text-gray-300 text-right">
                   {alert.message}
-                </p>
-                <div className="flex justify-between w-full mt-3 pt-3 border-t border-dark-700/30 font-handjet font-medium text-gray-400">
-                  <span className="text-[14px] uppercase">{alert.code}</span>
-                  <span className="text-[14px] uppercase tracking-widest">{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                 </div>
               </div>
-            </div>
-          ) : (
-            // Full Logs View (Minimalistic Table Row)
-            <div 
-              key={alert.id} 
-              className="grid grid-cols-12 gap-4 items-center py-3 px-2 border-b border-dark-700/30 hover:bg-dark-800/40 transition-colors group/row rounded-lg"
-            >
-              <div className="col-span-2 text-[14px] font-handjet text-gray-200 tracking-widest flex items-baseline">
-                {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                <span className="text-[11px] text-gray-500 ml-0.5 font-medium">.{new Date(alert.timestamp).getMilliseconds().toString().padStart(3, '0')}</span>
-              </div>
-              
-              <div className="col-span-3 flex items-center justify-center gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${
-                  alert.severity === AlertSeverity.CRITICAL ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 
-                  alert.severity === AlertSeverity.ATTENTION_REQUIRED ? 'bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]' : 'bg-blue-500'
-                }`}></div>
-                <span className={`text-[10px] font-black uppercase tracking-widest ${
-                  alert.severity === AlertSeverity.CRITICAL ? 'text-red-400' : 
-                  alert.severity === AlertSeverity.ATTENTION_REQUIRED ? 'text-yellow-400' : 'text-blue-400'
-                }`}>{alert.severity.replace('_', ' ')}</span>
-              </div>
-              
-              <div className="col-span-4 text-center text-[12px] text-amethyst-300 font-doto font-bold uppercase tracking-widest">
-                {alert.code}
-              </div>
-              
-              <div className="col-span-3 text-[11px] font-bold uppercase tracking-wide truncate text-gray-300 text-right">
-                {alert.message}
-              </div>
-            </div>
-          )
-        ))}
-        
-        {isMini && alerts.length > 1 && (
-          <div className="text-center pt-2">
-            <span className="text-[9px] text-cyphgray uppercase font-black tracking-[0.4em] opacity-80">
-              + {alerts.length - 1} QUEUED ENTRIES
-            </span>
+            ))}
           </div>
-        )}
-      </div>
-      
-      {!isMini && (
-        <div className="flex items-center justify-between pt-4 mt-2 px-4 w-full shrink-0">
-          <span className="text-[12px] text-cyphgray font-black uppercase tracking-widest">
-            Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, alerts.length)} of {alerts.length}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              aria-label="Previous Page"
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
-            >
-              <ChevronLeft size={14} />
-            </button>
-            <span className="text-[12px] text-amethyst-300 font-bold tracking-widest px-2">
-              PAGE {currentPage} / {totalPages}
+
+          {/* Pagination — fixed at bottom */}
+          <div className="flex items-center justify-between px-6 py-3 border-t border-dark-700/50">
+            <span className="text-[12px] text-cyphgray font-black uppercase tracking-widest">
+              Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, alerts.length)} of {alerts.length}
             </span>
-            <button
-              aria-label="Next Page"
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
-            >
-              <ChevronRight size={14} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Previous Page"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span className="text-[12px] text-amethyst-300 font-bold tracking-widest px-2">
+                PAGE {currentPage} / {totalPages}
+              </span>
+              <button
+                aria-label="Next Page"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-dark-600 bg-dark-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark-700 hover:text-white transition-colors"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      
 
       {isMini && onViewAll && (
         <button 

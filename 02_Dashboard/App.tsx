@@ -111,27 +111,12 @@ const App = () => {
               </div>
             </div>
             
-            {/* System Status Indicators */}
-            <div className="flex justify-center gap-8 mt-2 pt-4 border-t border-dark-700/30">
-              <div className="flex items-center gap-2">
-                <Fan size={16} className={`${data.fanStatus ? 'text-blue-400 animate-spin' : 'text-cyphgray'} transition-colors`} />
-                <span className="text-[10px] text-cyphgray uppercase tracking-widest font-black">
-                  FAN: <span className={data.fanStatus ? 'text-blue-400' : 'text-cyphgray'}>{data.fanStatus ? 'ACTIVE' : 'IDLE'}</span>
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className={`${data.relayStatus === 'CONNECTED' ? 'text-emerald-500' : 'text-red-500'} transition-colors`} />
-                <span className="text-[10px] text-cyphgray uppercase tracking-widest font-black">
-                  RELAY: <span className={data.relayStatus === 'CONNECTED' ? 'text-emerald-500' : 'text-red-500'}>{data.relayStatus}</span>
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Quick Alerts Side panel */}
-        <div className="lg:col-span-4 flex flex-col gap-6 self-stretch">
-          <AlertPanel alerts={alerts} isMini onViewAll={() => setCurrentView('logs')} />
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <AlertPanel alerts={alerts} isMini relayStatus={data.relayStatus} onViewAll={() => setCurrentView('logs')} />
         </div>
       </div>
 
@@ -172,20 +157,43 @@ const App = () => {
             <div className="w-full flex justify-center">
               <h2 className="text-lg text-header-purple font-black uppercase tracking-[0.4em] border-b border-dark-700/30 pb-4 px-10">PACK THERMALS</h2>
             </div>
-            <div className="flex justify-center items-baseline gap-2">
-              <span className={`text-4xl font-handjet font-extralight ${data.thermalRunawayRisk ? 'text-red-500' : 'text-white'}`}>{data.packTemp}</span>
-              <span className="text-[10px] text-cyphgray uppercase font-black">°C PACK</span>
-            </div>
-            <div className="flex-1 w-full min-h-[120px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#4A5665" opacity={0.3} vertical={false} />
-                  <XAxis dataKey="time" stroke="#475569" tick={{fontSize: 8, fill: '#64748b', fontFamily: 'Handjet', fontWeight: 200}} interval="preserveStartEnd" axisLine={false} tickLine={false} />
-                  <YAxis domain={['auto', 'auto']} stroke="#475569" tick={{fontSize: 8, fill: '#64748b', fontFamily: 'Handjet', fontWeight: 200}} axisLine={false} tickLine={false} width={25} />
-                  <Tooltip contentStyle={{ backgroundColor: '#262E36', border: '1px solid #4A5665', fontSize: '10px', fontFamily: 'Handjet', fontWeight: 200 }} />
-                  <Line type="monotone" dataKey="temp" stroke="#f59e0b" strokeWidth={3} dot={false} activeDot={{ r: 4, fill: '#fffbeb', stroke: '#f59e0b', strokeWidth: 2 }} />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="flex flex-1 min-h-0 gap-0">
+              {/* Left: temp value + chart */}
+              <div className="flex flex-col flex-1 min-w-0 gap-3">
+                <div className="flex justify-center items-baseline gap-2">
+                  <span className={`text-4xl font-handjet font-extralight ${data.thermalRunawayRisk ? 'text-red-500' : 'text-white'}`}>{data.packTemp}</span>
+                  <span className="text-[10px] text-cyphgray uppercase font-black">°C PACK</span>
+                </div>
+                <div className="flex-1 w-full min-h-[100px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={history}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#4A5665" opacity={0.3} vertical={false} />
+                      <XAxis dataKey="time" stroke="#475569" tick={{fontSize: 8, fill: '#64748b', fontFamily: 'Handjet', fontWeight: 200}} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                      <YAxis domain={['auto', 'auto']} stroke="#475569" tick={{fontSize: 8, fill: '#64748b', fontFamily: 'Handjet', fontWeight: 200}} axisLine={false} tickLine={false} width={25} />
+                      <Tooltip contentStyle={{ backgroundColor: '#262E36', border: '1px solid #4A5665', fontSize: '10px', fontFamily: 'Handjet', fontWeight: 200 }} />
+                      <Line type="monotone" dataKey="temp" stroke="#f59e0b" strokeWidth={3} dot={false} activeDot={{ r: 4, fill: '#fffbeb', stroke: '#f59e0b', strokeWidth: 2 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Vertical divider */}
+              <div className="w-px bg-dark-700/50 mx-5 self-stretch"></div>
+
+              {/* Right: animated fan + RPM */}
+              <div className="flex flex-col items-center justify-center gap-3 w-20 shrink-0">
+                <Fan
+                  size={52}
+                  className={`transition-colors duration-500 ${data.fanStatus ? 'text-blue-400' : 'text-cyphgray/25'}`}
+                  style={{ animation: data.fanStatus ? `spin ${Math.max(0.3, 1.8 - (data.packTemp - 40) / 35)}s linear infinite` : 'none' }}
+                />
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className={`text-2xl font-handjet font-extralight leading-none ${data.fanStatus ? 'text-blue-400' : 'text-cyphgray/40'}`}>
+                    {data.fanStatus ? Math.round(800 + (data.packTemp - 40) / 30 * 2200) : 0}
+                  </span>
+                  <span className="text-[9px] text-cyphgray uppercase font-black tracking-widest">RPM</span>
+                </div>
+              </div>
             </div>
           </div>
 
