@@ -31,11 +31,14 @@ wheels/
 .env
 .env.local
 
-# Dataset files (if large)
+# Dataset files
 *.csv
 *.h5
 *.hdf5
 *.parquet
+*.mat
+BMW_i3_Dataset/
+Real-world electric vehicle data driving and charging/
 
 # IDE
 .vscode/
@@ -70,7 +73,6 @@ models/
 
 # Project documentation/papers
 01_papers/
-BMW_i3_Dataset
 
 #Claude Code
 .claude/
