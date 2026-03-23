@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Zap, 
-  Thermometer, 
-  Droplets, 
-  Activity, 
-  ShieldCheck, 
-  ShieldAlert, 
+import {
+  Zap,
+  Thermometer,
+  Droplets,
+  ShieldCheck,
+  ShieldAlert,
   Fan,
-  Navigation,
-  BrainCircuit,
-  Maximize2,
   LayoutDashboard,
   TrendingUp,
   History,
@@ -28,13 +24,11 @@ import {
 } from 'recharts';
 import { useBMSData } from './services/bmsService';
 import { RadialGauge } from './components/RadialGauge';
-import { MetricCard } from './components/MetricCard';
 import { AlertPanel } from './components/AlertPanel';
-import { HistoryCharts } from './components/HistoryCharts';
 import { Login } from './components/Login';
 import { MouseFollower } from './components/MouseFollower';
 
-type ViewState = 'dashboard' | 'ai' | 'thermal' | 'safety' | 'logs';
+type ViewState = 'dashboard' | 'logs';
 
 const App = () => {
   const { data, history, alerts } = useBMSData();

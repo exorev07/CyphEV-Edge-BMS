@@ -36,23 +36,31 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
   const soc = prevData ? Math.max(0, Math.min(100, prevData.soc + socStep)) : 78;
   const remainingRangeKm = soc * 3.5;
 
+  // SoH degrades slowly over time; high temp accelerates degradation
+  const tempDegradation = temp > 45 ? 0.008 : 0.003;
+  const soh = prevData ? Math.max(60, prevData.soh - tempDegradation + (Math.random() - 0.5) * 0.002) : 92.5;
+  // RUL derived from SoH — end-of-life at 60% SoH
+  const maxCycles = 2000;
+  const rulCycles = Math.max(0, Math.round(((soh - 60) / 40) * maxCycles));
+  const rulDays = Math.max(0, Math.round(rulCycles * 0.68));
+
   return {
     soc: parseFloat(soc.toFixed(1)),
-    soh: 92.5,
+    soh: parseFloat(soh.toFixed(1)),
     voltage: parseFloat(voltage.toFixed(1)),
     current: parseFloat(current.toFixed(1)),
     power: parseFloat((voltage * current).toFixed(0)),
-    
+
     velocity: parseFloat(velocity.toFixed(1)),
     throttle: parseFloat(throttle.toFixed(0)),
     elevation: parseFloat(elevation.toFixed(0)),
     motorTorque: parseFloat(motorTorque.toFixed(1)),
     longitudinalAccel: parseFloat(longitudinalAccel.toFixed(2)),
 
-    rulCycles: 1450,
-    rulDays: 980,
+    rulCycles,
+    rulDays,
     remainingRangeKm: parseFloat(remainingRangeKm.toFixed(1)),
-    remainingTimeMinutes: parseFloat((remainingRangeKm / 60 * 60).toFixed(0)),
+    remainingTimeMinutes: parseFloat((velocity > 0 ? (remainingRangeKm / velocity) * 60 : 0).toFixed(0)),
     
     packTemp: parseFloat(temp.toFixed(1)),
     ambientTemp: parseFloat(ambientTemp.toFixed(1)),
@@ -132,6 +140,9 @@ export const useBMSData = () => {
         }
         if (newData.soc < 20) {
           newAlerts.push({ id: `soc-${timestamp}`, code: 'SOC-01', message: 'Low Battery Charge', severity: AlertSeverity.ATTENTION_REQUIRED, timestamp });
+        }
+        if (prev && (prev.soc - newData.soc) > 0.5) {
+          newAlerts.push({ id: `socdrop-${timestamp}`, code: 'SOC-02', message: `Rapid SoC Drop Detected! (${prev.soc.toFixed(1)}% → ${newData.soc.toFixed(1)}%)`, severity: AlertSeverity.CRITICAL, timestamp });
         }
         
         if (newAlerts.length > 0) {
