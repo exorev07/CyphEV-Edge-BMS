@@ -71,3 +71,6 @@ models/
 # Project documentation/papers
 01_papers/
 BMW_i3_Dataset
+
+#Claude Code
+.claude/
