@@ -136,7 +136,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                   {alert.severity.replace('_', ' ')}
                 </div>
               </div>
-              <div className="flex justify-between w-full pt-2 border-t border-dark-700/30 font-handjet font-medium text-gray-400">
+              <div className="flex justify-between w-full pt-2 border-t border-dark-700/30 font-handjet font-normal text-gray-400">
                 <span className="text-[14px] uppercase">{alert.code}</span>
                 <span className="text-[14px] uppercase tracking-widest">{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
               </div>
@@ -144,7 +144,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
           ))}
           {alerts.length > 1 && (
             <div className="text-center pt-2">
-              <span className="text-[9px] text-cyphgray uppercase font-black tracking-[0.4em] opacity-80">
+              <span className="text-[10px] text-cyphgray uppercase font-black tracking-[0.4em] opacity-80">
                 + {alerts.length - 1} QUEUED ENTRIES
               </span>
             </div>
@@ -180,7 +180,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alerts, isMini = false, 
                 <div className="col-span-4 text-center text-[12px] text-amethyst-300 font-doto font-bold uppercase tracking-widest">
                   {alert.code}
                 </div>
-                <div className="col-span-3 text-[11px] font-bold uppercase tracking-wide truncate text-gray-300 text-right">
+                <div className="col-span-3 text-[12px] font-bold uppercase tracking-wide truncate text-gray-300 text-right">
                   {alert.message}
                 </div>
               </div>

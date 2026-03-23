@@ -75,33 +75,34 @@ const App = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Core Battery Stats Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-8">
-          <div className="card-hover bg-dark-800/30 backdrop-blur-md border border-dark-700/50 rounded-2xl p-6 flex flex-col gap-8">
+          <div className="card-hover bg-dark-800/30 backdrop-blur-md border border-dark-700/50 rounded-2xl p-6 flex flex-col gap-8 h-full justify-center">
             <div className="w-full flex justify-center">
               <h2 className="text-lg text-header-purple font-black uppercase tracking-[0.4em] border-b border-dark-700/30 pb-4 px-10">
                 IMPORTANT BATTERY STATS
               </h2>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-around gap-6">
+            <div className="flex flex-col md:flex-row items-start justify-around gap-6">
               <div className="flex flex-col items-center">
                 <span className="text-xs text-cyphgray uppercase tracking-widest mb-2 font-bold">State of charge</span>
                 <div className="flex items-baseline gap-2">
                   <span className={`text-6xl font-handjet font-extralight ${data.soc < 20 ? 'text-red-500' : 'text-amethyst-400'}`}>{data.soc}%</span>
                   {data.isCharging && <Zap size={18} className="text-amethyst-400 animate-pulse fill-current" />}
                 </div>
+                <span className="text-[10px] text-transparent uppercase tracking-widest font-black mt-1 select-none">&nbsp;</span>
               </div>
-              <div className="hidden md:block w-px h-12 bg-dark-700/50"></div>
+              <div className="hidden md:block w-px h-20 bg-dark-700/50 self-center"></div>
               <div className="flex flex-col items-center">
                 <span className="text-xs text-cyphgray uppercase tracking-widest mb-2 font-bold">State of Health</span>
                 <span className="text-6xl font-handjet font-extralight text-emerald-500">{data.soh}%</span>
                 <span className="text-[10px] text-cyphgray uppercase tracking-widest font-black mt-1">RUL: {data.rulCycles} Cycles / ~{data.rulDays} Days</span>
               </div>
-              <div className="hidden md:block w-px h-12 bg-dark-700/50"></div>
+              <div className="hidden md:block w-px h-20 bg-dark-700/50 self-center"></div>
               <div className="flex flex-col items-center">
                 <span className="text-xs text-cyphgray uppercase tracking-widest mb-2 font-bold">Pack Power</span>
                 <span className="text-6xl font-handjet font-extralight text-blue-400">{data.power}W</span>
+                <span className="text-[10px] text-transparent uppercase tracking-widest font-black mt-1 select-none">&nbsp;</span>
               </div>
             </div>
             
@@ -109,7 +110,7 @@ const App = () => {
         </div>
 
         {/* Quick Alerts Side panel */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col">
           <AlertPanel alerts={alerts} isMini relayStatus={data.relayStatus} onViewAll={() => setCurrentView('logs')} />
         </div>
       </div>
