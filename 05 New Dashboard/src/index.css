@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/* ── Custom Theme ── */
+@theme {
+  --color-amethyst-50: #f6f3fc;
+  --color-amethyst-100: #ede8f8;
+  --color-amethyst-200: #dfd5f3;
+  --color-amethyst-300: #cab6ea;
+  --color-amethyst-400: #b18ddd;
+  --color-amethyst-500: #7947BD;
+  --color-amethyst-600: #6d35b0;
+  --color-amethyst-700: #5b2399;
+  --color-amethyst-800: #4c1d80;
+  --color-amethyst-900: #3d1766;
+  --color-amethyst-950: #200b38;
+
+  --color-surface-900: #0a0a0f;
+  --color-surface-800: #111118;
+  --color-surface-700: #1a1a24;
+  --color-surface-600: #242430;
+  --color-surface-500: #2e2e3d;
+  --color-surface-400: #3a3a4d;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ── Base ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #08080a;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(121, 71, 189, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 71, 189, 0.7);
+}
+
+/* ── Glow animation ── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #b18ddd 0%,
+    #ffffff 40%,
+    #ffffff 60%,
+    #b18ddd 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
