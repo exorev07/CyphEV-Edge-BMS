@@ -1,21 +1,17 @@
-import { Zap } from 'lucide-react'
-
 export function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] py-10 px-6 flex justify-center">
-      <div className="w-full max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Zap size={14} className="text-amethyst-400" />
-          <span className="text-sm font-bold tracking-wider text-gray-500">
-            CYPH<span className="text-amethyst-400">EV</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-6 text-xs text-gray-600">
-          <a href="#features" className="hover:text-gray-300 transition-colors">Features</a>
-          <a href="#contact" className="hover:text-gray-300 transition-colors">Contact</a>
-        </div>
-        <p className="text-xs text-gray-700">IIIT Naya Raipur &middot; Minor Project</p>
+    <footer style={{ padding: '0 24px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+      <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.26)', width: '100%', maxWidth: '1152px' }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px' }}>
+        <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '26px', fontWeight: 700, letterSpacing: '0.05em', color: '#ffffff' }}>
+          CYPH<span style={{ color: '#b18ddd' }}>EV</span>
+        </span>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4b5563', margin: 0 }}>
+          © 2025 Akshita Sondhi & Ekansh Arohi. All rights reserved.
+        </p>
       </div>
+
     </footer>
   )
 }
