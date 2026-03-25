@@ -146,11 +146,11 @@ export function Hero() {
 
       {/* Main heading + subtitle */}
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px', padding: '0 80px', textAlign: 'center', marginTop: '100px', marginLeft: 'auto', marginRight: 'auto' }}>
-        <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 3.75rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '24px', whiteSpace: 'nowrap' }}>
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '0.03em', marginBottom: '24px', whiteSpace: 'nowrap' }}>
           <span style={{ color: '#ffffff' }}>Intelligent Battery Management for </span>
           <span style={{ color: '#b18ddd' }}>EVs</span>
         </h1>
-        <p style={{ fontSize: '1.0625rem', color: '#9ca3af', lineHeight: 1.9, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto' }}>
+        <p style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: '#9ca3af', lineHeight: 1.9, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'justify' }}>
           CyphEV is an edge-native Battery Management System built on the ESP32, running TinyML models entirely on-device with no cloud dependency, and no latency. It continuously estimates State of Charge &amp; remaining range, predicts State of Health &amp; Remaining Useful Life, and flags capacity fade before it becomes critical. An onboard thermal controller auto-activates cooling relays when temperatures spike, while dedicated models detect abnormal voltage &amp; current spikes, water leakage in the battery compartment, and battery swelling in real-time. All sensor data streams live to a Firebase backend and surfaces on this dashboard - giving operators and owners complete information of the Battery and related systems.
         </p>
       </div>
