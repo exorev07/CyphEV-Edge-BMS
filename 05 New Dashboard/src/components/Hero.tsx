@@ -1,3 +1,4 @@
+import { Italic } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const phrases = [
@@ -58,7 +59,7 @@ function TypewriterLine() {
   }, [])
 
   return (
-    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2rem, 2vw, 3.25rem)', fontWeight: 400, lineHeight: 1.2, letterSpacing: '0em', color: '#ffffff', minHeight: '1.2em' }}>
+    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2rem, 2vw, 3.25rem)', fontWeight: 400, lineHeight: 1.2, letterSpacing: '0.05em', color: '#ffffff', minHeight: '1.2em' }}>
       {segs.s1}
       <span style={{ color: '#b18ddd' }}>{segs.s2}</span>
       {segs.s3}
@@ -88,18 +89,18 @@ export function Hero() {
         marginLeft: 'auto', marginRight: 'auto',
       }}>
         {/* Typewriter */}
-        <div style={{ marginBottom: '30px' }}>
+        <div style={{ marginBottom: '75px' }}>
           <TypewriterLine />
         </div>
 
         {/* Glass tagline */}
         <div style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: 'clamp(3rem, 7.5vw, 6rem)',
+          fontSize: 'clamp(3rem, 5.5vw, 6rem)',
           fontWeight: 800,
           lineHeight: 1.2,
-          letterSpacing: '0em',
-          marginBottom: '56px',
+          letterSpacing: '0.04em',
+          marginBottom: '26px',
           background: 'linear-gradient(180deg, #c0c0c0 0%, #606060 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -107,6 +108,9 @@ export function Hero() {
         }}>
           Give your EV the Battery Intelligence it deserves!
         </div>
+        <p style={{ fontSize: '20px', fontFamily: "'DM Sans', sans-serif", fontStyle: "Italic", color: '#ddceefae', marginTop: '0px' }}>
+          Edge-based, Privacy first, Sub-Millisecond Inference time - all on a single Device
+        </p>
       </div>
 
       {/* Dashboard preview */}
@@ -146,7 +150,7 @@ export function Hero() {
 
       {/* Main heading + subtitle */}
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px', padding: '0 80px', textAlign: 'center', marginTop: '100px', marginLeft: 'auto', marginRight: 'auto' }}>
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '0.03em', marginBottom: '24px', whiteSpace: 'nowrap' }}>
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2rem, 2vw, 3.25rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '0.03em', marginBottom: '24px', whiteSpace: 'nowrap' }}>
           <span style={{ color: '#ffffff' }}>Intelligent Battery Management for </span>
           <span style={{ color: '#b18ddd' }}>EVs</span>
         </h1>
