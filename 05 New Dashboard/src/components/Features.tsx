@@ -23,23 +23,30 @@ export function Features() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
-  const sectionRef = useRef<HTMLElement>(null)
-  const hasAnimated = useRef(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const cancelRef = useRef(false)
 
   useEffect(() => {
     const full = 'Features'
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true
+        if (entry.isIntersecting) {
+          cancelRef.current = false
+          setHeadingText('')
+          setTypingDone(false)
           let i = 0
           const tick = () => {
+            if (cancelRef.current) return
             i++
             setHeadingText(full.slice(0, i))
             if (i < full.length) setTimeout(tick, 80)
             else setTypingDone(true)
           }
           setTimeout(tick, 80)
+        } else {
+          cancelRef.current = true
+          setHeadingText('')
+          setTypingDone(false)
         }
       },
       { threshold: 0.3 }
@@ -51,13 +58,12 @@ export function Features() {
   return (
     <section
       id="features"
-      ref={sectionRef}
       style={{ padding: '0px 24px 96px', scrollMarginTop: '75px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+        <div ref={sectionRef} style={{ textAlign: 'center', marginBottom: '56px' }}>
           <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
           <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             {headingText}<span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: '0.75em', color: '#6829c1', marginLeft: '5px', animation: typingDone ? 'blink 1.1s step-start infinite' : 'none', opacity: headingText.length > 0 ? 1 : 0 }}>{'>'}</span>
