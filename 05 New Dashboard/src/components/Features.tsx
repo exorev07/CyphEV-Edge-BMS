@@ -22,13 +22,13 @@ export function Features() {
   return (
     <section
       id="features"
-      style={{ padding: '96px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      style={{ padding: '24px 24px 96px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <div style={{ width: '100%', maxWidth: '960px', marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-          <p style={{ fontSize: '11px', fontWeight: 600, color: '#b18ddd', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '12px' }}>
+          <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             Features
           </p>
           <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)', fontWeight: 700, color: '#ffffff' }}>
