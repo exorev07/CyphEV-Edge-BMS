@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   BatteryCharging,
   HeartPulse,
@@ -6,6 +7,7 @@ import {
   ShieldAlert,
   Droplets,
   Gauge,
+  ArrowUpRight,
 } from 'lucide-react'
 
 const features = [
@@ -19,20 +21,47 @@ const features = [
 ]
 
 export function Features() {
+  const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
+
   return (
     <section
       id="features"
-      style={{ padding: '24px 24px 96px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      style={{ padding: '0px 24px 96px', marginTop: '-48px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
-      <div style={{ width: '100%', maxWidth: '960px', marginLeft: 'auto', marginRight: 'auto' }}>
+      {/* CTA Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '48px', width: '100%' }}>
+        <a
+          href="#get-started"
+          onMouseEnter={() => setHoveredBtn('getstarted')}
+          onMouseLeave={() => setHoveredBtn(null)}
+          style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '8px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.55)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
+        >
+          Get Started
+        </a>
+        <a
+          href="https://github.com/exorev07/TinyML-based-Battery-Management-System.git"
+          target="_blank"
+          rel="noopener noreferrer"
+          onMouseEnter={() => setHoveredBtn('github')}
+          onMouseLeave={() => setHoveredBtn(null)}
+          style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#9ca3af', background: 'rgba(255,255,255,0.07)', border: '2px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', borderRadius: '8px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'github' ? '0 0 24px rgba(121,71,189,0.4)' : 'none', transform: hoveredBtn === 'github' ? 'translateY(-2px)' : 'translateY(0)' }}
+        >
+          GitHub <ArrowUpRight size={13} style={{ marginLeft: '4px' }} />
+        </a>
+      </div>
+
+      {/* Divider */}
+      <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.26)', width: '100%', maxWidth: '1152px', marginBottom: '100px' }} />
+
+      <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
           <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             Features
           </p>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)', fontWeight: 700, color: '#ffffff' }}>
-            7 Core BMS Capabilities
+          <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 300, color: '#9ca3af', textAlign: 'justify', maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto' }}>
+            Traditional BMS systems handle the basics i.e. voltage cutoffs, thermal trips, and simple math-based SoC estimation. But, CyphEV goes further with on-device ML models that predict SoH & Remaining Useful Life, flag capacity fade before it becomes critical, and detect anomalies in voltage and current draw, water leakage in battery compartment, and battery swelling in real-time. Environmental parameters and driving patterns are factored into every prediction - things most traditional BMS systems never account for.
           </h2>
         </div>
 

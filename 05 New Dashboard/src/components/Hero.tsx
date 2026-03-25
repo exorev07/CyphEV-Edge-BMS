@@ -108,7 +108,7 @@ export function Hero() {
         }}>
           Give your EV the Battery Intelligence it deserves!
         </div>
-        <p style={{ fontSize: '20px', fontFamily: "'DM Sans', sans-serif", fontStyle: "Italic", color: '#ddceefae', marginTop: '0px' }}>
+        <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px' }}>
           Edge-based, Privacy first, Sub-Millisecond Inference time - all on a single Device
         </p>
       </div>
@@ -154,8 +154,8 @@ export function Hero() {
           <span style={{ color: '#ffffff' }}>Intelligent Battery Management for </span>
           <span style={{ color: '#b18ddd' }}>EVs</span>
         </h1>
-        <p style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: '#9ca3af', lineHeight: 1.9, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'justify' }}>
-          CyphEV is an edge-native Battery Management System built on the ESP32, running TinyML models entirely on-device with no cloud dependency, and no latency. It continuously estimates State of Charge &amp; remaining range, predicts State of Health &amp; Remaining Useful Life, and flags capacity fade before it becomes critical. An onboard thermal controller auto-activates cooling relays when temperatures spike, while dedicated models detect abnormal voltage &amp; current spikes, water leakage in the battery compartment, and battery swelling in real-time. All sensor data streams live to a Firebase backend and surfaces on this dashboard - giving operators and owners complete information of the Battery and related systems.
+        <p style={{ fontSize: '16px', fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: '#9ca3af', lineHeight: 1.4, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'justify' }}>
+          CyphEV is an edge-native Battery Management System (BMS) built on the ESP32, running TinyML inference models entirely on-device, it requires no cloud dependency, and has no latency and privacy concerns. Raw sensor data from the battery pack is processed locally in real-time, streamed to a Firebase backend, and surfaced on this dashboard - giving fleet operators and owners complete visibility into the vehicle's battery conditions, every second.
         </p>
       </div>
     </section>
