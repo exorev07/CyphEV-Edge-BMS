@@ -3,11 +3,12 @@ import { useState, useEffect, useRef } from 'react'
 const members = [
   {
     name: 'Ekansh Arohi',
-    discipline: 'Data Science & AI',
+    discipline: 'Data Science & Artificial Intelligence',
     institute: 'IIIT Naya Raipur',
     email: 'ekansharohi135@gmail.com',
     github: 'https://github.com/exorev07',
     linkedin: 'https://www.linkedin.com/in/ekansharohi/',
+    desc: 'A student of Data Science & AI, Ekansh leads the system\'s algorithmic core. He spearheads the comparative analysis of machine learning models, optimising them to achieve high accuracy despite physical hardware constraints. His ability to deliver robust technical solutions under pressure is evidenced by consecutive wins at national hackathons, including Techexpo: Scientific 2026 and Hardwired 2025 - IIITM Gwalior.',
   },
   {
     name: 'Akshita Sondhi',
@@ -16,6 +17,7 @@ const members = [
     email: 'akshitasondhi223@gmail.com',
     github: 'https://github.com/akshita24101',
     linkedin: 'https://www.linkedin.com/in/akshita-sondhi/',
+    desc: 'An ECE undergraduate and NXP WIT 2026 Scholar, Akshita spearheads the system\'s hardware architecture. As the first author of the team\'s core research on TinyML-based Intrusion Detection, she engineered the initial ESP32 prototype that runs a quantised model at the edge. Her technical expertise in the field is further validated by recent wins at national hackathons, including Techexpo: Scientific 2026 and Hardwired 2025 - IIITM Gwalior.',
   },
 ]
 
@@ -88,10 +90,11 @@ export function Contact() {
                 gap: '4px',
               }}
             >
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '22px', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>{m.name}</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#b18ddd', fontWeight: 400, marginBottom: '2px' }}>{m.discipline}</p>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#6b7280', letterSpacing: '0.05em', marginBottom: '16px' }}>{m.institute}</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', marginBottom: '20px' }}>{m.email}</p>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 300, letterSpacing: '0.05em', color: '#ffffff', marginBottom: '0px', textAlign: 'center' }}>{m.name}</p>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#b18ddd', fontWeight: 300, letterSpacing: '0.05em', marginBottom: '0px', textAlign: 'center' }}>{m.discipline}</p>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#9ca3af', letterSpacing: '0.05em', marginBottom: '18px', textAlign: 'center' }}>{m.institute}</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9ca3af', marginBottom: '16px', textAlign: 'center' }}>{m.email}</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'justify', marginBottom: '20px' }}>{m.desc}</p>
 
               {/* Buttons */}
               <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
