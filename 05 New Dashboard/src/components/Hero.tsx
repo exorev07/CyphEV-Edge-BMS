@@ -117,7 +117,7 @@ export function Hero() {
 
       {/* Dashboard preview */}
       <div id="product" style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1200px', padding: '0 24px', marginLeft: 'auto', marginRight: 'auto', scrollMarginTop: '100px' }}>
-        <div style={{ borderRadius: '12px', border: '1px solid rgba(121,71,189,0.3)', overflow: 'hidden', boxShadow: '0 20px 80px rgba(121,71,189,0.4), 0 8px 30px rgba(121,71,189,0.2)' }}>
+        <div style={{ borderRadius: '12px', border: '1px solid rgba(121,71,189,0.3)', overflow: 'hidden', boxShadow: '0 20px 80px rgba(121,71,189,0.4), 0 8px 30px rgba(121,71,189,0.2)', background: '#09090c', position: 'relative' as const, zIndex: 2 }}>
           {/* Browser chrome */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display: 'flex', gap: '6px' }}>
@@ -147,6 +147,7 @@ export function Hero() {
           width: '70%', height: '96px',
           background: 'rgba(121,71,189,0.35)',
           borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none',
+          zIndex: 1,
         }} />
       </div>
 

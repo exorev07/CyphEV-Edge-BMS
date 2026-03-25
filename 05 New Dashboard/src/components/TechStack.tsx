@@ -78,8 +78,8 @@ export function TechStack() {
                 borderRadius: '12px',
                 border: '1px solid rgba(141, 110, 179, 0.58)',
                 background: 'rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 boxShadow: hoveredCard === t.name ? '0 0 28px rgba(121,71,189,0.35), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.07)',
                 padding: '20px',
                 transition: 'border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s',
@@ -92,7 +92,7 @@ export function TechStack() {
                 {t.category}
               </span>
               <t.icon size={24} style={{ color: '#9ca3af', display: 'block', margin: '0 auto 12px' }} />
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px', textAlign: 'center' }}>{t.name}</h3>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px', textAlign: 'center' }}>{t.name}</h3>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'center' }}>{t.desc}</p>
             </div>
           ))}

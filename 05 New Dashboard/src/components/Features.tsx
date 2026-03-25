@@ -93,7 +93,7 @@ export function Features() {
       <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Header */}
-        <div ref={sectionRef} style={{ textAlign: 'center', marginBottom: '56px' }}>
+        <div ref={sectionRef} style={{ textAlign: 'center', marginBottom: '24px' }}>
           <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
           <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             {headingText}<span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: '0.75em', color: '#6829c1', marginLeft: '5px', animation: typingDone ? 'blink 1.1s step-start infinite' : 'none', opacity: headingText.length > 0 ? 1 : 0 }}>{'>'}</span>
@@ -107,7 +107,7 @@ export function Features() {
         <div
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 0', height: `${Math.round(BASE_HEIGHT * MAX_SCALE) + 40}px`, overflow: 'visible' }}
+          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '0', height: `${Math.round(BASE_HEIGHT * MAX_SCALE) + 20}px`, overflow: 'visible' }}
         >
           {features.map((f, idx) => {
             const scale = getDockScale(hoveredIdx, idx)
@@ -125,9 +125,9 @@ export function Features() {
                   alignItems: 'center',
                   borderRadius: '14px',
                   border: '1px solid rgba(141, 110, 179, 0.58)',
-                  background: 'rgba(255,255,255,0.05)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
+                  background: 'rgba(255,255,255,0.04  )',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
                   boxShadow: isHovered
                     ? '0 0 25px rgba(121,71,189,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
                     : 'inset 0 1px 0 rgba(255,255,255,0.07)',
@@ -151,6 +151,8 @@ export function Features() {
             )
           })}
         </div>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9ca2a8', textAlign: 'center', margin: '0 0 0', letterSpacing: '0.03em' }}>Hover to view the details! </p>
 
       </div>
 
