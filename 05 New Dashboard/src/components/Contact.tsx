@@ -25,6 +25,7 @@ export function Contact() {
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const cancelRef = useRef(false)
 
@@ -77,17 +78,22 @@ export function Contact() {
           {members.map((m) => (
             <div
               key={m.name}
+              onMouseEnter={() => setHoveredCard(m.name)}
+              onMouseLeave={() => setHoveredCard(null)}
               style={{
                 borderRadius: '12px',
                 border: '1px solid rgba(141, 110, 179, 0.58)',
                 background: 'rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                boxShadow: hoveredCard === m.name ? '0 0 24px rgba(121,71,189,0.65), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.07)',
                 padding: '28px 24px 24px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '4px',
+                transition: 'box-shadow 0.2s, transform 0.2s',
+                transform: hoveredCard === m.name ? 'translateY(-3px)' : 'translateY(0)',
+                cursor: 'default',
               }}
             >
               <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 300, letterSpacing: '0.05em', color: '#ffffff', marginBottom: '0px', textAlign: 'center' }}>{m.name}</p>
@@ -108,18 +114,18 @@ export function Contact() {
                     flex: 1,
                     textAlign: 'center',
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '13px',
-                    fontWeight: 500,
+                    fontSize: '14px',
+                    fontWeight: 600,
                     color: '#9ca3af',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '20px',
+                    borderRadius: '15px',
                     padding: '7px 12px',
                     textDecoration: 'none',
-                    background: 'rgba(255,255,255,0.04)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
+                    background: 'rgba(255,255,255,0.07)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     transition: 'color 0.2s, box-shadow 0.2s, transform 0.2s',
-                    boxShadow: hoveredBtn === `${m.name}-gh` ? '0 0 18px rgba(121,71,189,0.45)' : 'none',
+                    boxShadow: hoveredBtn === `${m.name}-gh` ? '0 0 24px rgba(121,71,189,0.65)' : 'none',
                     transform: hoveredBtn === `${m.name}-gh` ? 'translateY(-2px)' : 'translateY(0)',
                   }}
                 >
@@ -135,18 +141,18 @@ export function Contact() {
                     flex: 1,
                     textAlign: 'center',
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '13px',
-                    fontWeight: 500,
+                    fontSize: '14px',
+                    fontWeight: 600,
                     color: '#9ca3af',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '20px',
+                    borderRadius: '15px',
                     padding: '7px 12px',
                     textDecoration: 'none',
-                    background: 'rgba(255,255,255,0.04)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
+                    background: 'rgba(255,255,255,0.07)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     transition: 'color 0.2s, box-shadow 0.2s, transform 0.2s',
-                    boxShadow: hoveredBtn === `${m.name}-li` ? '0 0 18px rgba(121,71,189,0.45)' : 'none',
+                    boxShadow: hoveredBtn === `${m.name}-li` ? '0 0 24px rgba(121,71,189,0.65)' : 'none',
                     transform: hoveredBtn === `${m.name}-li` ? 'translateY(-2px)' : 'translateY(0)',
                   }}
                 >

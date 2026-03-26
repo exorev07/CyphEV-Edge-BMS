@@ -50,7 +50,7 @@ export function Navbar() {
             href="#demo"
             onMouseEnter={() => setHoveredBtn('demo')}
             onMouseLeave={() => setHoveredBtn(null)}
-            style={{ color: '#b18ddd', border: '1px solid #7947BD', borderRadius: '20px', padding: '6px 16px', fontSize: '14px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)' }}
+            style={{ color: '#b18ddd', border: '1px solid #7947BD', borderRadius: '15px', padding: '6px 16px', fontSize: '14px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)' }}
           >
             Demo
           </a>
@@ -58,7 +58,7 @@ export function Navbar() {
             href="#get-started"
             onMouseEnter={() => setHoveredBtn('getstarted')}
             onMouseLeave={() => setHoveredBtn(null)}
-            style={{ background: '#ffffff', color: '#08080a', borderRadius: '20px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.55)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
+            style={{ background: '#ffffff', color: '#08080a', borderRadius: '15px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
           >
             Get Started
           </a>
