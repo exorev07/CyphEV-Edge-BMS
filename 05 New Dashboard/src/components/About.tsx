@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
+import { ArrowUpRight } from 'lucide-react'
 
 export function About() {
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
+  const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const cancelRef = useRef(false)
 
@@ -54,6 +56,42 @@ export function About() {
             <br /><br />
             Beyond performance, CyphEV monitors parameters that most commercial BMS hardware ignores entirely i.e. battery swelling via pressure sensors, and water leakage detection in sealed battery compartments. Environmental context is factored into every prediction, not treated as an afterthought. The result is a BMS that behaves less like a simple circuit and more like a continuously reasoning health monitor for the battery pack.
           </h2>
+        </div>
+
+        {/* CTA */}
+        <div style={{ textAlign: 'center', marginTop: '56px' }}>
+          <p style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 'clamp(2rem, 2vw, 3.25rem)',
+            fontWeight: 400,
+            lineHeight: 1.2,
+            letterSpacing: '0.05em',
+            color: '#ffffff',
+            marginBottom: '32px',
+          }}>
+            So what are you waiting for<span style={{ color: '#b18ddd' }}>?</span>
+          </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+            <a
+              href="#get-started"
+              onMouseEnter={() => setHoveredBtn('getstarted')}
+              onMouseLeave={() => setHoveredBtn(null)}
+              style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '8px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.55)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
+            >
+              Get Started
+            </a>
+            <a
+              href="https://github.com/exorev07/TinyML-based-Battery-Management-System.git"
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={() => setHoveredBtn('github')}
+              onMouseLeave={() => setHoveredBtn(null)}
+              style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#9ca3af', background: 'rgba(255,255,255,0.07)', border: '2px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', borderRadius: '8px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'github' ? '0 0 24px rgba(121,71,189,0.4)' : 'none', transform: hoveredBtn === 'github' ? 'translateY(-2px)' : 'translateY(0)' }}
+            >
+              GitHub <ArrowUpRight size={13} style={{ marginLeft: '4px' }} />
+            </a>
+          </div>
         </div>
 
       </div>

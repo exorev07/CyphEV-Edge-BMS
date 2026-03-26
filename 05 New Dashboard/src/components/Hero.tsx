@@ -111,7 +111,7 @@ export function Hero() {
           Give your EV the Battery Intelligence it deserves!
         </div>
         <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px' }}>
-          Edge-based, Privacy first, Sub-Millisecond Inference time - all on a single Device
+          Edge-based, All Private, with Sub-Millisecond Inference time - all on a single Device
         </p>
       </div>
 
