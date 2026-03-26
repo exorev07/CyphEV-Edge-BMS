@@ -36,14 +36,21 @@ export function AuthPage() {
         .then(() => {
           const savedEmail = localStorage.getItem('cyphev_pending_email') ?? ''
           localStorage.removeItem('cyphev_pending_email')
+          localStorage.removeItem('cyphev_verify_sent')
           setFormData(fd => ({ ...fd, email: savedEmail }))
+          setVerifySent(false)
           setVerifyDone(true)
           setMode('login')
         })
         .catch(() => {
+          localStorage.removeItem('cyphev_verify_sent')
+          setVerifySent(false)
           setError('Verification link has expired or already been used.')
           setMode('login')
         })
+    }
+    if (localStorage.getItem('cyphev_verify_sent')) {
+      setVerifySent(true)
     }
   }, [])
 
@@ -55,7 +62,7 @@ export function AuthPage() {
     }
     const t = setTimeout(() => setCountdown(countdown - 1), 1000)
     return () => clearTimeout(t)
-  }, [countdown])
+  }, [countdown, navigate])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -79,6 +86,7 @@ export function AuthPage() {
         if (formData.name) await updateProfile(cred.user, { displayName: formData.name })
         await sendEmailVerification(cred.user)
         localStorage.setItem('cyphev_pending_email', formData.email)
+        localStorage.setItem('cyphev_verify_sent', 'true')
         await signOut(auth)
         setVerifySent(true)
       } else {
@@ -144,7 +152,7 @@ export function AuthPage() {
 
         <div style={{
           fontFamily: "'DM Serif Display', serif",
-          fontSize: 'clamp(1.5rem, 3vw, 32rem)',
+          fontSize: 'clamp(1.5rem, 3vw, 5rem)',
           fontWeight: 800,
           lineHeight: 1.2,
           letterSpacing: '0.04em',
@@ -195,7 +203,7 @@ export function AuthPage() {
         }}>
 
         {/* Heading */}
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', fontWeight: 600, color: '#ffffff', textAlign: 'center', marginBottom: '0px', letterSpacing: '0.03em' }}>
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', fontWeight: 600, color: '#ffffff', textAlign: 'center', marginBottom: (resetSent || resetDone || verifySent) ? '16px' : '0px', letterSpacing: '0.03em' }}>
           {verifySent ? 'Check Your Email' : mode === 'login' ? 'Welcome!' : mode === 'register' ? 'Create Account' : 'Password Reset'}
         </h1>
         {!resetSent && !resetDone && !verifySent && (
@@ -214,7 +222,7 @@ export function AuthPage() {
                 : 'Password updated! You can now sign in with your new password.'}
             </p>
             <button
-              onClick={() => { setMode('login'); setResetSent(false); setResetDone(false); setVerifySent(false); setNewPassword(''); setCountdown(null); navigate('/auth', { replace: true }) }}
+              onClick={() => { setMode('login'); setResetSent(false); setResetDone(false); setVerifySent(false); setNewPassword(''); setCountdown(null); setShowPassword(false); setShowNewPassword(false); localStorage.removeItem('cyphev_verify_sent'); navigate('/auth', { replace: true }) }}
               onMouseEnter={() => setHoveredBtn('backtologin')}
               onMouseLeave={() => setHoveredBtn(null)}
               style={{
@@ -251,7 +259,7 @@ export function AuthPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter New Password"
-                      style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: '40px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                       onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
                       onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                     />
@@ -270,7 +278,7 @@ export function AuthPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Enter Your Name"
-                        style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                        style={{ width: '100%', height: '40px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                         onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
                         onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                       />
@@ -296,7 +304,7 @@ export function AuthPage() {
                         <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 500, color: '#9ca3af' }}>Password</label>
                         {mode === 'login' && (
                           <span
-                            onClick={() => { setMode('forgot'); setError(null) }}
+                            onClick={() => { setMode('forgot'); setError(null); setShowPassword(false); setVerifyDone(false) }}
                             onMouseEnter={() => setHoveredBtn('forgot')}
                             onMouseLeave={() => setHoveredBtn(null)}
                             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: hoveredBtn === 'forgot' ? '#b18ddd' : '#6b7280', cursor: 'pointer', transition: 'color 0.2s' }}
@@ -311,7 +319,7 @@ export function AuthPage() {
                           value={formData.password}
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           placeholder="Enter Your Password"
-                          style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                          style={{ width: '100%', height: '40px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                           onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
                           onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                         />
@@ -330,7 +338,7 @@ export function AuthPage() {
                 </p>
               )}
 
-              {error && !verifyDone && (
+              {error && (
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#f87171', textAlign: 'center', marginTop: '4px' }}>
                   {error}
                 </p>
@@ -360,7 +368,7 @@ export function AuthPage() {
               >
                 {loading
                   ? (mode === 'login' ? 'Signing in...' : mode === 'register' ? 'Creating account...' : mode === 'reset' ? 'Updating...' : 'Sending...')
-                  : (mode === 'login' ? 'Sign In' : mode === 'register' ? 'Create Account' : mode === 'reset' ? 'Set New Password' : 'Send Reset Email')}
+                  : (mode === 'login' ? 'Sign In' : mode === 'register' ? 'Submit' : mode === 'reset' ? 'Password Reset' : 'Send Reset Email')}
               </button>
             </form>
 
@@ -379,7 +387,7 @@ export function AuthPage() {
                     ? 'Remember your password? '
                     : mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
                   <span
-                    onClick={() => { setMode(mode === 'register' ? 'login' : mode === 'forgot' ? 'login' : 'register'); setError(null) }}
+                    onClick={() => { setMode(mode === 'register' ? 'login' : mode === 'forgot' ? 'login' : 'register'); setError(null); setFormData(fd => ({ ...fd, password: '' })); setShowPassword(false); setShowNewPassword(false); setVerifyDone(false) }}
                     onMouseEnter={() => setHoveredBtn('toggle')}
                     onMouseLeave={() => setHoveredBtn(null)}
                     style={{ color: '#b18ddd', cursor: 'pointer', fontWeight: 500, transition: 'color 0.2s' }}
