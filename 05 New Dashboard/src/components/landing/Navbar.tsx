@@ -15,7 +15,8 @@ export function Navbar() {
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
 
   return (
-    <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+    <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
+      <style>{`@keyframes navFadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
       <div style={{ display: 'flex', alignItems: 'center', height: '64px', padding: '0 24px', width: '100%', position: 'relative', fontFamily: "'DM Sans', sans-serif" }}>
         {/* Logo */}

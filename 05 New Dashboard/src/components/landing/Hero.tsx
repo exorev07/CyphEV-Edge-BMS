@@ -84,6 +84,11 @@ export function Hero() {
         pointerEvents: 'none',
       }} />
 
+      <style>{`
+        @keyframes heroFadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes heroFadeUp   { from { opacity: 0; transform: translateY(24px);  } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+
       {/* Text content */}
       <div style={{
         position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px',
@@ -91,7 +96,7 @@ export function Hero() {
         marginLeft: 'auto', marginRight: 'auto',
       }}>
         {/* Typewriter */}
-        <div style={{ marginBottom: '75px' }}>
+        <div style={{ marginBottom: '75px', animation: 'heroFadeDown 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both' }}>
           <TypewriterLine />
         </div>
 
@@ -107,16 +112,17 @@ export function Hero() {
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
+          animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.5s both',
         }}>
           Give your EV the Battery Intelligence it deserves!
         </div>
-        <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px' }}>
+        <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.75s both' }}>
           Edge-based, All Private, with Sub-Millisecond Inference time - all on a single Device
         </p>
       </div>
 
       {/* Dashboard preview */}
-      <div id="product" style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1200px', padding: '0 24px', marginLeft: 'auto', marginRight: 'auto', scrollMarginTop: '100px' }}>
+      <div id="product" style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1200px', padding: '0 24px', marginLeft: 'auto', marginRight: 'auto', scrollMarginTop: '100px', animation: 'heroFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 1s both' }}>
         <div style={{ borderRadius: '12px', border: '1px solid rgba(121,71,189,0.3)', overflow: 'hidden', boxShadow: '0 20px 80px rgba(121,71,189,0.4), 0 8px 30px rgba(121,71,189,0.2)', background: '#09090c', position: 'relative' as const, zIndex: 2 }}>
           {/* Browser chrome */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -152,7 +158,7 @@ export function Hero() {
       </div>
 
       {/* Main heading + subtitle */}
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px', padding: '0 80px', textAlign: 'center', marginTop: '100px', marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px', padding: '0 80px', textAlign: 'center', marginTop: '100px', marginLeft: 'auto', marginRight: 'auto', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 1.3s both' }}>
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2rem, 2vw, 3.25rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '0.03em', marginBottom: '24px', whiteSpace: 'nowrap' }}>
           <span style={{ color: '#ffffff' }}>Intelligent Battery Management for </span>
           <span style={{ color: '#b18ddd' }}>EVs</span>
@@ -163,7 +169,7 @@ export function Hero() {
       </div>
 
       {/* CTA Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '48px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '48px', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 1.55s both' }}>
         <a
           href="/auth"
           onMouseEnter={() => setHoveredBtn('getstarted')}

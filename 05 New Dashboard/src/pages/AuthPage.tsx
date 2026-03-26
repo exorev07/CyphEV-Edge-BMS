@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import carImage from '../assets/Audi_RS5_Auth.png'
 
@@ -6,13 +6,7 @@ export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: '', email: '', password: '' })
-  const [carLoaded, setCarLoaded] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const t = setTimeout(() => setCarLoaded(true), 100)
-    return () => clearTimeout(t)
-  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,6 +21,18 @@ export function AuthPage() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeSlideDown {
+          from { opacity: 0; transform: translateY(-24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideFromRight {
+          from { opacity: 0; transform: translateX(60px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeSlideFromLeft {
+          from { opacity: 0; transform: translateX(-60px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
       `}</style>
 
       {/* Logo */}
@@ -35,7 +41,7 @@ export function AuthPage() {
         onClick={(e) => { e.preventDefault(); navigate('/') }}
         onMouseEnter={() => setHoveredBtn('logo')}
         onMouseLeave={() => setHoveredBtn(null)}
-        style={{ textDecoration: 'none', marginBottom: '12px', transition: 'transform 0.2s', transform: hoveredBtn === 'logo' ? 'translateY(-2px)' : 'translateY(0)', animation: 'fadeSlideUp 0.6s ease both' }}
+        style={{ textDecoration: 'none', marginBottom: '12px', transition: 'transform 0.2s', transform: hoveredBtn === 'logo' ? 'translateY(-2px)' : 'translateY(0)', animation: 'fadeSlideDown 0.7s cubic-bezier(0.22,1,0.36,1) both' }}
       >
         <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '32px', fontWeight: 600, letterSpacing: '0.05em', color: '#ffffff' }}>
           CYPH<span style={{ color: '#b18ddd' }}>EV</span>
@@ -55,9 +61,9 @@ export function AuthPage() {
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
         textAlign: 'center',
-        animation: 'fadeSlideUp 0.6s ease 0.1s both',
+        animation: 'fadeSlideDown 0.7s cubic-bezier(0.22,1,0.36,1) 0.5s both',
       }}>
-        You’re clear for takeoff. Let’s secure the ride.
+        You're clear for takeoff. Let's secure the ride.
       </div>
 
       {/* Car + Form row */}
@@ -72,9 +78,7 @@ export function AuthPage() {
             width: '100%',
             maxWidth: '800px',
             objectFit: 'contain',
-            transition: 'opacity 0.8s ease, transform 0.8s ease',
-            opacity: carLoaded ? 1 : 0,
-            transform: carLoaded ? 'translateX(0)' : 'translateX(-60px)',
+            animation: 'fadeSlideFromLeft 0.8s cubic-bezier(0.22,1,0.36,1) 1s both',
             mixBlendMode: 'lighten',
           }}
         />
@@ -95,7 +99,7 @@ export function AuthPage() {
           WebkitBackdropFilter: 'blur(6px)',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
           padding: '40px 32px',
-          animation: 'fadeSlideUp 0.6s ease 0.15s both',
+          animation: 'fadeSlideFromRight 0.8s cubic-bezier(0.22,1,0.36,1) 1s both',
         }}>
 
         {/* Heading */}
@@ -248,7 +252,7 @@ export function AuthPage() {
             transition: 'color 0.2s, transform 0.2s',
             transform: hoveredBtn === 'back' ? 'translateY(-1px)' : 'translateY(0)',
             ...(hoveredBtn === 'back' ? { color: '#9ca3af' } : {}),
-            animation: 'fadeSlideUp 0.6s ease 0.3s both',
+            animation: 'fadeSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) 1.6s both',
           }}
         >
           ← Back to home
