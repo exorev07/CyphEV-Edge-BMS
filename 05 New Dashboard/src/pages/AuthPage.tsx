@@ -20,7 +20,7 @@ export function AuthPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '60px', padding: '24px 80px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 80px', position: 'relative', overflow: 'hidden' }}>
 
       <style>{`
         @keyframes fadeSlideUp {
@@ -28,6 +28,40 @@ export function AuthPage() {
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
+
+      {/* Logo */}
+      <a
+        href="/"
+        onClick={(e) => { e.preventDefault(); navigate('/') }}
+        onMouseEnter={() => setHoveredBtn('logo')}
+        onMouseLeave={() => setHoveredBtn(null)}
+        style={{ textDecoration: 'none', marginBottom: '12px', transition: 'transform 0.2s', transform: hoveredBtn === 'logo' ? 'translateY(-2px)' : 'translateY(0)', animation: 'fadeSlideUp 0.6s ease both' }}
+      >
+        <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '32px', fontWeight: 600, letterSpacing: '0.05em', color: '#ffffff' }}>
+          CYPH<span style={{ color: '#b18ddd' }}>EV</span>
+        </span>
+      </a>
+
+      {/* Tagline */}
+      <div style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontSize: 'clamp(1.5rem, 3vw, 32rem)',
+        fontWeight: 800,
+        lineHeight: 1.2,
+        letterSpacing: '0.04em',
+        marginBottom: '80px',
+        background: 'linear-gradient(180deg, #c0c0c0 0%, #606060 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        textAlign: 'center',
+        animation: 'fadeSlideUp 0.6s ease 0.1s both',
+      }}>
+        You’re clear for takeoff. Let’s secure the ride.
+      </div>
+
+      {/* Car + Form row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '60px' }}>
 
       {/* Left — Car image */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -49,19 +83,6 @@ export function AuthPage() {
       {/* Right — Auth form */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        {/* Logo */}
-        <a
-          href="/"
-          onClick={(e) => { e.preventDefault(); navigate('/') }}
-          onMouseEnter={() => setHoveredBtn('logo')}
-          onMouseLeave={() => setHoveredBtn(null)}
-          style={{ textDecoration: 'none', marginBottom: '48px', transition: 'transform 0.2s', transform: hoveredBtn === 'logo' ? 'translateY(-2px)' : 'translateY(0)', animation: 'fadeSlideUp 0.6s ease both' }}
-        >
-          <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '32px', fontWeight: 700, letterSpacing: '0.05em', color: '#ffffff' }}>
-            CYPH<span style={{ color: '#b18ddd' }}>EV</span>
-          </span>
-        </a>
-
         {/* Auth card */}
         <div style={{
           position: 'relative',
@@ -79,7 +100,7 @@ export function AuthPage() {
 
         {/* Heading */}
         <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', fontWeight: 600, color: '#ffffff', textAlign: 'center', marginBottom: '4px', letterSpacing: '0.03em' }}>
-          {mode === 'login' ? 'Welcome back' : 'Create account'}
+          {mode === 'login' ? 'Login' : 'Create account'}
         </h1>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#6b7280', textAlign: 'center', marginBottom: '32px' }}>
           {mode === 'login' ? 'Sign in to your dashboard' : 'Get started with CyphEV'}
@@ -232,6 +253,7 @@ export function AuthPage() {
         >
           ← Back to home
         </button>
+      </div>
       </div>
     </div>
   )
