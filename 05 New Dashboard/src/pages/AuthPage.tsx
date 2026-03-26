@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, confirmPasswordReset, sendEmailVerification, applyActionCode, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import carImage from '../assets/Audi_RS5_Auth.png'
+import { Eye, EyeOff } from 'lucide-react'
 
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'reset'>('login')
@@ -18,6 +19,8 @@ export function AuthPage() {
   const [verifySent, setVerifySent] = useState(false)
   const [verifyDone, setVerifyDone] = useState(false)
   const verifyAttempted = useRef(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -102,7 +105,7 @@ export function AuthPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 80px', paddingTop: '190px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 80px', paddingTop: '140px', position: 'relative', overflow: 'hidden' }}>
 
       <style>{`
         @keyframes fadeSlideUp {
@@ -121,6 +124,8 @@ export function AuthPage() {
           from { opacity: 0; transform: translateX(-60px); }
           to { opacity: 1; transform: translateX(0); }
         }
+        input[type="password"] { height: 40px !important; box-sizing: border-box !important; }
+        input[type="password"]:not(:placeholder-shown) { font-size: 18px !important; letter-spacing: 6px !important; line-height: 1 !important; }
       `}</style>
 
       {/* Logo + Tagline — fixed at top, won't shift with card height */}
@@ -155,16 +160,15 @@ export function AuthPage() {
       </div>
 
       {/* Car + Form row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '60px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '60px', width: '100%', maxWidth: '1400px' }}>
 
       {/* Left — Car image */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', maxWidth: '800px' }}>
         <img
           src={carImage}
           alt="Audi RS5"
           style={{
             width: '100%',
-            maxWidth: '800px',
             objectFit: 'contain',
             animation: 'fadeSlideFromLeft 0.8s cubic-bezier(0.22,1,0.36,1) 1s both',
             mixBlendMode: 'lighten',
@@ -191,7 +195,7 @@ export function AuthPage() {
         }}>
 
         {/* Heading */}
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', fontWeight: 600, color: '#ffffff', textAlign: 'center', marginBottom: '8px', letterSpacing: '0.03em' }}>
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: '28px', fontWeight: 600, color: '#ffffff', textAlign: 'center', marginBottom: '0px', letterSpacing: '0.03em' }}>
           {verifySent ? 'Check Your Email' : mode === 'login' ? 'Welcome!' : mode === 'register' ? 'Create Account' : 'Password Reset'}
         </h1>
         {!resetSent && !resetDone && !verifySent && (
@@ -241,15 +245,20 @@ export function AuthPage() {
               {mode === 'reset' ? (
                 <div>
                   <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 500, color: '#9ca3af', display: 'block', marginBottom: '6px' }}>New Password</label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter New Password"
-                    style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
-                    onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
-                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter New Password"
+                      style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                      onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
+                      onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                    />
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} onMouseEnter={() => setHoveredBtn('eyeNew')} onMouseLeave={() => setHoveredBtn(null)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: hoveredBtn === 'eyeNew' ? '#b18ddd' : '#6b7280', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}>
+                      {showNewPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -275,7 +284,7 @@ export function AuthPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="Enter Account Email Address"
-                      style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                      style={{ width: '100%', height: '40px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                       onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
                       onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                     />
@@ -296,15 +305,20 @@ export function AuthPage() {
                           </span>
                         )}
                       </div>
-                      <input
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder="Enter Your Password"
-                        style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
-                        onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
-                        onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          placeholder="Enter Your Password"
+                          style={{ width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#ffffffa9', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 40px 10px 14px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                          onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(121,71,189,0.5)'}
+                          onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                        />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} onMouseEnter={() => setHoveredBtn('eye')} onMouseLeave={() => setHoveredBtn(null)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: hoveredBtn === 'eye' ? '#b18ddd' : '#6b7280', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}>
+                          {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </>
@@ -378,8 +392,11 @@ export function AuthPage() {
           </>
         )}
       </div>
+      </div>
+      </div>
 
-        {/* Back to home */}
+      {/* Back to home — centered at bottom */}
+      <div style={{ position: 'absolute', bottom: '32px', left: 0, right: 0, display: 'flex', justifyContent: 'center', animation: 'fadeSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) 1.6s both' }}>
         <button
           onClick={() => navigate('/')}
           onMouseEnter={() => setHoveredBtn('back')}
@@ -387,20 +404,16 @@ export function AuthPage() {
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '16px',
-            color: '#6b7280',
+            color: hoveredBtn === 'back' ? '#9ca3af' : '#6b7280',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            marginTop: '24px',
             transition: 'color 0.2s, transform 0.2s',
             transform: hoveredBtn === 'back' ? 'translateY(-1px)' : 'translateY(0)',
-            ...(hoveredBtn === 'back' ? { color: '#9ca3af' } : {}),
-            animation: 'fadeSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) 1.6s both',
           }}
         >
           ← Back to home
         </button>
-      </div>
       </div>
     </div>
   )
