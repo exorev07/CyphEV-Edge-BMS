@@ -165,7 +165,7 @@ export function Hero() {
       {/* CTA Buttons */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '48px' }}>
         <a
-          href="#get-started"
+          href="/auth"
           onMouseEnter={() => setHoveredBtn('getstarted')}
           onMouseLeave={() => setHoveredBtn(null)}
           style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '15px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}

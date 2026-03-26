@@ -55,7 +55,7 @@ export function Navbar() {
             Demo
           </a>
           <a
-            href="#get-started"
+            href="/auth"
             onMouseEnter={() => setHoveredBtn('getstarted')}
             onMouseLeave={() => setHoveredBtn(null)}
             style={{ background: '#ffffff', color: '#08080a', borderRadius: '15px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
@@ -91,7 +91,7 @@ export function Navbar() {
             <a href="#demo" className="flex-1 text-center px-4 py-2.5 text-sm text-gray-300 border border-white/[0.1] rounded-lg">
               Demo
             </a>
-            <a href="#get-started" className="flex-1 text-center px-4 py-2.5 text-sm font-medium text-surface-900 bg-white rounded-lg">
+            <a href="/auth" className="flex-1 text-center px-4 py-2.5 text-sm font-medium text-surface-900 bg-white rounded-lg">
               Get Started
             </a>
           </div>
