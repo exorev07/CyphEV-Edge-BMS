@@ -125,7 +125,7 @@ export function AuthPage() {
           to { opacity: 1; transform: translateX(0); }
         }
         input[type="password"] { height: 40px !important; box-sizing: border-box !important; }
-        input[type="password"]:not(:placeholder-shown) { font-size: 18px !important; letter-spacing: 6px !important; line-height: 1 !important; }
+        input[type="password"]:not(:placeholder-shown) { font-size: 18px !important; letter-spacing: 3px !important; line-height: 1 !important; }
       `}</style>
 
       {/* Logo + Tagline — fixed at top, won't shift with card height */}
