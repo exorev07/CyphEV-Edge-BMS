@@ -1,4 +1,5 @@
-import { AlertTriangle, ShieldCheck, ShieldOff } from 'lucide-react'
+import { AlertTriangle, ShieldCheck, ShieldOff, ArrowUpRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { fonts, colors } from '../../lib/styles'
 import { AlertSeverity } from '../../types/bms'
 import type { BMSAlert } from '../../types/bms'
@@ -9,11 +10,12 @@ interface MiniAlertPanelProps {
 }
 
 export function MiniAlertPanel({ alerts, relayStatus }: MiniAlertPanelProps) {
-  const recent = alerts.slice(0, 4)
+  const navigate = useNavigate()
+  const recent = alerts.slice(0, 3)
   const isConnected = relayStatus === 'CONNECTED'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{
@@ -77,6 +79,30 @@ export function MiniAlertPanel({ alerts, relayStatus }: MiniAlertPanelProps) {
           })}
         </div>
       )}
+
+      {/* View Logs button */}
+      <button
+        onClick={() => navigate('/dashboard/logs')}
+        style={{
+          marginTop: 'auto',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+          width: '100%', padding: '8px 0', borderRadius: '8px', border: '1px solid rgba(141,110,179,0.3)',
+          background: 'rgba(121,71,189,0.08)', cursor: 'pointer',
+          fontFamily: fonts.mono, fontSize: '11px', fontWeight: 600,
+          color: colors.amethyst.light, letterSpacing: '0.04em',
+          transition: 'background 0.2s, border-color 0.2s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(121,71,189,0.18)'
+          e.currentTarget.style.borderColor = 'rgba(141,110,179,0.5)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(121,71,189,0.08)'
+          e.currentTarget.style.borderColor = 'rgba(141,110,179,0.3)'
+        }}
+      >
+        View Logs <ArrowUpRight size={12} />
+      </button>
     </div>
   )
 }

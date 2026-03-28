@@ -118,7 +118,7 @@ export const useBMSData = () => {
         const ts = Date.now()
 
         if (d.waterLeakageDetected)
-          newAlerts.push({ id: `leak-${ts}`, code: 'HUM-01', message: 'Humidity detected in Battery compartment!', severity: AlertSeverity.CRITICAL, timestamp: ts })
+          newAlerts.push({ id: `leak-${ts}`, code: 'HUM-01', message: 'Humidity in Battery Comp!', severity: AlertSeverity.CRITICAL, timestamp: ts })
         if (d.batterySwellDetected)
           newAlerts.push({ id: `swell-${ts}`, code: 'PRS-01', message: 'Battery Pack Swelling Detected!', severity: AlertSeverity.CRITICAL, timestamp: ts })
         if (d.voltageAnomaly)
