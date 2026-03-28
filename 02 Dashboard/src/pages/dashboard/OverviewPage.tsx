@@ -126,22 +126,23 @@ export default function OverviewPage() {
                 }}
               >
                 {/* Outer ring */}
-                <circle cx="60" cy="60" r="56" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.15)' : 'rgba(255,255,255,0.06)'} strokeWidth="2" style={{ transition: 'stroke 0.3s' }} />
-                {/* Blades */}
-                {[0, 60, 120, 180, 240, 300].map((angle) => (
+                <circle cx="60" cy="60" r="56" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.25)' : 'rgba(255,255,255,0.08)'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
+                {/* 3 wide curved blades */}
+                {[0, 120, 240].map((angle) => (
                   <path
                     key={angle}
-                    d="M60 60 C54 42, 46 26, 52 14 C60 18, 64 30, 66 42 C68 50, 64 56, 60 60Z"
+                    d="M60 55 C50 44, 34 30, 20 18 C14 24, 14 38, 24 44 C34 50, 50 54, 55 60 Z"
                     fill={data.fanStatus ? colors.amethyst.light : colors.text.muted}
+                    stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.15)'}
+                    strokeWidth="1"
+                    strokeLinejoin="round"
                     transform={`rotate(${angle} 60 60)`}
-                    style={{ transition: 'fill 0.3s' }}
+                    style={{ transition: 'fill 0.3s, stroke 0.3s' }}
                   />
                 ))}
-                {/* Center hub outer */}
-                <circle cx="60" cy="60" r="12" fill={data.fanStatus ? 'rgba(121,71,189,0.3)' : 'rgba(255,255,255,0.06)'} style={{ transition: 'fill 0.3s' }} />
-                {/* Center hub inner */}
-                <circle cx="60" cy="60" r="7" fill={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.12)'} style={{ transition: 'fill 0.3s' }} />
-                <circle cx="60" cy="60" r="3" fill={data.fanStatus ? colors.amethyst.light : 'rgba(255,255,255,0.2)'} style={{ transition: 'fill 0.3s' }} />
+                {/* Center hub */}
+                <circle cx="60" cy="60" r="13" fill={data.fanStatus ? 'rgba(121,71,189,0.3)' : 'rgba(255,255,255,0.06)'} stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.12)'} strokeWidth="1.5" style={{ transition: 'fill 0.3s' }} />
+                <circle cx="60" cy="60" r="5" fill={data.fanStatus ? colors.amethyst.light : 'rgba(255,255,255,0.2)'} style={{ transition: 'fill 0.3s' }} />
               </svg>
             </div>
             {/* Status label — aligned with temp legend */}
