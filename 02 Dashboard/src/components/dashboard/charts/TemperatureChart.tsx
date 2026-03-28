@@ -1,53 +1,52 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { chartColors, fonts, colors } from '../../../lib/styles'
+import { useBMS } from '../DashboardLayout'
 
 interface TempPoint { time: string; pack: number; ambient: number }
 
-const TOTAL = 61
-const STEP_MS = 60 * 1000
+const MAX_POINTS = 60
 const LABEL_EVERY = 15
 
-function toMinMark(d: Date): Date {
-  const r = new Date(d)
-  r.setSeconds(0, 0)
-  return r
-}
-
 function fmt(d: Date): string {
-  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-function buildHistory(): TempPoint[] {
-  const latest = toMinMark(new Date())
-  let ambient = 36 + Math.random() * 4
-  let pack = 28 + Math.random() * 4
-  return Array.from({ length: TOTAL }, (_, i) => {
-    const t = new Date(latest.getTime() - (TOTAL - 1 - i) * STEP_MS)
-    if (i > 0) {
-      ambient = Math.max(28, Math.min(45, ambient + (Math.random() - 0.5) * 0.4))
-      pack = Math.max(20, Math.min(40, pack + (Math.random() - 0.5) * 0.3))
-    }
-    return { time: fmt(t), ambient: parseFloat(ambient.toFixed(1)), pack: parseFloat(pack.toFixed(1)) }
-  })
+function buildSeedHistory(packTemp: number, ambientTemp: number): TempPoint[] {
+  const now = Date.now()
+  let pack = packTemp
+  let ambient = ambientTemp
+  const pts: TempPoint[] = []
+  for (let i = MAX_POINTS - 1; i >= 0; i--) {
+    const t = new Date(now - i * 2000)
+    pack = Math.max(25, Math.min(40, pack + (Math.random() - 0.5) * 0.3))
+    ambient = Math.max(50, Math.min(60, ambient + (Math.random() - 0.5) * 0.4))
+    pts.push({ time: fmt(t), pack: parseFloat(pack.toFixed(1)), ambient: parseFloat(ambient.toFixed(1)) })
+  }
+  return pts
 }
 
 export function TemperatureChart() {
-  const [points, setPoints] = useState<TempPoint[]>(buildHistory)
+  const { data } = useBMS()
+  const [points, setPoints] = useState<TempPoint[]>([])
+  const seeded = useRef(false)
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const markTime = fmt(toMinMark(new Date()))
-      setPoints((prev) => {
-        if (prev[prev.length - 1].time === markTime) return prev
-        const last = prev[prev.length - 1]
-        const newAmbient = parseFloat(Math.max(28, Math.min(45, last.ambient + (Math.random() - 0.5) * 0.4)).toFixed(1))
-        const newPack = parseFloat(Math.max(20, Math.min(40, last.pack + (Math.random() - 0.5) * 0.3)).toFixed(1))
-        return [...prev.slice(1), { time: markTime, ambient: newAmbient, pack: newPack }]
-      })
-    }, 15_000)
-    return () => clearInterval(timer)
-  }, [])
+    if (!data) return
+    if (!seeded.current) {
+      seeded.current = true
+      setPoints(buildSeedHistory(data.packTemp, data.ambientTemp))
+      return
+    }
+    const timeStr = fmt(new Date(data.timestamp))
+    setPoints((prev) => {
+      const next = [...prev, { time: timeStr, pack: data.packTemp, ambient: data.ambientTemp }]
+      if (next.length > MAX_POINTS) next.shift()
+      return next
+    })
+  }, [data])
+
+  if (points.length === 0) return null
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '4px' }}>

@@ -7,12 +7,12 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
 
   let voltage = prevData ? prevData.voltage + (Math.random() - 0.5) * 1.5 : 400
   let current = prevData ? prevData.current + (Math.random() - 0.5) * 4 : 15
-  let temp = prevData ? prevData.packTemp + (Math.random() - 0.5) * 0.8 : 35
-  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.4 : 24
+  let temp = prevData ? prevData.packTemp + (Math.random() - 0.5) * 0.8 : 32
+  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.4 : 55
 
   voltage = Math.max(350, Math.min(450, voltage))
-  temp = Math.max(20, Math.min(80, temp))
-  ambientTemp = Math.max(10, Math.min(45, ambientTemp))
+  temp = Math.max(25, Math.min(40, temp))
+  ambientTemp = Math.max(50, Math.min(60, ambientTemp))
 
   const velocity = prevData ? Math.max(0, Math.min(180, prevData.velocity + (Math.random() - 0.45) * 8)) : 65
   const throttle = Math.max(0, Math.min(100, (velocity / 180) * 100 + (Math.random() - 0.5) * 15))
