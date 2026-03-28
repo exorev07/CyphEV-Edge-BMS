@@ -26,12 +26,12 @@ export function StatCard({ label, value, unit, subtext, icon: Icon, color = colo
         </span>
         <div style={{
           width: '32px', height: '32px', borderRadius: '8px',
-          background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon size={16} color={color} />
+          <Icon size={16} color={colors.text.muted} />
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
         <span style={{
           fontFamily: fonts.mono, fontSize: '28px', fontWeight: 700,
           color: colors.text.primary, lineHeight: 1,
@@ -45,7 +45,7 @@ export function StatCard({ label, value, unit, subtext, icon: Icon, color = colo
         )}
       </div>
       {subtext && (
-        <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.text.muted }}>
+        <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.text.muted, textAlign: 'center' }}>
           {subtext}
         </span>
       )}

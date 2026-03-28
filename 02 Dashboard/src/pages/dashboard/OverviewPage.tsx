@@ -5,7 +5,8 @@ import { RadialGauge } from '../../components/dashboard/RadialGauge'
 import { StatCard } from '../../components/dashboard/StatCard'
 import { SensorTile } from '../../components/dashboard/SensorTile'
 import { MiniAlertPanel } from '../../components/dashboard/MiniAlertPanel'
-import { SocRangeChart } from '../../components/dashboard/charts/SocRangeChart'
+import { SocTimeChart } from '../../components/dashboard/charts/SocTimeChart'
+import { RangeSocChart } from '../../components/dashboard/charts/RangeSocChart'
 import { TemperatureChart } from '../../components/dashboard/charts/TemperatureChart'
 import { fonts, colors, chartColors } from '../../lib/styles'
 
@@ -23,7 +24,7 @@ export default function OverviewPage() {
       {/* Page header */}
       <div>
         <h1 style={{ fontFamily: fonts.heading, fontSize: '24px', fontWeight: 600, color: colors.text.primary, margin: 0 }}>
-          Dashboard
+          Dashboard Overview
         </h1>
         <p style={{ fontFamily: fonts.body, fontSize: '13px', color: colors.text.muted, marginTop: '4px' }}>
           Live telemetry &middot; Updated every 2s
@@ -34,9 +35,9 @@ export default function OverviewPage() {
       <GlassCard title="Vehicle Dynamics">
         <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
           <RadialGauge value={data.velocity} max={180} label="Speed" unit="km/h" color={chartColors.secondary} decimals={1} />
-          <RadialGauge value={data.throttle} max={100} label="Throttle" unit="%" color={chartColors.primary} />
-          <RadialGauge value={data.motorTorque} max={500} label="Torque" unit="Nm" color={chartColors.tertiary} decimals={1} />
-          <RadialGauge value={Math.abs(data.longitudinalAccel)} max={6} label="Accel" unit="m/s²" color={chartColors.warning} decimals={2} />
+          <RadialGauge value={data.throttle} max={100} label="Throttle" unit="%" color={chartColors.secondary} />
+          <RadialGauge value={data.motorTorque} max={500} label="Torque" unit="Nm" color={chartColors.secondary} decimals={1} />
+          <RadialGauge value={Math.abs(data.longitudinalAccel)} max={6} label="Accel" unit="m/s²" color={chartColors.secondary} decimals={2} />
           <RadialGauge value={data.elevation} max={1000} label="Elevation" unit="m" color={chartColors.secondary} />
         </div>
       </GlassCard>
@@ -78,9 +79,12 @@ export default function OverviewPage() {
       </div>
 
       {/* === Row 3: Charts === */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <GlassCard title="SoC & Range Trend">
-          <SocRangeChart data={history} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: '16px' }}>
+        <GlassCard title="State of Charge">
+          <SocTimeChart data={history} />
+        </GlassCard>
+        <GlassCard title="Range vs SoC">
+          <RangeSocChart data={history} />
         </GlassCard>
         <GlassCard title="Temperature">
           <TemperatureChart data={history} />
@@ -104,7 +108,7 @@ export default function OverviewPage() {
         </GlassCard>
 
         {/* Alerts & Relay */}
-        <GlassCard title="System Status & Alerts">
+        <GlassCard>
           <MiniAlertPanel alerts={alerts} relayStatus={data.relayStatus} />
         </GlassCard>
       </div>
