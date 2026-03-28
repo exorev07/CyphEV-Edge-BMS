@@ -93,7 +93,7 @@ export default function OverviewPage() {
           </div>
         </GlassCard>
         <GlassCard title="Temperature">
-          <TemperatureChart data={history} />
+          <TemperatureChart />
         </GlassCard>
       </div>
 

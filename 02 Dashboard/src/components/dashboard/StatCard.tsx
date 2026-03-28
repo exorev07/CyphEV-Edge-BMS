@@ -33,7 +33,7 @@ export function StatCard({ label, value, unit, subtext, icon: Icon, color = colo
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
         <span style={{
-          fontFamily: fonts.mono, fontSize: '28px', fontWeight: 700,
+          fontFamily: fonts.mono, fontSize: '24px', fontWeight: 700,
           color: colors.text.primary, lineHeight: 1,
         }}>
           {value}
