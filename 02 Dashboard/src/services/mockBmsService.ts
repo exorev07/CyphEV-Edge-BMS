@@ -67,7 +67,7 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
     coolantHeatercoreTemp: parseFloat(coolantHeatercoreTemp.toFixed(1)),
     coolantInletTemp: parseFloat(coolantInletTemp.toFixed(1)),
 
-    fanStatus: temp > 34,
+    fanStatus: temp > 35,
     relayStatus: voltage > 440 || temp > 70 ? 'DISCONNECTED' : 'CONNECTED',
     isCharging,
 

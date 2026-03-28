@@ -139,12 +139,70 @@ export default function OverviewPage() {
             {data.remainingRangeKm.toFixed(0)} km &nbsp;·&nbsp; ~{data.remainingTimeMinutes} min
           </div>
         </GlassCard>
-        <GlassCard>
-          <MiniAlertPanel alerts={alerts} />
+        <GlassCard style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Header row with title + status badge */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <h3 style={{
+              fontFamily: fonts.body, fontSize: '13px', fontWeight: 600,
+              color: colors.text.muted, letterSpacing: '0.06em', textTransform: 'uppercase', margin: 0,
+            }}>
+              Fan Status
+            </h3>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '4px 10px', borderRadius: '20px',
+              background: data.fanStatus ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${data.fanStatus ? 'rgba(52,211,153,0.25)' : 'rgba(255,255,255,0.08)'}`,
+            }}>
+              <span style={{
+                fontFamily: fonts.mono, fontSize: '10px', fontWeight: 600,
+                color: data.fanStatus ? colors.status.nominal : colors.text.muted,
+              }}>
+                {data.fanStatus ? 'ACTIVE' : 'IDLE'}
+              </span>
+            </div>
+          </div>
+          {/* Fan area */}
+          <div style={{ width: '100%', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <style>{`
+              @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+              @keyframes spinSlow { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+              .fan-svg { animation: spin 0.8s linear infinite; }
+              .fan-svg.idle { animation: spinSlow 8s linear infinite; }
+            `}</style>
+            <svg
+              className={data.fanStatus ? 'fan-svg' : 'fan-svg idle'}
+              width="150" height="150" viewBox="-15 -15 150 150"
+              style={{
+                opacity: data.fanStatus ? 1 : 0.35,
+                transition: 'opacity 1s ease',
+                filter: data.fanStatus ? `drop-shadow(0 0 12px ${colors.amethyst.mid})` : 'none',
+              }}
+            >
+              {/* Outer ring */}
+              <circle cx="60" cy="60" r="70" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.25)' : 'rgba(255,255,255,0.08)'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
+              {/* 3 wide curved blades */}
+              {[0, 120, 240].map((angle) => (
+                <path
+                  key={angle}
+                  d="M60 50 C46 36, 28 22, 12 10 C2 22, 6 44, 20 52 C34 58, 50 58, 50 60 Z"
+                  fill={data.fanStatus ? colors.amethyst.light : colors.text.muted}
+                  stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.15)'}
+                  strokeWidth="1"
+                  strokeLinejoin="round"
+                  transform={`rotate(${angle} 60 60)`}
+                  style={{ transition: 'fill 0.3s, stroke 0.3s' }}
+                />
+              ))}
+              {/* Center hub */}
+              <circle cx="60" cy="60" r="13" fill={data.fanStatus ? 'rgba(121,71,189,0.3)' : 'rgba(255,255,255,0.06)'} stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.12)'} strokeWidth="1.5" style={{ transition: 'fill 0.3s' }} />
+              <circle cx="60" cy="60" r="5" fill={data.fanStatus ? colors.amethyst.light : 'rgba(255,255,255,0.2)'} style={{ transition: 'fill 0.3s' }} />
+            </svg>
+          </div>
         </GlassCard>
       </div>
 
-      {/* === Row 4: Sensors + Fan + Temperature === */}
+      {/* === Row 4: Sensors + Alerts + Temperature === */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '16px' }}>
         <GlassCard title="Sensor Readings">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -158,62 +216,8 @@ export default function OverviewPage() {
             <SensorTile label="A/C Power" value={data.airconPower.toFixed(0)} unit="W" icon={RotateCw} />
           </div>
         </GlassCard>
-        <GlassCard title="Fan Status">
-          <div style={{ width: '100%', height: '100%', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '4px' }}>
-            {/* Fan area */}
-            <div style={{ width: '100%', height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <style>{`
-                @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-                @keyframes spinSlow { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-                .fan-svg { animation: spin 0.8s linear infinite; }
-                .fan-svg.idle { animation: spinSlow 8s linear infinite; }
-              `}</style>
-              <svg
-                className={data.fanStatus ? 'fan-svg' : 'fan-svg idle'}
-                width="180" height="180" viewBox="-15 -15 150 150"
-                style={{
-                  opacity: data.fanStatus ? 1 : 0.35,
-                  transition: 'opacity 1s ease',
-                  filter: data.fanStatus ? `drop-shadow(0 0 12px ${colors.amethyst.mid})` : 'none',
-                }}
-              >
-                {/* Outer ring */}
-                <circle cx="60" cy="60" r="70" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.25)' : 'rgba(255,255,255,0.08)'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
-                {/* 3 wide curved blades */}
-                {[0, 120, 240].map((angle) => (
-                  <path
-                    key={angle}
-                    d="M60 50 C46 36, 28 22, 12 10 C2 22, 6 44, 20 52 C34 58, 50 58, 50 60 Z"
-                    fill={data.fanStatus ? colors.amethyst.light : colors.text.muted}
-                    stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.15)'}
-                    strokeWidth="1"
-                    strokeLinejoin="round"
-                    transform={`rotate(${angle} 60 60)`}
-                    style={{ transition: 'fill 0.3s, stroke 0.3s' }}
-                  />
-                ))}
-                {/* Center hub */}
-                <circle cx="60" cy="60" r="13" fill={data.fanStatus ? 'rgba(121,71,189,0.3)' : 'rgba(255,255,255,0.06)'} stroke={data.fanStatus ? colors.amethyst.mid : 'rgba(255,255,255,0.12)'} strokeWidth="1.5" style={{ transition: 'fill 0.3s' }} />
-                <circle cx="60" cy="60" r="5" fill={data.fanStatus ? colors.amethyst.light : 'rgba(255,255,255,0.2)'} style={{ transition: 'fill 0.3s' }} />
-              </svg>
-            </div>
-            {/* Status label — aligned with temp legend */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                padding: '4px 14px', borderRadius: '20px',
-                background: data.fanStatus ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${data.fanStatus ? 'rgba(52,211,153,0.25)' : 'rgba(255,255,255,0.08)'}`,
-              }}>
-                <span style={{
-                  fontFamily: fonts.mono, fontSize: '11px', fontWeight: 700,
-                  color: data.fanStatus ? colors.status.nominal : colors.text.muted,
-                }}>
-                  {data.fanStatus ? 'ACTIVE' : 'IDLE'}
-                </span>
-              </div>
-            </div>
-          </div>
+        <GlassCard>
+          <MiniAlertPanel alerts={alerts} />
         </GlassCard>
         <GlassCard title="Battery & Ambient Temp">
           <TemperatureChart />

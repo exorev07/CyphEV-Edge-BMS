@@ -5,48 +5,50 @@ import { useBMS } from '../DashboardLayout'
 
 interface TempPoint { time: string; pack: number; ambient: number }
 
-const MAX_POINTS = 60
-const LABEL_EVERY = 15
+const TOTAL = 61
+const STEP_MS = 60 * 1000
 
-function fmt(d: Date): string {
-  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+function toMinMark(d: Date): Date {
+  const r = new Date(d)
+  r.setSeconds(0, 0)
+  return r
 }
 
-function buildSeedHistory(packTemp: number, ambientTemp: number): TempPoint[] {
-  const now = Date.now()
-  let pack = packTemp
-  let ambient = ambientTemp
-  const pts: TempPoint[] = []
-  for (let i = MAX_POINTS - 1; i >= 0; i--) {
-    const t = new Date(now - i * 2000)
-    pack = Math.max(25, Math.min(40, pack + (Math.random() - 0.5) * 0.3))
-    ambient = Math.max(50, Math.min(60, ambient + (Math.random() - 0.5) * 0.4))
-    pts.push({ time: fmt(t), pack: parseFloat(pack.toFixed(1)), ambient: parseFloat(ambient.toFixed(1)) })
-  }
-  return pts
+function fmt(d: Date): string {
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+function buildSeedHistory(): TempPoint[] {
+  const latest = toMinMark(new Date())
+  let pack = 30 + Math.random() * 8
+  let ambient = 52 + Math.random() * 6
+  return Array.from({ length: TOTAL }, (_, i) => {
+    const t = new Date(latest.getTime() - (TOTAL - 1 - i) * STEP_MS)
+    if (i > 0) {
+      pack = Math.max(25, Math.min(50, pack + (Math.random() - 0.5) * 0.3))
+      ambient = Math.max(50, Math.min(60, ambient + (Math.random() - 0.5) * 0.4))
+    }
+    return { time: fmt(t), pack: parseFloat(pack.toFixed(1)), ambient: parseFloat(ambient.toFixed(1)) }
+  })
 }
 
 export function TemperatureChart() {
   const { data } = useBMS()
-  const [points, setPoints] = useState<TempPoint[]>([])
-  const seeded = useRef(false)
+  const [points, setPoints] = useState<TempPoint[]>(buildSeedHistory)
+  const lastTime = useRef(points[points.length - 1]?.time ?? '')
 
   useEffect(() => {
     if (!data) return
-    if (!seeded.current) {
-      seeded.current = true
-      setPoints(buildSeedHistory(data.packTemp, data.ambientTemp))
-      return
-    }
-    const timeStr = fmt(new Date(data.timestamp))
+    const timeStr = fmt(toMinMark(new Date(data.timestamp)))
+    if (timeStr === lastTime.current) return
+    lastTime.current = timeStr
+
     setPoints((prev) => {
       const next = [...prev, { time: timeStr, pack: data.packTemp, ambient: data.ambientTemp }]
-      if (next.length > MAX_POINTS) next.shift()
+      if (next.length > TOTAL) next.shift()
       return next
     })
   }, [data])
-
-  if (points.length === 0) return null
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '4px' }}>
@@ -66,7 +68,7 @@ export function TemperatureChart() {
             <CartesianGrid stroke={chartColors.grid} strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="time"
-              ticks={points.filter((_, i) => i % LABEL_EVERY === 0).map(p => p.time)}
+              ticks={(() => { const n = points.length - 1; return [points[0], points[Math.round(n/4)], points[Math.round(n/2)], points[Math.round(3*n/4)], points[n]].filter(Boolean).map(p => p.time) })()}
               tick={{ fill: chartColors.axis, fontSize: 10, fontFamily: fonts.mono, dy: 8 }}
               axisLine={{ stroke: chartColors.grid }} tickLine={false}
             />
