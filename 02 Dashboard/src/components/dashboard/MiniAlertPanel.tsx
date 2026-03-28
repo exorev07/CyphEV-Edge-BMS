@@ -9,7 +9,7 @@ interface MiniAlertPanelProps {
 }
 
 export function MiniAlertPanel({ alerts, relayStatus }: MiniAlertPanelProps) {
-  const recent = alerts.slice(0, 5)
+  const recent = alerts.slice(0, 4)
   const isConnected = relayStatus === 'CONNECTED'
 
   return (
@@ -63,7 +63,7 @@ export function MiniAlertPanel({ alerts, relayStatus }: MiniAlertPanelProps) {
                 <AlertTriangle size={13} color={alertColor} style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '12px', fontWeight: 600, color: alertColor }}>
+                    <span style={{ fontFamily: fonts.mono, fontSize: '12px', fontWeight: 600, color: alertColor, flexShrink: 0 }}>
                       {alert.code}
                     </span>
                     <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
