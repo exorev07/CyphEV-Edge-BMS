@@ -81,10 +81,10 @@ export default function OverviewPage() {
       {/* === Row 3: Charts === */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: '16px' }}>
         <GlassCard title="State of Charge">
-          <SocTimeChart data={history} />
+          <SocTimeChart />
         </GlassCard>
-        <GlassCard title="Range vs SoC">
-          <RangeSocChart data={history} />
+        <GlassCard title="Range">
+          <RangeSocChart />
         </GlassCard>
         <GlassCard title="Temperature">
           <TemperatureChart data={history} />

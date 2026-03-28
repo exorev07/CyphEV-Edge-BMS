@@ -110,7 +110,7 @@ export const useBMSData = () => {
             power: d.power,
           }
           const updated = [...h, point]
-          if (updated.length > 60) updated.shift()
+          if (updated.length > 3600) updated.shift()
           return updated
         })
 
