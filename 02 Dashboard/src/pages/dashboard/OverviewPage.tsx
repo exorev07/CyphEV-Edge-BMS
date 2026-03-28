@@ -1,4 +1,4 @@
-import { Gauge, Zap, Battery, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw } from 'lucide-react'
+import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw } from 'lucide-react'
 import { useBMS } from '../../components/dashboard/DashboardLayout'
 import { GlassCard } from '../../components/dashboard/GlassCard'
 import { RadialGauge } from '../../components/dashboard/RadialGauge'
@@ -45,20 +45,20 @@ export default function OverviewPage() {
       {/* === Row 2: Battery Stats === */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <StatCard
-          label="State of Charge"
-          value={data.soc.toFixed(1)}
-          unit="%"
-          subtext={`Range: ${data.remainingRangeKm.toFixed(0)} km · ${data.remainingTimeMinutes} min`}
-          icon={Battery}
-          color={data.soc < 20 ? colors.status.critical : colors.amethyst.light}
-        />
-        <StatCard
           label="State of Health"
           value={data.soh.toFixed(1)}
           unit="%"
-          subtext={`RUL: ${data.rulCycles} cycles · ${data.rulDays} days`}
+          subtext={`Cycle degradation: ${data.soh < 70 ? 'High' : 'Normal'}`}
           icon={Heart}
           color={data.soh < 70 ? colors.status.warning : colors.status.nominal}
+        />
+        <StatCard
+          label="Remaining Useful Life"
+          value={data.rulCycles}
+          unit="cycles"
+          subtext={`${data.rulDays} days remaining`}
+          icon={RotateCw}
+          color={data.rulCycles < 400 ? colors.status.warning : colors.status.nominal}
         />
         <StatCard
           label="Pack Power"
@@ -82,9 +82,15 @@ export default function OverviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: '16px' }}>
         <GlassCard title="State of Charge">
           <SocTimeChart />
+          <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
+            {data.soc.toFixed(1)}% &nbsp;·&nbsp; {data.remainingRangeKm.toFixed(0)} km remaining
+          </div>
         </GlassCard>
-        <GlassCard title="Range">
+        <GlassCard title="Estimated Range">
           <RangeSocChart />
+          <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
+            {data.remainingRangeKm.toFixed(0)} km &nbsp;·&nbsp; ~{data.remainingTimeMinutes} min
+          </div>
         </GlassCard>
         <GlassCard title="Temperature">
           <TemperatureChart data={history} />
