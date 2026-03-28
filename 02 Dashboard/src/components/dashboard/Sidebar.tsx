@@ -43,18 +43,35 @@ export function Sidebar({ status }: SidebarProps) {
     }}>
       {/* Logo */}
       <div style={{
-        padding: collapsed ? '20px 0' : '20px 20px',
-        display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-        gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)',
-        minHeight: '64px',
+        padding: '0 12px 0 20px',
+        display: 'flex', alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'space-between',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        minHeight: '64px', gap: '8px',
       }}>
-        <span style={{
-          fontFamily: fonts.logo, fontSize: collapsed ? '18px' : '22px',
-          fontWeight: 700, letterSpacing: '0.05em', color: '#fff', whiteSpace: 'nowrap',
-        }}>
-          {collapsed ? 'C' : 'CYPH'}
-          <span style={{ color: colors.amethyst.light }}>{collapsed ? 'E' : 'EV'}</span>
-        </span>
+        {!collapsed && (
+          <span style={{
+            fontFamily: fonts.logo, fontSize: '22px',
+            fontWeight: 700, letterSpacing: '0.05em', color: '#fff', whiteSpace: 'nowrap',
+          }}>
+            CYPH<span style={{ color: colors.amethyst.light }}>EV</span>
+          </span>
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          onMouseEnter={() => setHoveredItem('collapse')}
+          onMouseLeave={() => setHoveredItem(null)}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer',
+            background: hoveredItem === 'collapse' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${hoveredItem === 'collapse' ? 'rgba(141,110,179,0.4)' : 'rgba(255,255,255,0.08)'}`,
+            backdropFilter: 'blur(8px)',
+            flexShrink: 0, transition: 'background 0.2s',
+          }}
+        >
+          {collapsed ? <ChevronRight size={18} color={colors.text.muted} /> : <ChevronLeft size={18} color={colors.text.muted} />}
+        </button>
       </div>
 
       {/* Status */}
@@ -110,24 +127,6 @@ export function Sidebar({ status }: SidebarProps) {
 
       {/* Bottom section */}
       <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        {/* Collapse toggle */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          onMouseEnter={() => setHoveredItem('collapse')}
-          onMouseLeave={() => setHoveredItem(null)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            padding: collapsed ? '10px 0' : '10px 14px',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            borderRadius: '10px', border: 'none', cursor: 'pointer',
-            background: hoveredItem === 'collapse' ? 'rgba(255,255,255,0.04)' : 'transparent',
-            width: '100%', transition: 'background 0.2s',
-          }}
-        >
-          {collapsed ? <ChevronRight size={18} color={colors.text.muted} /> : <ChevronLeft size={18} color={colors.text.muted} />}
-          {!collapsed && <span style={{ fontFamily: fonts.body, fontSize: '13px', color: colors.text.muted }}>Collapse</span>}
-        </button>
-
         {/* Sign out */}
         <button
           onClick={handleSignOut}
