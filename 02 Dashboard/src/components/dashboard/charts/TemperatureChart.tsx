@@ -72,7 +72,7 @@ export function TemperatureChart() {
             axisLine={{ stroke: chartColors.grid }} tickLine={false}
           />
           <YAxis
-            domain={[0, 100]}
+            domain={[0, 80]}
             tick={{ fill: chartColors.axis, fontSize: 10, fontFamily: fonts.mono }}
             axisLine={false} tickLine={false}
             tickFormatter={(v) => `${v}°`}
@@ -83,7 +83,7 @@ export function TemperatureChart() {
               borderRadius: '8px', fontFamily: fonts.mono, fontSize: '11px',
             }}
             labelStyle={{ color: colors.text.muted }}
-            formatter={(v: number, name: string) => [`${v.toFixed(1)}°C`, name]}
+            formatter={((v: unknown, name: unknown) => [`${Number(v).toFixed(1)}°C`, name]) as never}
             cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }}
           />
           <Area type="monotone" dataKey="ambient" stroke={colors.amethyst.mid} strokeWidth={2} fill="url(#ambGrad)" dot={false} name="Ambient" />

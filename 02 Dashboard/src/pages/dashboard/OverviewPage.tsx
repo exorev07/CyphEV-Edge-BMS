@@ -111,7 +111,7 @@ export default function OverviewPage() {
             <SensorTile label="A/C Power" value={data.airconPower.toFixed(0)} unit="W" icon={RotateCw} />
           </div>
         </GlassCard>
-        <GlassCard title="Temperature">
+        <GlassCard title="Battery & Ambient Temp">
           <TemperatureChart />
         </GlassCard>
       </div>
