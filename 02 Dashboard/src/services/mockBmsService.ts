@@ -181,5 +181,9 @@ export const useBMSData = () => {
     setAlerts((a) => [alert, ...a].slice(0, 200))
   }
 
-  return { data, history, alerts, addAlert }
+  const updateAlertAction = (id: string, action: string) => {
+    setAlerts((a) => a.map((alert) => alert.id === id ? { ...alert, action } : alert))
+  }
+
+  return { data, history, alerts, addAlert, updateAlertAction }
 }

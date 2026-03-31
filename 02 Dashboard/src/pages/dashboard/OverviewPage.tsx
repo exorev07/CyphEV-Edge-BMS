@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power } from 'lucide-react'
@@ -14,9 +14,10 @@ import { TemperatureChart } from '../../components/dashboard/charts/TemperatureC
 import { fonts, colors, chartColors, glassCard } from '../../lib/styles'
 
 export default function OverviewPage() {
-  const { data, alerts, addAlert } = useBMS()
+  const { data, alerts, addAlert, updateAlertAction } = useBMS()
   const [relayOverride, setRelayOverride] = useState<boolean>(true)
-  const [disconnectCause, setDisconnectCause] = useState<{ message: string; timestamp: number } | null>(null)
+  const [disconnectCause, setDisconnectCause] = useState<{ code?: string; message: string; timestamp: number } | null>(null)
+  const relayLatchedRef = useRef(false)
   const [showRelayModal, setShowRelayModal] = useState(false)
   const [relayPassword, setRelayPassword] = useState('')
   const [relayAuthError, setRelayAuthError] = useState('')
@@ -33,13 +34,13 @@ export default function OverviewPage() {
   // Latch: once an alert triggers disconnect, stay disconnected until manual reset via password
   // Only fires on actual transition (connected → disconnected), so RLY-01 is logged exactly once
   useEffect(() => {
-    if (alertTriggered && relayOverride) {
+    if (alertTriggered && !relayLatchedRef.current) {
+      relayLatchedRef.current = true
       const cause = alerts.filter(a => ['VOL-01', 'CUR-01', 'THM-01'].includes(a.code)).sort((a, b) => b.timestamp - a.timestamp)[0]
-      const ts = Date.now()
       setRelayOverride(false)
       if (cause) {
-        setDisconnectCause({ message: cause.message, timestamp: cause.timestamp })
-        addAlert({ id: `rly-${ts}`, code: 'RLY-01', message: `Relay auto-disconnected: ${cause.message}`, severity: 'CRITICAL', timestamp: ts, action: 'Relay Disconnected' })
+        setDisconnectCause({ code: cause.code, message: cause.message, timestamp: cause.timestamp })
+        updateAlertAction(cause.id, 'Relay Disconnected')
       }
     }
   }, [alertTriggered])
@@ -72,6 +73,7 @@ export default function OverviewPage() {
       const ts = Date.now()
       setRelayOverride(true)
       setDisconnectCause(null)
+      relayLatchedRef.current = false
       addAlert({ id: `rly-${ts}`, code: 'RLY-02', message: 'Relay reconnected after admin verification', severity: 'ATTENTION_REQUIRED', timestamp: ts, action: 'Relay Reconnected' })
       setShowRelayModal(false)
     } catch {
@@ -198,6 +200,11 @@ export default function OverviewPage() {
                 })()}
               </div>
               <div style={{ height: '24px', padding: '0 4px 4px', textAlign: 'center', opacity: disconnectCause ? 1 : 0, transition: 'opacity 0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                {disconnectCause?.code && (
+                  <span style={{ fontFamily: fonts.mono, fontSize: '10px', fontWeight: 700, color: colors.status.critical, background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: '4px', padding: '1px 5px' }}>
+                    {disconnectCause.code}
+                  </span>
+                )}
                 <span style={{ fontFamily: fonts.body, fontSize: '12px', fontWeight: 500, color: colors.status.critical }}>
                   {disconnectCause?.message ?? ''}
                 </span>
