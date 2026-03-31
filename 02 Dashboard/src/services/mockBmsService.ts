@@ -5,14 +5,19 @@ import type { BMSData, HistoryPoint, BMSAlert } from '../types/bms'
 const generateMockData = (prevData: BMSData | null): BMSData => {
   const now = Date.now()
 
-  let voltage = prevData ? prevData.voltage + (Math.random() - 0.5) * 1.5 : 400
-  let current = prevData ? prevData.current + (Math.random() - 0.5) * 4 : 15
+  // BMW i3 94Ah: nominal pack ~350–403V, current up to ~160A discharge / 125A charge
+  let voltage = prevData ? prevData.voltage + (Math.random() - 0.5) * 2 : 380
+  let current = prevData ? prevData.current + (Math.random() - 0.5) * 8 : 40
   let temp = prevData ? prevData.packTemp + (Math.random() - 0.45) * 1.2 : 35
-  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.4 : 55
+  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.4 : 28
 
-  voltage = Math.max(350, Math.min(450, voltage))
-  temp = Math.max(25, Math.min(50, temp))
-  ambientTemp = Math.max(50, Math.min(60, ambientTemp))
+  voltage = Math.max(278, Math.min(415, voltage))
+  // Occasional spike: ~1% chance of brief overcurrent/overvoltage
+  if (Math.random() > 0.99) voltage += 15 + Math.random() * 10
+  if (Math.random() > 0.99) current += 80 + Math.random() * 60
+  current = Math.max(-125, Math.min(170, current)) // negative = charging
+  temp = Math.max(15, Math.min(65, temp))
+  ambientTemp = Math.max(15, Math.min(45, ambientTemp))
 
   const velocity = prevData ? Math.max(0, Math.min(180, prevData.velocity + (Math.random() - 0.45) * 8)) : 65
   const throttle = Math.max(0, Math.min(100, (velocity / 180) * 100 + (Math.random() - 0.5) * 15))
@@ -41,8 +46,8 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
   const avgSpeed = velocity > 0 ? velocity : 40
   const remainingTimeMinutes = remainingRangeKm / avgSpeed * 60
 
-  const voltageAnomaly = voltage > 445 || Math.random() > 0.98
-  const currentAnomaly = current > 50 || (Math.random() > 0.98 && !isCharging)
+  const voltageAnomaly = voltage > 410 || voltage < 300
+  const currentAnomaly = current > 160 || current < -125
   const relayStatus: 'CONNECTED' | 'DISCONNECTED' = voltageAnomaly || currentAnomaly ? 'DISCONNECTED' : 'CONNECTED'
 
   return {
@@ -134,9 +139,9 @@ export const useBMSData = () => {
         const fire = (alert: BMSAlert) => { lastFired.current[alert.code] = ts; newAlerts.push(alert) }
 
         if (d.voltageAnomaly && due('VOL-01'))
-          fire({ id: `volt-${ts}`, code: 'VOL-01', message: 'Abnormal Voltage Spikes!', severity: AlertSeverity.CRITICAL, timestamp: ts })
+          fire({ id: `volt-${ts}`, code: 'VOL-01', message: `${d.voltage < 300 ? 'Undervoltage' : 'Overvoltage'} Detected! (${d.voltage.toFixed(1)}V)`, severity: AlertSeverity.CRITICAL, timestamp: ts })
         if (d.currentAnomaly && due('CUR-01'))
-          fire({ id: `curr-${ts}`, code: 'CUR-01', message: 'Abnormal Current Spikes!', severity: AlertSeverity.CRITICAL, timestamp: ts })
+          fire({ id: `curr-${ts}`, code: 'CUR-01', message: `Overcurrent Detected! (${d.current.toFixed(1)}A)`, severity: AlertSeverity.CRITICAL, timestamp: ts })
         if (d.thermalRunawayRisk && due('THM-01'))
           fire({ id: `therm-${ts}`, code: 'THM-01', message: 'Thermal Runaway Risk!', severity: AlertSeverity.CRITICAL, timestamp: ts })
         else if (d.packTemp > 45 && due('THM-02'))
