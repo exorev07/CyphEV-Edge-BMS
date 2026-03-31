@@ -20,13 +20,13 @@ function fmt(d: Date): string {
 
 function buildSeedHistory(): TempPoint[] {
   const latest = toMinMark(new Date())
-  let pack = 30 + Math.random() * 8
-  let ambient = 52 + Math.random() * 6
+  let pack = 22 + Math.random() * 5
+  let ambient = 38 + Math.random() * 4
   return Array.from({ length: TOTAL }, (_, i) => {
     const t = new Date(latest.getTime() - (TOTAL - 1 - i) * STEP_MS)
     if (i > 0) {
-      pack = Math.max(25, Math.min(50, pack + (Math.random() - 0.5) * 0.3))
-      ambient = Math.max(50, Math.min(60, ambient + (Math.random() - 0.5) * 0.4))
+      pack = Math.max(15, Math.min(65, pack + (Math.random() - 0.5) * 0.3))
+      ambient = Math.max(32, Math.min(48, ambient + (Math.random() - 0.5) * 0.2))
     }
     return { time: fmt(t), pack: parseFloat(pack.toFixed(1)), ambient: parseFloat(ambient.toFixed(1)) }
   })

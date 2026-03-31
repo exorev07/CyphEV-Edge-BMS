@@ -16,6 +16,7 @@ export default function OverviewPage() {
   const cutoff = Date.now() - 30_000
   const recentCodes = new Set(alerts.filter(a => a.timestamp >= cutoff).map(a => a.code))
   const hasAlert = (code: string) => recentCodes.has(code)
+  const isRelayConnected = !hasAlert('VOL-01') && !hasAlert('CUR-01') && !hasAlert('THM-01')
 
   if (!data) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', fontFamily: fonts.body, color: colors.text.muted }}>
@@ -47,7 +48,7 @@ export default function OverviewPage() {
           </div>
         </GlassCard>
         {(() => {
-          const isConn = data.relayStatus === 'CONNECTED'
+          const isConn = isRelayConnected
           return (
             <GlassCard style={{ display: 'flex', flexDirection: 'column' }}>
               {/* Header row with title + status badge */}
@@ -68,7 +69,7 @@ export default function OverviewPage() {
                     fontFamily: fonts.mono, fontSize: '10px', fontWeight: 600,
                     color: isConn ? colors.status.nominal : colors.status.critical,
                   }}>
-                    {data.relayStatus}
+                    {isConn ? 'CONNECTED' : 'DISCONNECTED'}
                   </span>
                 </div>
               </div>
@@ -81,11 +82,16 @@ export default function OverviewPage() {
                   const tr = { transition: 'fill 0.6s, opacity 0.6s' }
                   // All coords on a 200x100 canvas, centered at y=50
                   return (
-                    <svg width="240" height="120" viewBox="15 0 220 100">
+                    <svg width="240" height="120" viewBox="0 0 220 100">
+                      {/* === WIRES (behind everything) === */}
+                      <g style={{ transition: 'transform 1s cubic-bezier(0.4,0,0.2,1)', transform: isConn ? 'translateX(44px)' : 'translateX(0px)' }}>
+                        <rect x="2" y="44" width="24" height="12" rx="6" fill={fill} opacity={op * 0.65} style={tr} />
+                      </g>
+                      <g style={{ transition: 'transform 1s cubic-bezier(0.4,0,0.2,1)', transform: 'translateX(0px)' }}>
+                        <rect x="174" y="44" width="24" height="12" rx="6" fill={fill} opacity={op * 0.65} style={tr} />
+                      </g>
                       {/* === PLUG (left side) === */}
                       <g style={{ transition: 'transform 1s cubic-bezier(0.4,0,0.2,1)', transform: isConn ? 'translateX(44px)' : 'translateX(0px)' }}>
-                        {/* Wire */}
-                        <rect x="2" y="44" width="24" height="12" rx="6" fill={fill} opacity={op * 0.65} style={tr} />
                         {/* Body: flat right edge, rounded left */}
                         <path d="M72,22 L72,78 L52,78 C34,78 22,66 22,50 C22,34 34,22 52,22 Z"
                           fill={fill} opacity={op} style={tr} />
@@ -97,9 +103,7 @@ export default function OverviewPage() {
                         <rect x="89" y="59" width="5" height="7" rx="2" fill={fillDark} opacity={op} style={tr} />
                       </g>
                       {/* === SOCKET (right side) === */}
-                      <g>
-                        {/* Wire (behind body) */}
-                        <rect x="174" y="44" width="24" height="12" rx="6" fill={fill} opacity={op * 0.65} style={tr} />
+                      <g style={{ transition: 'transform 1s cubic-bezier(0.4,0,0.2,1)', transform: 'translateX(0px)' }}>
                         {/* Body: flat left edge, rounded right */}
                         <path d="M126,14 L126,86 L148,86 C166,86 178,70 178,50 C178,30 166,14 148,14 Z"
                           fill={isConn ? colors.amethyst.mid : 'rgba(55,65,81,0.8)'} opacity={op} style={tr} />
@@ -179,7 +183,7 @@ export default function OverviewPage() {
               }}
             >
               {/* Outer ring */}
-              <circle cx="60" cy="60" r="78" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.25)' : 'rgba(255,255,255,0.08)'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
+              <circle cx="60" cy="60" r="78" fill="none" stroke={data.fanStatus ? 'rgba(177,141,221,0.25)' : 'rgba(255,255,255,0.25)'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
               {/* 3 wide curved blades */}
               {[0, 120, 240].map((angle) => (
                 <path
@@ -245,7 +249,7 @@ export default function OverviewPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <SensorTile label="Voltage" value={data.voltage.toFixed(1)} unit="V" icon={Bolt} alert={hasAlert('VOL-01')} />
             <SensorTile label="Current" value={data.current.toFixed(1)} unit="A" icon={Activity} alert={hasAlert('CUR-01')} />
-            <SensorTile label="Humidity" value={data.humidity.toFixed(1)} unit="%" icon={Droplets} alert={hasAlert('HUM-01')} />
+            <SensorTile label="Pack Hum." value={data.humidity.toFixed(1)} unit="%" icon={Droplets} alert={hasAlert('HUM-01')} />
             <SensorTile label="Pressure" value={data.pressure.toFixed(0)} unit="hPa" icon={Gauge} alert={hasAlert('PRS-01')} />
             <SensorTile label="Coolant Inlet" value={data.coolantInletTemp.toFixed(1)} unit="°C" icon={Thermometer} />
             <SensorTile label="Heat Exch." value={data.heatExchangerTemp.toFixed(1)} unit="°C" icon={Wind} />

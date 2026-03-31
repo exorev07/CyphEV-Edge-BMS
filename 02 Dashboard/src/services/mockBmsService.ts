@@ -8,8 +8,13 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
   // BMW i3 94Ah: nominal pack ~350–403V, current up to ~160A discharge / 125A charge
   let voltage = prevData ? prevData.voltage + (Math.random() - 0.5) * 2 : 380
   let current = prevData ? prevData.current + (Math.random() - 0.5) * 8 : 40
-  let temp = prevData ? prevData.packTemp + (Math.random() - 0.45) * 1.2 : 35
-  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.4 : 28
+  // Heat generated proportional to current (I²R effect), cooled by fan above 35°C
+  const load = prevData ? Math.abs(prevData.current) / 160 : 0  // 0–1 normalized
+  const fanCooling = prevData && prevData.packTemp > 35 ? 0.3 : 0
+  const heatGain = load * 0.8   // up to +0.8°C/tick at full load
+  const tempDrift = heatGain - fanCooling + (Math.random() - 0.5) * 0.3
+  let temp = prevData ? prevData.packTemp + tempDrift : 25
+  let ambientTemp = prevData ? prevData.ambientTemp + (Math.random() - 0.5) * 0.2 : 40
 
   voltage = Math.max(278, Math.min(415, voltage))
   // Occasional spike: ~1% chance of brief overcurrent/overvoltage
@@ -17,7 +22,7 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
   if (Math.random() > 0.99) current += 80 + Math.random() * 60
   current = Math.max(-125, Math.min(170, current)) // negative = charging
   temp = Math.max(15, Math.min(65, temp))
-  ambientTemp = Math.max(15, Math.min(45, ambientTemp))
+  ambientTemp = Math.max(32, Math.min(48, ambientTemp))
 
   const velocity = prevData ? Math.max(0, Math.min(180, prevData.velocity + (Math.random() - 0.45) * 8)) : 65
   const throttle = Math.max(0, Math.min(100, (velocity / 180) * 100 + (Math.random() - 0.5) * 15))
@@ -46,6 +51,11 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
   const avgSpeed = velocity > 0 ? velocity : 40
   const remainingTimeMinutes = remainingRangeKm / avgSpeed * 60
 
+  const humidity = parseFloat((prevData
+    ? Math.max(20, Math.min(95, prevData.humidity + (Math.random() - 0.48) * 1.5))
+    : 35 + Math.random() * 10).toFixed(1))
+  const waterLeakageDetected = humidity > 85
+
   const voltageAnomaly = voltage > 410 || voltage < 300
   const currentAnomaly = current > 160 || current < -125
   const relayStatus: 'CONNECTED' | 'DISCONNECTED' = voltageAnomaly || currentAnomaly ? 'DISCONNECTED' : 'CONNECTED'
@@ -70,7 +80,7 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
 
     packTemp: parseFloat(temp.toFixed(1)),
     ambientTemp: parseFloat(ambientTemp.toFixed(1)),
-    humidity: parseFloat((45 + Math.random() * 5).toFixed(1)),
+    humidity,
     pressure: parseFloat((1013 + Math.random() * 10).toFixed(1)),
 
     airconPower: parseFloat(airconPower.toFixed(1)),
@@ -92,7 +102,7 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
     voltageAnomaly,
     currentAnomaly,
     batterySwellDetected: Math.random() > 0.995,
-    waterLeakageDetected: Math.random() > 0.995,
+    waterLeakageDetected,
     socDropDetected: prevData ? (prevData.soc - soc) > 0.5 : false,
 
     timestamp: now,

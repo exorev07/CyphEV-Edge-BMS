@@ -4,7 +4,6 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { LayoutDashboard, BarChart3, ScrollText, Settings as SettingsIcon, LogOut, ChevronLeft, ChevronRight } from 'lucide-react'
 import { colors, fonts } from '../../lib/styles'
-import { StatusIndicator } from './StatusIndicator'
 import type { SystemStatus } from '../../types/bms'
 
 const navItems = [
@@ -75,18 +74,48 @@ export function Sidebar({ status }: SidebarProps) {
       </div>
 
       {/* Status */}
-      <div style={{
-        padding: collapsed ? '16px 0' : '16px 20px',
-        display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-        gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <StatusIndicator status={status} />
-        {!collapsed && (
-          <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.text.muted, whiteSpace: 'nowrap' }}>
-            {status === 'NOMINAL' ? 'System Nominal' : status === 'WARNING' ? 'Warning' : status === 'SEVERE' ? 'Severe Alert' : 'Critical Alert'}
-          </span>
-        )}
-      </div>
+      {(() => {
+        const statusColor =
+          status === 'CRITICAL' ? colors.status.critical :
+          status === 'SEVERE' ? '#f97316' :
+          status === 'WARNING' ? colors.status.warning :
+          colors.status.nominal
+        const label = status === 'NOMINAL' ? 'System Nominal' : status === 'WARNING' ? 'Attention' : status === 'SEVERE' ? 'Severe' : 'Critical'
+        return (
+          <div style={{ padding: '12px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'center' }}>
+            {collapsed ? (
+              <div style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '10px 0', borderRadius: '10px',
+                background: `${statusColor}14`,
+                transition: 'background 0.4s',
+              }}>
+                <div style={{
+                  width: '10px', height: '10px', borderRadius: '50%',
+                  background: statusColor, boxShadow: `0 0 6px ${statusColor}`,
+                  transition: 'background 0.4s, box-shadow 0.4s',
+                }} />
+              </div>
+            ) : (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                padding: '6px 14px', borderRadius: '20px',
+                background: `${statusColor}14`,
+                border: `1px solid ${statusColor}40`,
+                transition: 'background 0.4s, border-color 0.4s',
+              }}>
+                <span style={{
+                  fontFamily: fonts.mono, fontSize: '11px', fontWeight: 600,
+                  color: statusColor, whiteSpace: 'nowrap',
+                  transition: 'color 0.4s',
+                }}>
+                  {label}
+                </span>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Nav Items */}
       <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
