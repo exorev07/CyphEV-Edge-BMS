@@ -51,8 +51,8 @@ export function TemperatureChart() {
   }, [data])
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '4px' }}>
-      <div style={{ width: '100%', height: 270 }}>
+    <div style={{ width: '100%', height: '100%', minHeight: 'clamp(180px, 20vh, 280px)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '4px' }}>
+      <div style={{ width: '100%', height: 'clamp(220px, 24vh, 340px)' }}>
         <ResponsiveContainer>
           <AreaChart data={points} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
             <defs>

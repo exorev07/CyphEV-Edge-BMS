@@ -47,7 +47,7 @@ export function SocTimeChart() {
   }, [])
 
   return (
-    <div style={{ width: '100%', height: 220 }}>
+    <div style={{ width: '100%', height: 'clamp(180px, 20vh, 280px)' }}>
       <ResponsiveContainer>
         <AreaChart data={points} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
           <defs>

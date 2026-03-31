@@ -1,4 +1,7 @@
-import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw } from 'lucide-react'
+import { useState } from 'react'
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
+import { auth } from '../../lib/firebase'
+import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Settings } from 'lucide-react'
 import { useBMS } from '../../components/dashboard/DashboardLayout'
 import { GlassCard } from '../../components/dashboard/GlassCard'
 import { RadialGauge } from '../../components/dashboard/RadialGauge'
@@ -8,19 +11,59 @@ import { MiniAlertPanel } from '../../components/dashboard/MiniAlertPanel'
 import { SocTimeChart } from '../../components/dashboard/charts/SocTimeChart'
 import { RangeSocChart } from '../../components/dashboard/charts/RangeSocChart'
 import { TemperatureChart } from '../../components/dashboard/charts/TemperatureChart'
-import { fonts, colors, chartColors } from '../../lib/styles'
+import { fonts, colors, chartColors, glassCard } from '../../lib/styles'
 
 export default function OverviewPage() {
   const { data, alerts } = useBMS()
+  const [relayOverride, setRelayOverride] = useState<boolean | null>(null)
+  const [showRelayModal, setShowRelayModal] = useState(false)
+  const [relayPassword, setRelayPassword] = useState('')
+  const [relayAuthError, setRelayAuthError] = useState('')
+  const [relayLoading, setRelayLoading] = useState(false)
 
   const cutoff = Date.now() - 30_000
   const recentAlerts = alerts.filter(a => a.timestamp >= cutoff)
   const recentCodes = new Set(recentAlerts.map(a => a.code))
   const hasAlert = (code: string) => recentCodes.has(code)
-  const isRelayConnected = !hasAlert('VOL-01') && !hasAlert('CUR-01') && !hasAlert('THM-01')
+  const alertBasedRelay = !hasAlert('VOL-01') && !hasAlert('CUR-01') && !hasAlert('THM-01')
+  const isRelayConnected = relayOverride !== null ? relayOverride : alertBasedRelay
   const disconnectCause = !isRelayConnected
     ? alerts.filter(a => ['VOL-01', 'CUR-01', 'THM-01'].includes(a.code)).sort((a, b) => b.timestamp - a.timestamp)[0]
     : null
+
+  // Reset override when alert state matches override (override no longer needed)
+  if (relayOverride !== null && relayOverride === alertBasedRelay) setRelayOverride(null)
+
+  const openRelayModal = () => {
+    setRelayPassword('')
+    setRelayAuthError('')
+    setShowRelayModal(true)
+  }
+
+  const handleRelayToggle = async () => {
+    const wantConnect = !isRelayConnected
+    if (!wantConnect) {
+      // Disconnecting — no password needed
+      setRelayOverride(false)
+      setShowRelayModal(false)
+      return
+    }
+    // Reconnecting — requires password
+    const user = auth.currentUser
+    if (!user || !user.email) { setRelayAuthError('No authenticated user'); return }
+    setRelayLoading(true)
+    setRelayAuthError('')
+    try {
+      const cred = EmailAuthProvider.credential(user.email, relayPassword)
+      await reauthenticateWithCredential(user, cred)
+      setRelayOverride(true)
+      setShowRelayModal(false)
+    } catch {
+      setRelayAuthError('Incorrect password')
+    } finally {
+      setRelayLoading(false)
+    }
+  }
 
   if (!data) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', fontFamily: fonts.body, color: colors.text.muted }}>
@@ -29,7 +72,7 @@ export default function OverviewPage() {
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1400px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 1.5vw, 24px)', maxWidth: '1800px', margin: '0 auto', width: '100%' }}>
       {/* Page header */}
       <div>
         <h1 style={{ fontFamily: fonts.heading, fontSize: '24px', fontWeight: 600, color: colors.text.primary, margin: 0 }}>
@@ -41,7 +84,7 @@ export default function OverviewPage() {
       </div>
 
       {/* === Row 1: Vehicle Dynamics + Relay Status === */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(12px, 1vw, 16px)' }}>
         <GlassCard title="Vehicle Dynamics" style={{ gridColumn: 'span 3' }}>
           <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
             <RadialGauge value={data.velocity} max={180} label="Speed" unit="km/h" color={chartColors.secondary} decimals={1} />
@@ -63,18 +106,33 @@ export default function OverviewPage() {
                 }}>
                   Relay Status
                 </h3>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '4px 10px', borderRadius: '20px',
-                  background: isConn ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)',
-                  border: `1px solid ${isConn ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
-                }}>
-                  <span style={{
-                    fontFamily: fonts.mono, fontSize: '10px', fontWeight: 600,
-                    color: isConn ? colors.status.nominal : colors.status.critical,
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: '4px 10px', borderRadius: '20px',
+                    background: isConn ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)',
+                    border: `1px solid ${isConn ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
                   }}>
-                    {isConn ? 'CONNECTED' : 'DISCONNECTED'}
-                  </span>
+                    <span style={{
+                      fontFamily: fonts.mono, fontSize: '10px', fontWeight: 600,
+                      color: isConn ? colors.status.nominal : colors.status.critical,
+                    }}>
+                      {isConn ? 'CONNECTED' : 'DISCONNECTED'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={openRelayModal}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: '28px', height: '28px', borderRadius: '8px', cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(141,110,179,0.25)',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                  >
+                    <Settings size={14} color={colors.text.muted} />
+                  </button>
                 </div>
               </div>
               {/* Plug & Socket SVG */}
@@ -137,7 +195,7 @@ export default function OverviewPage() {
       </div>
 
       {/* === Row 2: Charts === */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: 'clamp(12px, 1vw, 16px)' }}>
         <GlassCard title="State of Charge">
           <SocTimeChart />
           <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
@@ -221,7 +279,7 @@ export default function OverviewPage() {
       </div>
 
       {/* === Row 3: Battery Stats === */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(12px, 1vw, 16px)' }}>
         <StatCard
           label="State of Health"
           value={data.soh.toFixed(1)}
@@ -256,7 +314,7 @@ export default function OverviewPage() {
       </div>
 
       {/* === Row 4: Sensors + Alerts + Temperature === */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 'clamp(12px, 1vw, 16px)' }}>
         <GlassCard title="Sensor Readings">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <SensorTile label="Voltage" value={data.voltage.toFixed(1)} unit="V" icon={Bolt} alert={hasAlert('VOL-01')} />
@@ -285,6 +343,102 @@ export default function OverviewPage() {
           <TemperatureChart />
         </GlassCard>
       </div>
+
+      {/* Relay Override Modal */}
+      {showRelayModal && (
+        <div
+          onClick={() => setShowRelayModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              ...glassCard,
+              width: '380px', padding: '28px',
+              border: '1px solid rgba(141,110,179,0.45)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+          >
+            <h3 style={{
+              fontFamily: fonts.body, fontSize: '16px', fontWeight: 600,
+              color: colors.text.primary, margin: '0 0 6px',
+            }}>
+              {isRelayConnected ? 'Disconnect Relay' : 'Reconnect Relay'}
+            </h3>
+            <p style={{
+              fontFamily: fonts.body, fontSize: '13px', color: colors.text.muted,
+              margin: '0 0 20px', lineHeight: 1.5,
+            }}>
+              {isRelayConnected
+                ? 'This will manually disconnect the battery relay. No authentication required.'
+                : 'Reconnecting the relay after an anomaly requires admin verification.'}
+            </p>
+
+            {!isRelayConnected && (
+              <>
+                <label style={{
+                  fontFamily: fonts.body, fontSize: '12px', fontWeight: 500,
+                  color: colors.text.secondary, display: 'block', marginBottom: '6px',
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={relayPassword}
+                  onChange={e => { setRelayPassword(e.target.value); setRelayAuthError('') }}
+                  onKeyDown={e => e.key === 'Enter' && handleRelayToggle()}
+                  placeholder="Enter your password"
+                  style={{
+                    width: '100%', padding: '10px 12px', borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(141,110,179,0.3)',
+                    fontFamily: fonts.mono, fontSize: '13px', color: colors.text.primary,
+                    outline: 'none', boxSizing: 'border-box',
+                  }}
+                />
+                {relayAuthError && (
+                  <p style={{
+                    fontFamily: fonts.body, fontSize: '12px', color: colors.status.critical,
+                    margin: '8px 0 0',
+                  }}>
+                    {relayAuthError}
+                  </p>
+                )}
+              </>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowRelayModal(false)}
+                style={{
+                  padding: '8px 18px', borderRadius: '10px', cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                  fontFamily: fonts.body, fontSize: '13px', fontWeight: 500, color: colors.text.muted,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRelayToggle}
+                disabled={relayLoading}
+                style={{
+                  padding: '8px 18px', borderRadius: '10px', cursor: relayLoading ? 'wait' : 'pointer',
+                  background: isRelayConnected ? 'rgba(248,113,113,0.15)' : 'rgba(52,211,153,0.15)',
+                  border: `1px solid ${isRelayConnected ? 'rgba(248,113,113,0.35)' : 'rgba(52,211,153,0.35)'}`,
+                  fontFamily: fonts.body, fontSize: '13px', fontWeight: 600,
+                  color: isRelayConnected ? colors.status.critical : colors.status.nominal,
+                  opacity: relayLoading ? 0.6 : 1,
+                }}
+              >
+                {relayLoading ? 'Verifying...' : isRelayConnected ? 'Disconnect' : 'Reconnect'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

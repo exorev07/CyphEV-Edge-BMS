@@ -34,7 +34,7 @@ export function DashboardLayout() {
     <BMSContext.Provider value={bms}>
       <div style={{ display: 'flex', minHeight: '100vh', background: '#08080a' }}>
         <Sidebar status={status} />
-        <main style={{ flex: 1, overflow: 'auto', padding: '28px 32px' }}>
+        <main style={{ flex: 1, overflow: 'auto', padding: 'clamp(16px, 2vw, 28px) clamp(16px, 2.5vw, 32px)' }}>
           <Outlet />
         </main>
       </div>
