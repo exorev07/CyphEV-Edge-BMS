@@ -2,8 +2,8 @@ import { createContext, useContext } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { useBMSData } from '../../services/mockBmsService'
-import { getSystemStatus } from '../../types/bms'
-import type { BMSData, HistoryPoint, BMSAlert } from '../../types/bms'
+import { AlertSeverity } from '../../types/bms'
+import type { BMSData, HistoryPoint, BMSAlert, SystemStatus } from '../../types/bms'
 
 interface BMSContextValue {
   data: BMSData | null
@@ -15,9 +15,20 @@ const BMSContext = createContext<BMSContextValue>({ data: null, history: [], ale
 
 export const useBMS = () => useContext(BMSContext)
 
+function deriveStatus(_data: BMSData, alerts: BMSAlert[]): SystemStatus {
+  const cutoff = Date.now() - 30_000
+  const recent = alerts.filter(a => a.timestamp >= cutoff)
+
+  if (recent.some(a => a.severity === AlertSeverity.CRITICAL)) return 'CRITICAL'
+  if (recent.some(a => a.severity === AlertSeverity.SEVERE)) return 'SEVERE'
+  if (recent.some(a => a.severity === AlertSeverity.ATTENTION_REQUIRED)) return 'WARNING'
+
+  return 'NOMINAL'
+}
+
 export function DashboardLayout() {
   const bms = useBMSData()
-  const status = bms.data ? getSystemStatus(bms.data) : 'NOMINAL'
+  const status = bms.data ? deriveStatus(bms.data, bms.alerts) : 'NOMINAL'
 
   return (
     <BMSContext.Provider value={bms}>

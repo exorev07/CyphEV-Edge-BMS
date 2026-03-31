@@ -60,6 +60,7 @@ export interface BMSData {
   currentAnomaly: boolean
   batterySwellDetected: boolean
   waterLeakageDetected: boolean
+  socDropDetected: boolean
 
   timestamp: number
 }
@@ -82,22 +83,20 @@ export type SystemStatus = 'NOMINAL' | 'WARNING' | 'SEVERE' | 'CRITICAL'
 
 export function getSystemStatus(data: BMSData): SystemStatus {
   // CRITICAL: voltage/current anomaly → relay disconnects
-  if (data.voltageAnomaly || data.currentAnomaly) return 'CRITICAL'
+  if (data.voltageAnomaly || data.currentAnomaly || data.thermalRunawayRisk) return 'CRITICAL'
 
-  // SEVERE: thermal, leak, swell, relay disconnected
+  // SEVERE: leak, swell, rapid SoC drop
   if (
-    data.thermalRunawayRisk ||
     data.waterLeakageDetected ||
     data.batterySwellDetected ||
-    data.relayStatus === 'DISCONNECTED'
+    data.socDropDetected
   ) return 'SEVERE'
 
   // WARNING: attention-level issues
   if (
     data.capacityFadeDetected ||
     data.soc < 20 ||
-    data.packTemp > 45 ||
-    data.fanStatus
+    data.packTemp > 45
   ) return 'WARNING'
 
   return 'NOMINAL'

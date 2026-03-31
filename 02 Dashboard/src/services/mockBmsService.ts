@@ -88,6 +88,7 @@ const generateMockData = (prevData: BMSData | null): BMSData => {
     currentAnomaly,
     batterySwellDetected: Math.random() > 0.995,
     waterLeakageDetected: Math.random() > 0.995,
+    socDropDetected: prevData ? (prevData.soc - soc) > 0.5 : false,
 
     timestamp: now,
   }
@@ -133,13 +134,15 @@ export const useBMSData = () => {
         if (d.currentAnomaly)
           newAlerts.push({ id: `curr-${ts}`, code: 'CUR-01', message: 'Abnormal Current Spikes!', severity: AlertSeverity.CRITICAL, timestamp: ts })
         if (d.thermalRunawayRisk)
-          newAlerts.push({ id: `therm-${ts}`, code: 'THM-01', message: 'High Pack Temperature!', severity: AlertSeverity.SEVERE, timestamp: ts })
+          newAlerts.push({ id: `therm-${ts}`, code: 'THM-01', message: 'Thermal Runaway Risk!', severity: AlertSeverity.CRITICAL, timestamp: ts })
+        else if (d.packTemp > 45)
+          newAlerts.push({ id: `therm2-${ts}`, code: 'THM-02', message: `Elevated Pack Temperature! (${d.packTemp.toFixed(1)}°C)`, severity: AlertSeverity.SEVERE, timestamp: ts })
         if (d.waterLeakageDetected)
           newAlerts.push({ id: `leak-${ts}`, code: 'HUM-01', message: 'Water Leak Detected!', severity: AlertSeverity.SEVERE, timestamp: ts })
         if (d.batterySwellDetected)
           newAlerts.push({ id: `swell-${ts}`, code: 'PRS-01', message: 'Battery Pack Swelling Detected!', severity: AlertSeverity.SEVERE, timestamp: ts })
-        if (prev && (prev.soc - d.soc) > 0.5)
-          newAlerts.push({ id: `socdrop-${ts}`, code: 'SOC-02', message: `Rapid SoC Drop! (${prev.soc.toFixed(1)}% → ${d.soc.toFixed(1)}%)`, severity: AlertSeverity.SEVERE, timestamp: ts })
+        if (d.socDropDetected)
+          newAlerts.push({ id: `socdrop-${ts}`, code: 'SOC-02', message: `Rapid SoC Drop! (${prev!.soc.toFixed(1)}% → ${d.soc.toFixed(1)}%)`, severity: AlertSeverity.SEVERE, timestamp: ts })
         if (d.capacityFadeDetected)
           newAlerts.push({ id: `cap-${ts}`, code: 'CAP-01', message: 'Abnormal Capacity Fade', severity: AlertSeverity.ATTENTION_REQUIRED, timestamp: ts })
         if (d.soc < 20)
