@@ -185,5 +185,10 @@ export const useBMSData = () => {
     setAlerts((a) => a.map((alert) => alert.id === id ? { ...alert, action } : alert))
   }
 
-  return { data, history, alerts, addAlert, updateAlertAction }
+  const updateAlertActionsForIds = (ids: string[], action: string) => {
+    const idSet = new Set(ids)
+    setAlerts((a) => a.map((alert) => idSet.has(alert.id) ? { ...alert, action } : alert))
+  }
+
+  return { data, history, alerts, addAlert, updateAlertAction, updateAlertActionsForIds }
 }

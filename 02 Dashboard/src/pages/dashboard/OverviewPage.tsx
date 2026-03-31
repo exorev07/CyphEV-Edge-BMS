@@ -14,7 +14,7 @@ import { TemperatureChart } from '../../components/dashboard/charts/TemperatureC
 import { fonts, colors, chartColors, glassCard } from '../../lib/styles'
 
 export default function OverviewPage() {
-  const { data, alerts, addAlert, updateAlertAction } = useBMS()
+  const { data, alerts, addAlert, updateAlertActionsForIds } = useBMS()
   const [relayOverride, setRelayOverride] = useState<boolean>(true)
   const [disconnectCause, setDisconnectCause] = useState<{ code?: string; message: string; timestamp: number } | null>(null)
   const relayLatchedRef = useRef(false)
@@ -36,11 +36,12 @@ export default function OverviewPage() {
   useEffect(() => {
     if (alertTriggered && !relayLatchedRef.current) {
       relayLatchedRef.current = true
-      const cause = alerts.filter(a => ['VOL-01', 'CUR-01', 'THM-01'].includes(a.code)).sort((a, b) => b.timestamp - a.timestamp)[0]
+      const causes = alerts.filter(a => ['VOL-01', 'CUR-01', 'THM-01'].includes(a.code))
+      const primary = causes.sort((a, b) => b.timestamp - a.timestamp)[0]
       setRelayOverride(false)
-      if (cause) {
-        setDisconnectCause({ code: cause.code, message: cause.message, timestamp: cause.timestamp })
-        updateAlertAction(cause.id, 'Relay Disconnected')
+      if (causes.length > 0) {
+        setDisconnectCause({ code: primary.code, message: primary.message, timestamp: primary.timestamp })
+        updateAlertActionsForIds(causes.map(c => c.id), 'Relay Disconnected')
       }
     }
   }, [alertTriggered])
