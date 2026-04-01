@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, PlugZap } from 'lucide-react'
+import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, PlugZap, BatteryCharging, Navigation, Cpu } from 'lucide-react'
 import { useBMS } from '../../components/dashboard/DashboardLayout'
 import { GlassCard } from '../../components/dashboard/GlassCard'
 import { RadialGauge } from '../../components/dashboard/RadialGauge'
@@ -208,13 +208,13 @@ export default function OverviewPage() {
 
       {/* === Row 2: Charts === */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: 'clamp(12px, 1vw, 16px)' }}>
-        <GlassCard title="State of Charge">
+        <GlassCard title="State of Charge" headerRight={<div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BatteryCharging size={16} color={colors.text.muted} /></div>}>
           <SocTimeChart />
           <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
             {data.soc.toFixed(1)}%
           </div>
         </GlassCard>
-        <GlassCard title="Estimated Range">
+        <GlassCard title="Estimated Range" headerRight={<div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Navigation size={16} color={colors.text.muted} /></div>}>
           <RangeSocChart />
           <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
             {data.remainingRangeKm.toFixed(0)} km &nbsp;·&nbsp; ~{data.remainingTimeMinutes} min
@@ -328,7 +328,7 @@ export default function OverviewPage() {
 
       {/* === Row 4: Sensors + Alerts + Temperature === */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 'clamp(12px, 1vw, 16px)' }}>
-        <GlassCard title="Sensor Readings">
+        <GlassCard title="Sensor Readings" headerRight={<div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Cpu size={16} color={colors.text.muted} /></div>}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <SensorTile label="Voltage" value={data.voltage.toFixed(1)} unit="V" icon={Bolt} alert={hasAlert('VOL-01')} />
             <SensorTile label="Current" value={data.current.toFixed(1)} unit="A" icon={Activity} alert={hasAlert('CUR-01')} />

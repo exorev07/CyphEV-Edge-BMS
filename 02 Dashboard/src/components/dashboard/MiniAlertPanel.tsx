@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowUpRight } from 'lucide-react'
+import { AlertTriangle, ArrowUpRight, Bell } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { fonts, colors } from '../../lib/styles'
 import { AlertSeverity } from '../../types/bms'
@@ -15,12 +15,17 @@ export function MiniAlertPanel({ alerts }: MiniAlertPanelProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}>
       {/* Header row */}
-      <span style={{
-        fontFamily: fonts.body, fontSize: '13px', fontWeight: 600,
-        color: colors.text.muted, letterSpacing: '0.06em', textTransform: 'uppercase',
-      }}>
-        Recent Events
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{
+          fontFamily: fonts.body, fontSize: '13px', fontWeight: 600,
+          color: colors.text.muted, letterSpacing: '0.06em', textTransform: 'uppercase',
+        }}>
+          Recent Events
+        </span>
+        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Bell size={16} color={colors.text.muted} />
+        </div>
+      </div>
 
       {/* Alert list */}
       {recent.length === 0 ? (
