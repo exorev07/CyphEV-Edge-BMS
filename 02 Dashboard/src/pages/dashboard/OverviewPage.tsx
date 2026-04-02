@@ -450,12 +450,25 @@ export default function OverviewPage() {
             </div>
             <p style={{
               fontFamily: fonts.body, fontSize: '13px', color: colors.text.secondary,
-              margin: '0 0 24px', lineHeight: 1.6, letterSpacing: '0.01em',
+              margin: '0 0 16px', lineHeight: 1.6, letterSpacing: '0.01em',
             }}>
               {isRelayConnected
                 ? 'This will manually disconnect the battery relay. No authentication required.'
                 : 'Reconnecting the relay after an anomaly requires admin verification.'}
             </p>
+
+            {isRelayConnected && (
+              <div style={{
+                display: 'flex', gap: '10px', alignItems: 'flex-start',
+                padding: '10px 14px', borderRadius: '8px', marginBottom: '24px',
+                background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.2)',
+              }}>
+                <AlertTriangle size={14} color={colors.status.critical} style={{ flexShrink: 0, marginTop: '1px' }} />
+                <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.status.critical, lineHeight: 1.55, opacity: 0.85 }}>
+                  Disconnecting will cut the vehicle from the battery pack. Use only in the event of a fault, emergency, or scheduled maintenance.
+                </span>
+              </div>
+            )}
 
             {!isRelayConnected && (
               <>
