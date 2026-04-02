@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, PlugZap, BatteryCharging, Navigation, Cpu, AlertTriangle } from 'lucide-react'
+import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, PlugZap, BatteryCharging, Navigation, Cpu, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { useBMS } from '../../components/dashboard/DashboardLayout'
 import { GlassCard } from '../../components/dashboard/GlassCard'
 import { RadialGauge } from '../../components/dashboard/RadialGauge'
@@ -43,6 +43,7 @@ export default function OverviewPage() {
   const [relayPassword, setRelayPassword] = useState('')
   const [relayAuthError, setRelayAuthError] = useState('')
   const [relayLoading, setRelayLoading] = useState(false)
+  const [showRelayPassword, setShowRelayPassword] = useState(false)
 
   const isRelayConnected = relayOverride
 
@@ -479,29 +480,49 @@ export default function OverviewPage() {
                 }}>
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={relayPassword}
-                  onChange={e => { setRelayPassword(e.target.value); setRelayAuthError('') }}
-                  onKeyDown={e => e.key === 'Enter' && handleRelayToggle()}
-                  placeholder="Enter your password"
-                  autoFocus
-                  style={{
-                    width: '100%', padding: '12px 14px', borderRadius: '10px',
-                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,110,179,0.25)',
-                    fontFamily: fonts.mono, fontSize: '13px', color: colors.text.primary,
-                    outline: 'none', boxSizing: 'border-box',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                  }}
-                  onFocus={e => {
-                    e.target.style.borderColor = 'rgba(121,71,189,0.5)'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(121,71,189,0.12)'
-                  }}
-                  onBlur={e => {
-                    e.target.style.borderColor = 'rgba(141,110,179,0.25)'
-                    e.target.style.boxShadow = 'none'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <style>{`
+                    .relay-pwd-input[type="password"]:not(:placeholder-shown) { font-size: 18px !important; letter-spacing: 1px !important; line-height: 1 !important; }
+                  `}</style>
+                  <input
+                    className="relay-pwd-input"
+                    type={showRelayPassword ? 'text' : 'password'}
+                    value={relayPassword}
+                    onChange={e => { setRelayPassword(e.target.value); setRelayAuthError('') }}
+                    onKeyDown={e => e.key === 'Enter' && handleRelayToggle()}
+                    placeholder="Enter your password"
+                    autoFocus
+                    style={{
+                      width: '100%', height: '40px', padding: '10px 40px 10px 14px', borderRadius: '10px',
+                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,110,179,0.25)',
+                      fontFamily: fonts.body, fontSize: '13px', color: colors.text.primary,
+                      outline: 'none', boxSizing: 'border-box',
+                      transition: 'border-color 0.2s, box-shadow 0.2s',
+                    }}
+                    onFocus={e => {
+                      e.target.style.borderColor = 'rgba(121,71,189,0.5)'
+                      e.target.style.boxShadow = '0 0 0 3px rgba(121,71,189,0.12)'
+                    }}
+                    onBlur={e => {
+                      e.target.style.borderColor = 'rgba(141,110,179,0.25)'
+                      e.target.style.boxShadow = 'none'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRelayPassword(!showRelayPassword)}
+                    style={{
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                      color: colors.text.muted, display: 'flex', alignItems: 'center',
+                      transition: 'color 0.2s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.color = colors.amethyst.light)}
+                    onMouseLeave={e => (e.currentTarget.style.color = colors.text.muted)}
+                  >
+                    {showRelayPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                </div>
                 {relayAuthError && (
                   <p style={{
                     fontFamily: fonts.body, fontSize: '12px', color: colors.status.critical,
