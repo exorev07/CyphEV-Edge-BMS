@@ -41,7 +41,7 @@ export function Sidebar({ status }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const width = collapsed ? 72 : 220
+  const width = collapsed ? 72 : 200
 
   const handleSignOut = async () => {
     await signOut(auth)
