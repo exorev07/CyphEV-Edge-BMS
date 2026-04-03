@@ -63,7 +63,12 @@ function bucketAlerts(alerts: { timestamp: number }[], bucketCount: number, from
 function calcTicks(pts: { time: string }[]): string[] {
   if (pts.length === 0) return []
   const n = pts.length - 1
-  return [0, 1, 2, 3, 4].map(i => pts[Math.round(i * n / 4)]).filter(Boolean).map(p => p.time)
+  const seen = new Set<string>()
+  return [0, 1, 2, 3, 4]
+    .map(i => pts[Math.round(i * n / 4)])
+    .filter(Boolean)
+    .map(p => p.time)
+    .filter(t => { if (seen.has(t)) return false; seen.add(t); return true })
 }
 
 /* ── Custom Recharts Tooltip ── */
@@ -529,18 +534,19 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '20px 0 16px' }} />
-
         {/* Stats Row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '28px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
           {[
             { label: activeMetric === 'alerts' ? 'Total' : 'Current', value: stats.current },
             { label: 'Min',     value: stats.min },
             { label: 'Max',     value: stats.max },
             { label: 'Average', value: stats.avg },
           ].map(s => (
-            <div key={s.label} style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <div key={s.label} style={{
+              display: 'flex', alignItems: 'baseline', gap: '6px',
+              padding: '7px 16px', borderRadius: '8px',
+              background: 'rgba(255,255,255,0.07)',
+            }}>
               <span style={{ fontFamily: fonts.mono, fontSize: '11px', fontWeight: 600, color: chartColors.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {s.label}
               </span>

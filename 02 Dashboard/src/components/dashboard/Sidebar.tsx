@@ -313,10 +313,10 @@ export function Sidebar({ status }: SidebarProps) {
                     <Icon size={17} color={colors.amethyst.light} />
                   </div>
                   <div>
-                    <div style={{ fontFamily: fonts.body, fontSize: '13px', fontWeight: 600, color: colors.text.primary, marginBottom: '5px' }}>
+                    <div style={{ fontFamily: fonts.body, fontSize: '13px', fontWeight: 600, color: colors.text.secondary, marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       {label}
                     </div>
-                    <div style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.text.secondary, lineHeight: 1.6, textAlign: 'justify' }}>
+                    <div style={{ fontFamily: fonts.body, fontSize: '13px', color: colors.text.secondary, lineHeight: 1.4, textAlign: 'justify' }}>
                       {desc}
                     </div>
                   </div>

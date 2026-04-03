@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, PlugZap, BatteryCharging, Navigation, Cpu, AlertTriangle, Eye, EyeOff } from 'lucide-react'
+import { Gauge, Zap, Heart, Thermometer, Droplets, Wind, Activity, Bolt, RotateCw, Power, Cable, BatteryCharging, Navigation, Cpu, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { useBMS } from '../../components/dashboard/DashboardLayout'
 import { GlassCard } from '../../components/dashboard/GlassCard'
 import { RadialGauge } from '../../components/dashboard/RadialGauge'
@@ -371,7 +371,7 @@ export default function OverviewPage() {
           value={data.isCharging ? (data.power / 1000).toFixed(1) : '—'}
           unit={data.isCharging ? 'kW' : undefined}
           subtext={data.isCharging ? 'Plugged In' : 'Unplugged'}
-          icon={PlugZap}
+          icon={Cable}
           color={data.isCharging ? colors.status.nominal : colors.text.muted}
         />
       </div>
@@ -446,7 +446,7 @@ export default function OverviewPage() {
                 background: 'rgba(255,255,255,0.05)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <AlertTriangle size={16} color={colors.text.muted} />
+                <AlertTriangle size={16} color={colors.text.secondary} />
               </div>
             </div>
             <p style={{
