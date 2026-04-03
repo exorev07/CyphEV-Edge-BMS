@@ -79,15 +79,21 @@ export default function LogsPage() {
 
   const calDays = getCalendarDays(pickerMonth.getFullYear(), pickerMonth.getMonth())
 
-  // Effective "to" for hover preview
-  const effectiveTo = dateTo ?? (dateFrom && hoverDate && hoverDate > dateFrom ? hoverDate : null)
+  // Effective range for hover preview — supports hovering both before and after dateFrom
+  const hoverEffectiveFrom = (dateFrom && !dateTo && hoverDate && hoverDate < dateFrom) ? hoverDate : dateFrom
+  const effectiveTo = dateTo ?? (dateFrom && hoverDate ? (hoverDate >= dateFrom ? hoverDate : dateFrom) : null)
 
   const filtered = alerts.filter((a) => {
-    if (filter === 'RELAY') return a.code.startsWith('RLY')
-    if (filter !== 'ALL' && a.severity !== filter) return false
-    if (search && !a.code.toLowerCase().includes(search.toLowerCase()) && !a.message.toLowerCase().includes(search.toLowerCase())) return false
+    if (filter === 'RELAY' && !(a.code.startsWith('RLY') || (!!a.action && a.action.toLowerCase().includes('relay')))) return false
+    if (filter !== 'ALL' && filter !== 'RELAY' && a.severity !== filter) return false
+    const d = new Date(a.timestamp)
+    const q = search.toLowerCase()
+    if (search) {
+      const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase()
+      const timeStr = d.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase()
+      if (!a.code.toLowerCase().includes(q) && !a.message.toLowerCase().includes(q) && !(a.action ?? '').toLowerCase().includes(q) && !dateStr.includes(q) && !timeStr.includes(q)) return false
+    }
     if (dateFrom) {
-      const d = new Date(a.timestamp)
       const from = new Date(dateFrom); from.setHours(0, 0, 0, 0)
       if (d < from) return false
       if (dateTo) {
@@ -208,7 +214,7 @@ export default function LogsPage() {
                     if (!day) return <div key={`empty-${i}`} />
                     const isFrom = dateFrom && isSameDay(day, dateFrom)
                     const isTo = dateTo && isSameDay(day, dateTo)
-                    const inRange = isInRange(day, dateFrom, effectiveTo)
+                    const inRange = isInRange(day, hoverEffectiveFrom, effectiveTo)
                     const isToday = isSameDay(day, new Date())
                     const isSelected = isFrom || isTo
 
@@ -291,7 +297,7 @@ export default function LogsPage() {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
           <input
             type="text"
-            placeholder="Search by code or message..."
+            placeholder="Search by error code, message, action taken, or date/time"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
