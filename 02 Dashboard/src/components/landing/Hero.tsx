@@ -134,7 +134,7 @@ export function Hero() {
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <div style={{ padding: '2px 16px', borderRadius: '4px', background: 'rgba(255,255,255,0.03)', fontSize: '10px', color: '#6b7280', fontFamily: 'monospace' }}>
-                cyphev.vercel.app/dashboard
+                cyphev-dashboard.vercel.app/dashboard
               </div>
             </div>
             <div style={{ width: '48px' }} />
