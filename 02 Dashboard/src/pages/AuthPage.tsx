@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, confirmPasswordReset, sendEmailVerification, applyActionCode, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import carImage from '../assets/Audi_RS5_Auth.png'
-import { Eye, EyeOff, Copy, Check, X } from 'lucide-react'
+import { Eye, EyeOff, Copy, Check, X, ArrowUpRight } from 'lucide-react'
 
 const DEMO_EMAIL = 'demo@cyphev.app'
 const DEMO_PASSWORD = 'DemoPass@123'
@@ -616,11 +616,12 @@ export function AuthPage() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '4px',
             transition: 'color 0.2s, transform 0.2s',
             transform: hoveredBtn === 'back' ? 'translateY(-1px)' : 'translateY(0)',
           }}
         >
-          ← Back to home
+          <ArrowUpRight size={18} style={{ transform: 'scaleX(-1)' }} /> Back to home
         </button>
       </div>
     </div>

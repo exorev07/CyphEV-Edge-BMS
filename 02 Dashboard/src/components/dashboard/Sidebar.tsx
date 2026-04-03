@@ -175,6 +175,24 @@ export function Sidebar({ status }: SidebarProps) {
 
       {/* Bottom section */}
       <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {/* Info button */}
+        <button
+          onClick={() => openInfo()}
+          onMouseEnter={() => setHoveredItem('info')}
+          onMouseLeave={() => setHoveredItem(null)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            padding: collapsed ? '8px 0' : '8px 14px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            borderRadius: '10px', cursor: 'pointer',
+            border: '1px solid rgba(177,141,221,0.18)',
+            background: hoveredItem === 'info' ? 'rgba(121,71,189,0.1)' : 'transparent',
+            width: '100%', transition: 'background 0.2s',
+          }}
+        >
+          <Info size={18} color={hoveredItem === 'info' ? colors.amethyst.light : colors.text.secondary} style={{ transition: 'color 0.2s' }} />
+          {!collapsed && <span style={{ fontFamily: fonts.body, fontSize: '13px', color: hoveredItem === 'info' ? colors.amethyst.light : colors.text.secondary, transition: 'color 0.2s' }}>About Cards</span>}
+        </button>
         {/* Settings button */}
         {(() => {
           const active = location.pathname === '/dashboard/settings'
@@ -207,24 +225,6 @@ export function Sidebar({ status }: SidebarProps) {
             </button>
           )
         })()}
-        {/* Info button */}
-        <button
-          onClick={() => openInfo()}
-          onMouseEnter={() => setHoveredItem('info')}
-          onMouseLeave={() => setHoveredItem(null)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            padding: collapsed ? '8px 0' : '8px 14px',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            borderRadius: '10px', cursor: 'pointer',
-            border: '1px solid rgba(177,141,221,0.18)',
-            background: hoveredItem === 'info' ? 'rgba(121,71,189,0.1)' : 'transparent',
-            width: '100%', transition: 'background 0.2s',
-          }}
-        >
-          <Info size={18} color={hoveredItem === 'info' ? colors.amethyst.light : colors.text.secondary} style={{ transition: 'color 0.2s' }} />
-          {!collapsed && <span style={{ fontFamily: fonts.body, fontSize: '13px', color: hoveredItem === 'info' ? colors.amethyst.light : colors.text.secondary, transition: 'color 0.2s' }}>About Cards</span>}
-        </button>
         {/* Sign out */}
         <button
           onClick={handleSignOut}
