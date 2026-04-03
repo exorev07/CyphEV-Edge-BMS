@@ -74,7 +74,7 @@ export function Contact() {
         </div>
 
         {/* Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', maxWidth: '720px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', maxWidth: '860px', margin: '0 auto' }}>
           {members.map((m) => (
             <div
               key={m.name}
@@ -97,10 +97,10 @@ export function Contact() {
               }}
             >
               <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 300, letterSpacing: '0.05em', color: '#ffffff', marginBottom: '0px', textAlign: 'center' }}>{m.name}</p>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#b18ddd', fontWeight: 300, letterSpacing: '0.05em', marginBottom: '0px', textAlign: 'center' }}>{m.discipline}</p>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '14px', color: '#9ca3af', letterSpacing: '0.05em', marginBottom: '18px', textAlign: 'center' }}>{m.institute}</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#9ca3af', marginBottom: '16px', textAlign: 'center' }}>{m.email}</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'justify', marginBottom: '20px' }}>{m.desc}</p>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#b18ddd', fontWeight: 300, letterSpacing: '0.05em', marginBottom: '0px', textAlign: 'center' }}>{m.discipline}</p>
+              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '18px', textAlign: 'center' }}>{m.institute}</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#d1d5db', marginBottom: '16px', textAlign: 'center' }}>{m.email}</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9ca3af', lineHeight: 1.6, textAlign: 'justify', marginBottom: '20px' }}>{m.desc}</p>
 
               {/* Buttons */}
               <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
