@@ -112,7 +112,7 @@ export default function OverviewPage() {
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `1px solid ${colors.amethyst.light}`, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.7, flexShrink: 0 }}>
             <span style={{ fontFamily: fonts.mono, fontSize: '10px', fontWeight: 700, color: colors.amethyst.light, lineHeight: 1 }}>i</span>
           </div>
-          <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.amethyst.light, opacity: 0.7 }}>
+          <span style={{ fontFamily: fonts.body, fontSize: '12px', color: colors.amethyst.light }}>
             Hover over card icons to learn more
           </span>
         </div>
