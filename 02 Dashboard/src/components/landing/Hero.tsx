@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import dashboardPreview from '../../assets/dashboard_preview.png'
 
 const phrases = [
   { before: 'Tired of constant ',    bold: 'Range Anxiety', after: '?' },
@@ -139,12 +140,8 @@ export function Hero() {
             <div style={{ width: '48px' }} />
           </div>
 
-          {/* Screenshot placeholder */}
-          <div style={{ aspectRatio: '16/9', background: '#09090c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ fontSize: '14px', color: '#374151', letterSpacing: '0.05em' }}>
-              Dashboard preview - add screenshot here
-            </p>
-          </div>
+          {/* Dashboard screenshot */}
+          <img src={dashboardPreview} alt="CyphEV Dashboard" style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover', objectPosition: 'top' }} />
         </div>
 
         {/* Glow under preview */}

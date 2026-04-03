@@ -246,7 +246,7 @@ export function AuthPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '60px', width: '100%', maxWidth: '1400px' }}>
 
       {/* Left — Car image */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', overflow: 'hidden', maxWidth: '1000px', marginLeft: '-60px', marginTop: '60px' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', overflow: 'hidden', maxWidth: '800px', marginLeft: '-30px', marginTop: '60px' }}>
         <img
           src={carImage}
           alt="Audi RS5"
