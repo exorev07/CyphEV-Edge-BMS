@@ -54,9 +54,29 @@ export function AuthPage() {
   }, [showDemoSignupTip])
 
   const handleDemoAutofill = () => {
-    setFormData(fd => ({ ...fd, email: DEMO_EMAIL, password: DEMO_PASSWORD }))
     setMode('login')
-    setShowDemoModal(false)
+    setFormData(fd => ({ ...fd, email: '', password: '' }))
+    setTimeout(() => {
+      setShowDemoModal(false)
+      setTimeout(() => {
+        let i = 0
+        const typeEmail = () => {
+          i++
+          setFormData(fd => ({ ...fd, email: DEMO_EMAIL.slice(0, i) }))
+          if (i < DEMO_EMAIL.length) setTimeout(typeEmail, 45)
+          else {
+            let j = 0
+            const typePass = () => {
+              j++
+              setFormData(fd => ({ ...fd, password: DEMO_PASSWORD.slice(0, j) }))
+              if (j < DEMO_PASSWORD.length) setTimeout(typePass, 45)
+            }
+            setTimeout(typePass, 200)
+          }
+        }
+        typeEmail()
+      }, 300)
+    }, 200)
   }
 
   useEffect(() => {
