@@ -390,7 +390,7 @@ export function AuthPage() {
                               onClick={() => { if (isDemoMode) { setShowDemoForgotTip(v => !v); return } setMode('forgot'); setError(null); setShowPassword(false); setVerifyDone(false) }}
                               onMouseEnter={() => setHoveredBtn('forgot')}
                               onMouseLeave={() => setHoveredBtn(null)}
-                              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: hoveredBtn === 'forgot' ? '#b18ddd' : '#6b7280', cursor: isDemoMode ? 'default' : 'pointer', transition: 'color 0.2s' }}
+                              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: hoveredBtn === 'forgot' ? '#b18ddd' : '#6b7280', cursor: 'pointer', transition: 'color 0.2s' }}
                             >
                               Forgot password?
                             </span>
@@ -476,7 +476,7 @@ export function AuthPage() {
                     onClick={() => { if (isDemoMode && mode === 'login') { setShowDemoSignupTip(v => !v); return } setMode(mode === 'register' ? 'login' : mode === 'forgot' ? 'login' : 'register'); setError(null); setFormData(fd => ({ ...fd, password: '' })); setShowPassword(false); setShowNewPassword(false); setVerifyDone(false) }}
                     onMouseEnter={() => setHoveredBtn('toggle')}
                     onMouseLeave={() => setHoveredBtn(null)}
-                    style={{ color: '#b18ddd', cursor: isDemoMode && mode === 'login' ? 'default' : 'pointer', fontWeight: 500, transition: 'color 0.2s' }}
+                    style={{ color: '#b18ddd', cursor: 'pointer', fontWeight: 500, transition: 'color 0.2s' }}
                   >
                     {mode === 'login' ? 'Sign up' : 'Sign in'}
                   </span>
