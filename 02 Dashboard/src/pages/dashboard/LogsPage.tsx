@@ -325,7 +325,7 @@ export default function LogsPage() {
             display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0,
             fontFamily: fonts.body, fontSize: '12px', fontWeight: 500,
             padding: '0 16px', height: '40px', boxSizing: 'border-box', borderRadius: '10px', cursor: 'pointer',
-            background: colors.amethyst.light, color: '#ffffff',
+            background: colors.amethyst.light, color: '#1a0a2e',
             border: '1px solid rgba(121,71,189,0.6)',
             transition: 'background 0.2s',
           }}
