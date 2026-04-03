@@ -7,6 +7,8 @@ import { AlertSeverity } from '../../types/bms'
 
 type SeverityFilter = 'ALL' | 'CRITICAL' | 'SEVERE' | 'ATTENTION_REQUIRED' | 'RELAY'
 
+const PAGE_SIZE = 15
+
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -34,6 +36,7 @@ export default function LogsPage() {
   const { alerts } = useBMS()
   const [filter, setFilter] = useState<SeverityFilter>('ALL')
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [dateFrom, setDateFrom] = useState<Date | null>(null)
   const [dateTo, setDateTo] = useState<Date | null>(null)
@@ -107,6 +110,10 @@ export default function LogsPage() {
     return true
   })
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages - 1)
+  const paginated = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
+
   const exportCSV = () => {
     const header = 'Date,Time,Code,Severity,Message,Action Taken\n'
     const rows = filtered.map((a) => {
@@ -116,8 +123,9 @@ export default function LogsPage() {
     const blob = new Blob([header + rows], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = url; link.download = `cyphev-logs-${Date.now()}.csv`
-    link.click(); URL.revokeObjectURL(url)
+    link.href = url; link.download = 'cyphev-logs.csv'
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   const filterBtns: { label: string; value: SeverityFilter }[] = [
@@ -156,9 +164,9 @@ export default function LogsPage() {
                 fontFamily: fonts.body, fontSize: '12px', fontWeight: 500,
                 padding: '0 12px', height: '40px', boxSizing: 'border-box',
                 borderRadius: '10px', cursor: 'pointer',
-                background: dateFrom ? 'rgba(121,71,189,0.2)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${dateFrom ? 'rgba(121,71,189,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                color: dateFrom ? colors.amethyst.light : colors.text.muted,
+                background: dateFrom ? 'rgba(121,71,189,0.2)' : 'rgba(255,255,255,0.07)',
+                border: `1px solid ${dateFrom ? 'rgba(121,71,189,0.4)' : 'rgba(255,255,255,0.12)'}`,
+                color: dateFrom ? colors.amethyst.light : colors.text.secondary,
                 transition: 'background 0.2s, border 0.2s, color 0.2s',
                 whiteSpace: 'nowrap',
               }}
@@ -275,7 +283,7 @@ export default function LogsPage() {
         </div>
 
         {/* 2: Severity filter */}
-        <div style={{ display: 'flex', gap: '0px', padding: '4px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', height: '40px', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: '0px', padding: '4px', borderRadius: '10px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', height: '40px', alignItems: 'center', flexShrink: 0 }}>
           {filterBtns.map((btn) => (
             <button
               key={btn.value}
@@ -283,8 +291,8 @@ export default function LogsPage() {
               style={{
                 fontFamily: fonts.body, fontSize: '12px', fontWeight: 500,
                 padding: '6px 14px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                background: filter === btn.value ? 'rgba(121,71,189,0.2)' : 'transparent',
-                color: filter === btn.value ? colors.amethyst.light : colors.text.muted,
+                background: filter === btn.value ? 'rgba(121,71,189,0.3)' : 'transparent',
+                color: filter === btn.value ? colors.amethyst.light : colors.text.secondary,
                 transition: 'background 0.2s, color 0.2s',
               }}
             >
@@ -303,8 +311,8 @@ export default function LogsPage() {
             style={{
               flex: 1, fontFamily: fonts.body, fontSize: '13px',
               padding: '0 12px', height: '40px', boxSizing: 'border-box',
-              borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.03)', color: colors.text.primary,
+              borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.07)', color: colors.text.primary,
               outline: 'none',
             }}
           />
@@ -315,9 +323,10 @@ export default function LogsPage() {
           onClick={exportCSV}
           style={{
             display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0,
-            fontFamily: fonts.body, fontSize: '12px', fontWeight: 600,
-            padding: '0 16px', height: '40px', boxSizing: 'border-box', borderRadius: '10px', border: 'none', cursor: 'pointer',
-            background: 'rgba(121,71,189,0.15)', color: colors.amethyst.light,
+            fontFamily: fonts.body, fontSize: '12px', fontWeight: 500,
+            padding: '0 16px', height: '40px', boxSizing: 'border-box', borderRadius: '10px', cursor: 'pointer',
+            background: colors.amethyst.light, color: '#ffffff',
+            border: '1px solid rgba(121,71,189,0.6)',
             transition: 'background 0.2s',
           }}
         >
@@ -326,7 +335,7 @@ export default function LogsPage() {
       </div>
 
       {/* Table */}
-      <GlassCard style={{ padding: 0, overflow: 'hidden' }}>
+      <GlassCard style={{ padding: 0, overflow: 'hidden', height: '682px', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <div style={{
           display: 'grid', gridTemplateColumns: '100px 110px 100px 160px 1fr 220px', columnGap: '16px',
@@ -336,7 +345,7 @@ export default function LogsPage() {
           {['Date', 'Time', 'Code', 'Severity', 'Message', 'Action Taken'].map((h) => (
             <span key={h} style={{
               fontFamily: fonts.body, fontSize: '11px', fontWeight: 600,
-              color: colors.text.muted, textTransform: 'uppercase', letterSpacing: '0.06em',
+              color: colors.amethyst.light, textTransform: 'uppercase', letterSpacing: '0.06em',
               textAlign: h === 'Action Taken' ? 'center' : 'left',
             }}>
               {h}
@@ -345,25 +354,26 @@ export default function LogsPage() {
         </div>
 
         {/* Rows */}
-        <div style={{ maxHeight: '500px', overflow: 'auto' }}>
+        <div style={{ flex: 1 }}>
           {filtered.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', fontFamily: fonts.body, fontSize: '13px', color: colors.text.muted }}>
               No events match the current filter
             </div>
-          ) : filtered.map((alert) => (
-            <div key={alert.id} style={{
-              display: 'grid', gridTemplateColumns: '100px 110px 100px 160px 1fr 220px', columnGap: '16px',
-              padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)',
-              transition: 'background 0.15s',
-            }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-            >
+          ) : paginated.map((alert) => {
+              const d = new Date(alert.timestamp)
+              return <div key={alert.id} style={{
+                display: 'grid', gridTemplateColumns: '100px 110px 100px 160px 1fr 220px', columnGap: '16px',
+                padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)',
+                transition: 'background 0.15s',
+              }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
               <span style={{ fontFamily: fonts.mono, fontSize: '11px', color: colors.text.secondary }}>
-                {new Date(alert.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                {d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
               </span>
               <span style={{ fontFamily: fonts.mono, fontSize: '11px', color: colors.text.secondary }}>
-                {new Date(alert.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                {d.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
               <span style={{ fontFamily: fonts.mono, fontSize: '12px', fontWeight: 600, color: colors.text.primary }}>
                 {alert.code}
@@ -389,8 +399,69 @@ export default function LogsPage() {
                 {alert.action ?? '—'}
               </span>
             </div>
-          ))}
+          })}
         </div>
+
+        {/* Pagination footer */}
+        {filtered.length > 0 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 24px', borderTop: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(255,255,255,0.02)',
+          }}>
+            <span style={{ fontFamily: fonts.mono, fontSize: '11px', color: colors.text.secondary }}>
+              Showing {safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length} events
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'none', border: 'none', cursor: safePage === 0 ? 'default' : 'pointer',
+                  color: safePage === 0 ? colors.text.muted : colors.text.secondary,
+                  opacity: safePage === 0 ? 0.3 : 1, padding: '4px',
+                }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+
+              {(() => {
+                const half = 3
+                let start = Math.max(0, safePage - half)
+                const end = Math.min(totalPages - 1, start + 6)
+                if (end - start < 6) start = Math.max(0, end - 6)
+                return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+              })().map(i => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i)}
+                  style={{
+                    width: '30px', height: '30px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                    fontFamily: fonts.mono, fontSize: '11px', fontWeight: 600,
+                    background: i === safePage ? 'rgba(121,71,189,0.35)' : 'rgba(255,255,255,0.07)',
+                    color: i === safePage ? colors.amethyst.light : colors.text.secondary,
+                  }}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={safePage === totalPages - 1}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'none', border: 'none', cursor: safePage === totalPages - 1 ? 'default' : 'pointer',
+                  color: safePage === totalPages - 1 ? colors.text.muted : colors.text.secondary,
+                  opacity: safePage === totalPages - 1 ? 0.3 : 1, padding: '4px',
+                }}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        )}
       </GlassCard>
     </div>
   )
