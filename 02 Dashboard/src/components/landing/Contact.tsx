@@ -2,15 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 
 const members = [
   {
-    name: 'Ekansh Arohi',
-    discipline: 'Data Science & Artificial Intelligence',
-    institute: 'IIIT Naya Raipur',
-    email: 'ekansharohi135@gmail.com',
-    github: 'https://github.com/exorev07',
-    linkedin: 'https://www.linkedin.com/in/ekansharohi/',
-    desc: 'A student of Data Science & AI, Ekansh leads the system\'s algorithmic core. He spearheads the comparative analysis of machine learning models, optimising them to achieve high accuracy despite physical hardware constraints. His ability to deliver robust technical solutions under pressure is evidenced by consecutive wins at national hackathons, including Techexpo: Scientific 2026 and Hardwired 2025 - IIITM Gwalior.',
-  },
-  {
     name: 'Akshita Sondhi',
     discipline: 'Electronics & Communication Engineering',
     institute: 'IIIT Naya Raipur',
@@ -18,6 +9,15 @@ const members = [
     github: 'https://github.com/akshita24101',
     linkedin: 'https://www.linkedin.com/in/akshita-sondhi/',
     desc: 'An ECE undergraduate and NXP WIT 2026 Scholar, Akshita spearheads the system\'s hardware architecture. As the first author of the team\'s core research on TinyML-based Intrusion Detection, she engineered the initial ESP32 prototype that runs a quantised model at the edge. Her technical expertise in the field is further validated by recent wins at national hackathons, including Techexpo: Scientific 2026 and Hardwired 2025 - IIITM Gwalior.',
+  },
+  {
+    name: 'Ekansh Arohi',
+    discipline: 'Data Science & Artificial Intelligence',
+    institute: 'IIIT Naya Raipur',
+    email: 'ekansharohi135@gmail.com',
+    github: 'https://github.com/exorev07',
+    linkedin: 'https://www.linkedin.com/in/ekansharohi/',
+    desc: 'A student of Data Science & AI, Ekansh leads the system\'s algorithmic core. He spearheads the comparative analysis of machine learning models, optimising them to achieve high accuracy despite physical hardware constraints. His ability to deliver robust technical solutions under pressure is evidenced by consecutive wins at national hackathons, including Techexpo: Scientific 2026 and Hardwired 2025 - IIITM Gwalior.',
   },
 ]
 
