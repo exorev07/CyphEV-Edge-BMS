@@ -64,10 +64,11 @@ out/
 
 # Model files
 *.tflite
-*.h5
 *.pkl
 *.onnx
-models/
+
+# Edge Deployment
+05 Edge Deployment/training_metadata/
 
 # Logs
 *.log
