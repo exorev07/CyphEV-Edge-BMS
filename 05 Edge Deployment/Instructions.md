@@ -126,19 +126,59 @@ python serial_replay.py --dry-run --mode cycle --battery B0005
 | `esp32_firmware/main/main.ino` | ESP32 firmware — feature extraction + inference |
 | `esp32_firmware/main/models/*.h` | Exported model weights as C headers |
 
+## Step 6: Firebase Live Dashboard (ESP32 → Cloud → Dashboard)
+
+The ESP32 can push predictions directly to Firebase Realtime Database over WiFi, which the CyphEV dashboard subscribes to in real-time.
+
+### Setup
+
+1. Copy `esp32_firmware/main/wifi_config.example.h` to `esp32_firmware/main/wifi_config.h`
+2. Edit `wifi_config.h` with your WiFi credentials:
+   ```c
+   #define WIFI_SSID     "YourWiFiName"
+   #define WIFI_PASSWORD "YourWiFiPassword"
+   ```
+3. Upload the firmware as usual (Step 1)
+4. On boot, the ESP32 will connect to WiFi and print its IP address
+5. Run the serial replay — predictions will appear both in terminal AND on the dashboard
+
+### How it works
+
+- ESP32 connects to WiFi on boot
+- After each inference cycle, it HTTPS PUTs a JSON payload to Firebase RTDB at `/bms/live`
+- The dashboard (when logged in with a real account, not demo) subscribes to `/bms/live` via Firebase SDK
+- Demo users (`demo@cyphev.app`) still see mock/simulated data
+
+### Dashboard data source logic
+
+| User | Data Source |
+|------|-------------|
+| `demo@cyphev.app` | Mock data (simulated, no ESP32 needed) |
+| Any other account | Live Firebase RTDB (ESP32 pushes here) |
+
+### Verify Firebase is working
+
+1. Open Firebase Console → Realtime Database
+2. Run the serial replay with ESP32 connected to WiFi
+3. You should see `/bms/live` updating in real-time
+4. Open the dashboard with your real account — data should appear live
+
 ## Architecture
 
 ```
-Laptop (serial_replay.py)          ESP32 (main.ino)
-========================          ==================
-                                  
+Laptop (serial_replay.py)          ESP32 (main.ino)                    Cloud + Dashboard
+========================          ==================                  ==================
+
   BMW i3 CSVs ──┐                 ┌── Circular Buffer (600 samples)
                  │   raw sensor   │       │
   NASA CSVs ────┼──── data ──────>├── Feature Extraction (on-device)
                  │   over serial  │       │
-                 │                │── XGBoost / Linear Model Inference
+                 │                ├── XGBoost / Linear Model Inference
                  │   PRED:...     │       │
   Terminal <─────┼────────────────┤── Prediction Results
-                                  
-  No ML on laptop.                All ML on ESP32.
+                                  │       │
+                                  ├── WiFi ──> Firebase RTDB ──> Dashboard
+                                  │            (/bms/live)        (real-time)
+
+  No ML on laptop.                All ML on ESP32.                 Live monitoring.
 ```

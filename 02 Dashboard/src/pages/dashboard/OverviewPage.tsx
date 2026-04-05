@@ -38,12 +38,14 @@ function TipIconBox({ icon: Icon, tooltip, tipWidth = '210px' }: { icon: React.E
 }
 
 export default function OverviewPage() {
-  const { data, alerts, addAlert, relayOverride, setRelayOverride, disconnectCause, setDisconnectCause, relayLatchedRef } = useBMS()
+  const { data, history, alerts, addAlert, relayOverride, setRelayOverride, disconnectCause, setDisconnectCause, relayLatchedRef } = useBMS()
   const [showRelayModal, setShowRelayModal] = useState(false)
   const [relayPassword, setRelayPassword] = useState('')
   const [relayAuthError, setRelayAuthError] = useState('')
   const [relayLoading, setRelayLoading] = useState(false)
   const [showRelayPassword, setShowRelayPassword] = useState(false)
+
+  const isDemo = auth.currentUser?.email === 'demo@cyphev.app'
 
   const isRelayConnected = relayOverride
 
@@ -105,7 +107,7 @@ export default function OverviewPage() {
             Dashboard Overview
           </h1>
           <p style={{ fontFamily: fonts.body, fontSize: '13px', color: colors.text.secondary, marginTop: '4px', marginBottom: 0 }}>
-            Live telemetry &middot; Updated every 2s
+            {isDemo ? 'Simulated data · Updated every 2s' : 'Live ESP32 telemetry · Updated every 3s'}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingRight: '15px' }}>
@@ -254,13 +256,13 @@ export default function OverviewPage() {
       {/* === Row 2: Charts === */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 0.65fr', gap: 'clamp(12px, 1vw, 16px)' }}>
         <GlassCard title="State of Charge" headerRight={<TipIconBox icon={BatteryCharging} tooltip="How much charge is left in the battery right now - shown as a percentage of the full capacity." />}>
-          <SocTimeChart />
+          <SocTimeChart liveHistory={isDemo ? undefined : history} />
           <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
             {data.soc.toFixed(1)}%
           </div>
         </GlassCard>
         <GlassCard title="Estimated Range" headerRight={<TipIconBox icon={Navigation} tooltip="How far the car can travel based on the current state of charge - estimated from recent driving behavior, energy usage and environmental factors." />}>
-          <RangeSocChart />
+          <RangeSocChart liveHistory={isDemo ? undefined : history} />
           <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
             {data.remainingRangeKm.toFixed(0)} km &nbsp;·&nbsp; ~{data.remainingTimeMinutes} min
           </div>
@@ -405,7 +407,7 @@ export default function OverviewPage() {
           </div>
         }>
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            <TemperatureChart />
+            <TemperatureChart liveHistory={isDemo ? undefined : history} />
             <div style={{ textAlign: 'center', fontFamily: fonts.mono, fontSize: '12px', color: colors.text.primary, marginTop: '8px' }}>
               {data.ambientTemp.toFixed(1)}°C ambient &nbsp;·&nbsp; {data.packTemp.toFixed(1)}°C pack
             </div>

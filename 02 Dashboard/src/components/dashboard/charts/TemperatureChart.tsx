@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { chartColors, fonts, colors } from '../../../lib/styles'
 import { useBMS } from '../DashboardLayout'
+import type { HistoryPoint } from '../../../types/bms'
 
 interface TempPoint { time: string; pack: number; ambient: number }
 
@@ -32,12 +33,14 @@ function buildSeedHistory(): TempPoint[] {
   })
 }
 
-export function TemperatureChart() {
+export function TemperatureChart({ liveHistory }: { liveHistory?: HistoryPoint[] }) {
   const { data } = useBMS()
   const [points, setPoints] = useState<TempPoint[]>(buildSeedHistory)
   const lastTime = useRef(points[points.length - 1]?.time ?? '')
 
+  // Demo mode: add real data points per minute
   useEffect(() => {
+    if (liveHistory) return
     if (!data) return
     const timeStr = fmt(toMinMark(new Date(data.timestamp)))
     if (timeStr === lastTime.current) return
@@ -48,12 +51,28 @@ export function TemperatureChart() {
       if (next.length > TOTAL) next.shift()
       return next
     })
-  }, [data])
+  }, [data, liveHistory])
+
+  const displayPoints = liveHistory
+    ? liveHistory.map(h => ({ time: h.time, pack: h.temp, ambient: h.ambientTemp }))
+    : points
+
+  const xTicks = (() => {
+    const n = displayPoints.length - 1
+    if (n < 1) return displayPoints.map(p => p.time)
+    const indices = [0, Math.round(n/4), Math.round(n/2), Math.round(3*n/4), n]
+    const seen = new Set<string>()
+    return indices.map(i => displayPoints[i]?.time).filter((t): t is string => {
+      if (!t || seen.has(t)) return false
+      seen.add(t)
+      return true
+    })
+  })()
 
   return (
     <div style={{ width: '100%', flex: 1, minHeight: 0, minWidth: 0 }}>
       <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={points} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
+          <AreaChart data={displayPoints} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
             <defs>
               <linearGradient id="ambGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={colors.amethyst.mid} stopOpacity={0.3} />
@@ -67,7 +86,7 @@ export function TemperatureChart() {
             <CartesianGrid stroke={chartColors.grid} strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="time"
-              ticks={(() => { const n = points.length - 1; return [0, 1, 2, 3, 4, 5, 6].map(i => points[Math.round(i * n / 6)]).filter(Boolean).map(p => p.time) })()}
+              ticks={xTicks}
               tick={{ fill: chartColors.axis, fontSize: 10, fontFamily: fonts.mono, dy: 8 }}
               axisLine={{ stroke: chartColors.grid }} tickLine={false}
             />

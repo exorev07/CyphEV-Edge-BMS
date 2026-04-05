@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { useBMSData } from '../../services/mockBmsService'
+import { useLiveBMSData } from '../../services/liveBmsService'
 import { AlertSeverity } from '../../types/bms'
 import type { BMSData, HistoryPoint, BMSAlert, SystemStatus } from '../../types/bms'
 import { auth } from '../../lib/firebase'
@@ -45,8 +46,9 @@ function deriveStatus(_data: BMSData, alerts: BMSAlert[]): SystemStatus {
   return 'NOMINAL'
 }
 
-export function DashboardLayout() {
-  const bms = useBMSData()
+type BMSHookReturn = ReturnType<typeof useBMSData>
+
+function DashboardShell({ bms, isDemo }: { bms: BMSHookReturn; isDemo: boolean }) {
   const [relayOverride, setRelayOverride] = useState(true)
   const [disconnectCause, setDisconnectCause] = useState<DisconnectCause>(null)
   const relayLatchedRef = useRef(false)
@@ -55,7 +57,6 @@ export function DashboardLayout() {
   const [hoveredDemoClose, setHoveredDemoClose] = useState(false)
 
   useEffect(() => {
-    const isDemo = auth.currentUser?.email === DEMO_EMAIL
     if (!isDemo) return
     const t = setTimeout(() => setShowDemoWelcome(true), 1500)
     return () => clearTimeout(t)
@@ -144,4 +145,19 @@ export function DashboardLayout() {
       )}
     </BMSContext.Provider>
   )
+}
+
+function DemoDashboard() {
+  const bms = useBMSData()
+  return <DashboardShell bms={bms} isDemo={true} />
+}
+
+function LiveDashboard() {
+  const bms = useLiveBMSData()
+  return <DashboardShell bms={bms} isDemo={false} />
+}
+
+export function DashboardLayout() {
+  const isDemo = auth.currentUser?.email === DEMO_EMAIL
+  return isDemo ? <DemoDashboard /> : <LiveDashboard />
 }

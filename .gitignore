@@ -69,6 +69,7 @@ out/
 
 # Edge Deployment
 05 Edge Deployment/training_metadata/
+05 Edge Deployment/esp32_firmware/main/wifi_config.h
 
 # Logs
 *.log

@@ -4,6 +4,8 @@
  * Performs ON-DEVICE feature extraction and ML inference.
  * The laptop (simulating an OBD-II port) streams raw sensor data;
  * the ESP32 handles windowing, statistics, and prediction.
+ * Predictions and telemetry are pushed to Firebase Realtime Database
+ * over WiFi for the dashboard to consume in real-time.
  *
  * ── Two operating modes ──
  *
@@ -21,7 +23,7 @@
  *   ESP32 maintains a small cycle history and computes rolling/lag/delta
  *   features, then runs linear model inference.
  *
- *   Laptop → ESP32:  "CYC:battery_id,cycle,capacity,v_mean,v_std,v_min,v_max,v_range,i_mean,i_std,i_min,i_max,t_mean,t_std,t_max,t_rise,discharge_time,energy,Re,Rct\n"
+ *   Laptop → ESP32:  "CYC:battery_id,cycle,capacity,v_mean,...,Rct\n"
  *   ESP32 → Laptop:  "PRED:SOH:value:latency_us\n"  and  "PRED:RUL:value:latency_us\n"
  *
  * Control commands:
@@ -32,6 +34,9 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include "wifi_config.h"
 #include "models/model_soc.h"
 #include "models/model_range.h"
 #include "models/model_soh.h"
@@ -44,29 +49,51 @@
 // Realtime window parameters (must match training pipeline)
 #define RT_WINDOW      600
 #define RT_STRIDE      200
-#define RT_N_RAW       14   // raw sensor channels per sample
-#define RT_N_CHANNELS  18   // raw + 4 cumulative channels stored per sample
+#define RT_N_RAW       14   // ML sensor channels per sample
+#define RT_N_EXTRA      5   // extra display-only channels (coolant_hc, coolant_in, heat_ex, cabin_t, aircon_kw)
+#define RT_N_SERIAL    19   // total channels sent over serial (14 ML + 5 display)
+#define RT_N_CHANNELS  18   // channels stored in circular buffer (14 raw + 4 cumulative)
 
 // Cycle history depth (for rolling/lag features)
 #define CYC_MAX_HISTORY 200
 #define CYC_N_RAW       20  // fields per cycle row (including battery_id mapped to int)
 
+// Firebase push interval (must be long enough for TLS handshake + serial buffer to not overflow)
+#define FIREBASE_PUSH_INTERVAL_MS 3000
+
+// ─── Firebase state ──────────────────────────────────────────────────────────
+static WiFiClientSecure secureClient;
+static unsigned long lastFirebasePush = 0;
+static bool wifiConnected = false;
+
+// Latest predictions (updated by inference, pushed periodically)
+static bool pendingFirebasePush = false;  // set true after inference, pushed in loop()
+static float lastSoC = -1, lastRange = -1, lastSoH = -1, lastRUL = -1;
+// Latest raw sensor values (from most recent RT row)
+static float lastVoltage = 0, lastCurrent = 0, lastPackTemp = 0, lastAmbientTemp = 0;
+static float lastVelocity = 0, lastThrottle = 0, lastElevation = 0, lastMotorTorque = 0;
+static float lastAccel = 0, lastHvac = 0, lastRegen = 0;
+static float lastHumidity = 35.0;
+static float lastPressure = 1013.0;
+static bool  lastFanStatus = false;
+static int   lastFanRpm = 0;
+// Extra display-only sensor values (from BMW dataset, not used by ML)
+static float lastCoolantHC = 0, lastCoolantIn = 0, lastHeatExchanger = 0;
+static float lastCabinTemp = 0, lastAirconKW = 0;
+static bool  lastIsCharging = false;
+
 // ─── Realtime circular buffer ────────────────────────────────────────────────
-// Channels: time, voltage, current, soc, velocity, accel, torque,
-//           btemp, atemp, hvac, elevation, throttle, regen, is_winter
 enum RTChan {
   CH_TIME=0, CH_VOLT, CH_CURR, CH_SOC, CH_VEL, CH_ACCEL, CH_TORQUE,
   CH_BTEMP, CH_ATEMP, CH_HVAC, CH_ELEV, CH_THROTTLE, CH_REGEN, CH_WINTER,
-  // Cumulative channels (computed on ingest, stored per-sample for midpoint lookup)
   CH_CUM_AH, CH_CUM_WH, CH_CUM_DIST, CH_ELAPSED
 };
 
-static float rtBuf[RT_N_CHANNELS][RT_WINDOW];  // circular buffer
-static int   rtHead = 0;        // next write position
-static int   rtCount = 0;       // total samples received (for stride tracking)
-static int   rtFilled = 0;      // how many valid samples in buffer (up to RT_WINDOW)
+static float rtBuf[RT_N_CHANNELS][RT_WINDOW];
+static int   rtHead = 0;
+static int   rtCount = 0;
+static int   rtFilled = 0;
 
-// Cumulative accumulators (tracked across entire trip, not just window)
 static float cumAh = 0.0f;
 static float cumWh = 0.0f;
 static float cumDistKm = 0.0f;
@@ -75,7 +102,6 @@ static float lastTime = 0.0f;
 static bool  tripStarted = false;
 
 // ─── Cycle history buffer ────────────────────────────────────────────────────
-// Per-cycle raw fields: cycle, capacity, v_mean..Rct (18 values) + SoH (computed)
 #define CF_CYCLE       0
 #define CF_CAPACITY    1
 #define CF_V_MEAN      2
@@ -95,15 +121,136 @@ static bool  tripStarted = false;
 #define CF_ENERGY      16
 #define CF_RE          17
 #define CF_RCT         18
-#define CF_SOH         19  // computed: capacity / 2.0 * 100
+#define CF_SOH         19
 #define CF_N_FIELDS    20
 
 static float cycHist[CYC_MAX_HISTORY][CF_N_FIELDS];
-static int   cycCount = 0;  // total cycles stored
+static int   cycCount = 0;
 
 // ─── Serial line buffer ──────────────────────────────────────────────────────
 static char lineBuf[MAX_LINE_LEN];
 static int  linePos = 0;
+
+// ─── WiFi Setup ──────────────────────────────────────────────────────────────
+
+void setupWiFi() {
+  Serial.print("[WiFi] Connecting to ");
+  Serial.print(WIFI_SSID);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 40) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = true;
+    Serial.println(" OK");
+    Serial.print("[WiFi] IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    wifiConnected = false;
+    Serial.println(" FAILED (will run in offline mode)");
+  }
+
+  // Skip certificate verification for Firebase RTDB (test mode)
+  secureClient.setInsecure();
+}
+
+// ─── Firebase HTTPS Push ─────────────────────────────────────────────────────
+
+void firebasePush() {
+  if (!wifiConnected || WiFi.status() != WL_CONNECTED) return;
+
+  unsigned long now = millis();
+  if (now - lastFirebasePush < FIREBASE_PUSH_INTERVAL_MS) return;
+  lastFirebasePush = now;
+
+  // Build JSON payload matching dashboard BMSData shape
+  float power = lastVoltage * lastCurrent;
+  float soc = (lastSoC >= 0) ? lastSoC : 78.0f;
+  float rangeKm = soc * 3.5f;
+  float soh = (lastSoH >= 0) ? lastSoH : 92.5f;
+  float rulCycles = (lastRUL >= 0) ? lastRUL : 1450;
+  float rulDays = rulCycles * 0.68f;
+  float avgSpeed = (lastVelocity > 0) ? lastVelocity : 40.0f;
+  float remainingTimeMins = rangeKm / avgSpeed * 60.0f;
+
+  bool voltageAnomaly = (lastVoltage > 410 || lastVoltage < 300);
+  bool currentAnomaly = (lastCurrent > 160 || lastCurrent < -125);
+  bool fanOn = lastPackTemp > 35;
+
+  char json[1200];
+  snprintf(json, sizeof(json),
+    "{"
+    "\"soc\":%.1f,\"soh\":%.1f,\"voltage\":%.1f,\"current\":%.1f,\"power\":%.0f,"
+    "\"velocity\":%.1f,\"throttle\":%.0f,\"elevation\":%.0f,\"motorTorque\":%.1f,\"longitudinalAccel\":%.2f,"
+    "\"rulCycles\":%.0f,\"rulDays\":%.0f,\"remainingRangeKm\":%.1f,\"remainingTimeMinutes\":%.0f,"
+    "\"packTemp\":%.1f,\"ambientTemp\":%.1f,\"humidity\":%.1f,\"pressure\":%.1f,"
+    "\"airconPower\":%.1f,\"heatExchangerTemp\":%.1f,\"coolantHeatercoreTemp\":%.1f,\"coolantInletTemp\":%.1f,"
+    "\"fanStatus\":%s,\"fanRpm\":%d,\"relayStatus\":\"%s\",\"isCharging\":%s,"
+    "\"capacityFadeDetected\":false,\"thermalRunawayRisk\":%s,"
+    "\"voltageAnomaly\":%s,\"currentAnomaly\":%s,"
+    "\"batterySwellDetected\":false,\"waterLeakageDetected\":false,\"socDropDetected\":false,"
+    "\"timestamp\":%lu,"
+    "\"rangeWhKm\":%.1f,"
+    "\"esp32\":true"
+    "}",
+    soc, soh, lastVoltage, lastCurrent, power,
+    lastVelocity, lastThrottle, lastElevation, lastMotorTorque, lastAccel,
+    rulCycles, rulDays, rangeKm, remainingTimeMins,
+    lastPackTemp, lastAmbientTemp, lastHumidity, lastPressure,
+    lastAirconKW * 1000.0f, lastHeatExchanger, lastCoolantHC, lastCoolantIn,
+    fanOn ? "true" : "false", fanOn ? 3000 : 0,
+    (voltageAnomaly || currentAnomaly) ? "DISCONNECTED" : "CONNECTED",
+    lastIsCharging ? "true" : "false",
+    (lastPackTemp > 60) ? "true" : "false",
+    voltageAnomaly ? "true" : "false",
+    currentAnomaly ? "true" : "false",
+    (unsigned long)(millis()),
+    (lastRange >= 0) ? lastRange : 0.0f
+  );
+
+  // HTTPS PUT to Firebase RTDB REST API
+  if (!secureClient.connect(FIREBASE_HOST, 443)) {
+    Serial.println("[Firebase] Connection failed");
+    return;
+  }
+
+  String path = String("/bms/live.json?auth=") + FIREBASE_API_KEY;
+  String request = String("PUT ") + path + " HTTP/1.1\r\n" +
+    "Host: " + FIREBASE_HOST + "\r\n" +
+    "Content-Type: application/json\r\n" +
+    "Content-Length: " + String(strlen(json)) + "\r\n" +
+    "Connection: close\r\n\r\n" +
+    json;
+
+  secureClient.print(request);
+
+  // Read response (just check status, don't block long)
+  unsigned long timeout = millis() + 3000;
+  bool headerDone = false;
+  while (millis() < timeout) {
+    if (secureClient.available()) {
+      String line = secureClient.readStringUntil('\n');
+      if (!headerDone && line.startsWith("HTTP/")) {
+        if (line.indexOf("200") > 0) {
+          Serial.println("[Firebase] Push OK");
+        } else {
+          Serial.print("[Firebase] ");
+          Serial.println(line);
+        }
+        headerDone = true;
+        break;
+      }
+    }
+    delay(10);
+  }
+
+  secureClient.stop();
+}
 
 // ─── Helper: parse comma-separated floats ────────────────────────────────────
 int parseFloats(const char *str, float *out, int maxCount) {
@@ -121,9 +268,7 @@ int parseFloats(const char *str, float *out, int maxCount) {
 }
 
 // ─── Helper: window statistics ───────────────────────────────────────────────
-// These operate on the circular buffer, reading the last `rtFilled` samples.
 
-// Get value from circular buffer for channel ch, at position i (0 = oldest)
 static inline float rbGet(int ch, int i) {
   int idx = (rtHead - rtFilled + i + RT_WINDOW) % RT_WINDOW;
   return rtBuf[ch][idx];
@@ -154,11 +299,9 @@ float chanStd(int ch, int n) {
   return sqrtf(sum / n);
 }
 
-// Percentile (simple nearest-rank, uses a temp sort buffer)
 static float sortBuf[RT_WINDOW];
 float chanPercentile(int ch, int n, float pct) {
   for (int i = 0; i < n; i++) sortBuf[i] = rbGet(ch, i);
-  // Simple insertion sort (n=600, fast enough on ESP32)
   for (int i = 1; i < n; i++) {
     float key = sortBuf[i];
     int j = i - 1;
@@ -169,14 +312,12 @@ float chanPercentile(int ch, int n, float pct) {
   return sortBuf[idx];
 }
 
-// Fraction of window where accel < threshold
 float chanFracBelow(int ch, int n, float threshold) {
   int cnt = 0;
   for (int i = 0; i < n; i++) if (rbGet(ch, i) < threshold) cnt++;
   return (float)cnt / n * 100.0f;
 }
 
-// Product channel: compute stats on element-wise product of two channels
 float prodMean(int chA, int chB, int n) {
   float sum = 0;
   for (int i = 0; i < n; i++) sum += rbGet(chA, i) * rbGet(chB, i);
@@ -192,25 +333,19 @@ float prodMax(int chA, int chB, int n) {
 // ─── Realtime feature extraction + inference ─────────────────────────────────
 
 void realtimeInference() {
-  int n = rtFilled;  // should be RT_WINDOW
-  int mid = n / 2;   // midpoint index within window (0 = oldest)
+  int n = rtFilled;
+  int mid = n / 2;
 
-  // Cumulative values at window midpoint (read from stored snapshots)
   float midCumAh   = rbGet(CH_CUM_AH, mid);
   float midCumWh   = rbGet(CH_CUM_WH, mid);
   float midCumDist = rbGet(CH_CUM_DIST, mid);
   float elapsed    = rbGet(CH_ELAPSED, mid);
 
   // ── SoC features (22) ──
-  // Order must match train_and_export.py: Avg_Voltage, Avg_Current, Avg_Power,
-  // Avg_Velocity, Avg_Accel, Avg_Torque, Avg_Battery_Temp, Avg_Ambient_Temp,
-  // Avg_HVAC, Max_Current, Min_Current, Std_Current, Std_Velocity, Max_Power,
-  // Min_Voltage, Cumulative_Ah, Cumulative_Wh, Cumulative_Dist_km, Elapsed_s,
-  // Elevation_Change, Temp_Diff, Is_Winter
   float socFeats[22];
   socFeats[0]  = chanMean(CH_VOLT, n);
   socFeats[1]  = chanMean(CH_CURR, n);
-  socFeats[2]  = prodMean(CH_VOLT, CH_CURR, n);  // Avg_Power
+  socFeats[2]  = prodMean(CH_VOLT, CH_CURR, n);
   socFeats[3]  = chanMean(CH_VEL, n);
   socFeats[4]  = chanMean(CH_ACCEL, n);
   socFeats[5]  = chanMean(CH_TORQUE, n);
@@ -221,19 +356,21 @@ void realtimeInference() {
   socFeats[10] = chanMin(CH_CURR, n);
   socFeats[11] = chanStd(CH_CURR, n);
   socFeats[12] = chanStd(CH_VEL, n);
-  socFeats[13] = prodMax(CH_VOLT, CH_CURR, n);   // Max_Power
+  socFeats[13] = prodMax(CH_VOLT, CH_CURR, n);
   socFeats[14] = chanMin(CH_VOLT, n);
   socFeats[15] = midCumAh;
   socFeats[16] = midCumWh;
   socFeats[17] = midCumDist;
   socFeats[18] = elapsed;
-  socFeats[19] = rbGet(CH_ELEV, n-1) - rbGet(CH_ELEV, 0);  // Elevation_Change
-  socFeats[20] = chanMean(CH_BTEMP, n) - chanMean(CH_ATEMP, n);  // Temp_Diff
-  socFeats[21] = rbGet(CH_WINTER, 0);  // Is_Winter (constant for trip)
+  socFeats[19] = rbGet(CH_ELEV, n-1) - rbGet(CH_ELEV, 0);
+  socFeats[20] = chanMean(CH_BTEMP, n) - chanMean(CH_ATEMP, n);
+  socFeats[21] = rbGet(CH_WINTER, 0);
 
   unsigned long t0 = micros();
   float socPred = soc_predict(socFeats);
   unsigned long socUs = micros() - t0;
+
+  lastSoC = socPred;
 
   Serial.print("PRED:SOC:");
   Serial.print(socPred, 4);
@@ -242,52 +379,51 @@ void realtimeInference() {
   Serial.println("us");
 
   // ── Range features (24) ──
-  // Check minimum speed/distance constraints
   float avgSpeed = chanMean(CH_VEL, n);
   if (avgSpeed >= 3.0f) {
-    // Approximate window distance
     float windowDist = 0;
     for (int i = 1; i < n; i++) {
       float dt = rbGet(CH_TIME, i) - rbGet(CH_TIME, i-1);
-      if (dt < 0) dt = 0.1f;  // fallback for wrap-around
+      if (dt < 0) dt = 0.1f;
       windowDist += fabsf(rbGet(CH_VEL, i)) / 3600.0f * dt;
     }
 
     if (windowDist >= 0.2f) {
       float rangeFeats[24];
-      rangeFeats[0]  = rbGet(CH_SOC, 0);                    // SOC (window start)
-      rangeFeats[1]  = chanMean(CH_VOLT, n);                 // Voltage_avg
-      rangeFeats[2]  = chanMean(CH_CURR, n);                 // Current_avg
-      rangeFeats[3]  = prodMean(CH_VOLT, CH_CURR, n);       // Power_avg
-      rangeFeats[4]  = chanMean(CH_BTEMP, n);               // Battery_Temp
-      rangeFeats[5]  = chanMean(CH_ATEMP, n);               // Ambient_Temp
-      rangeFeats[6]  = chanMean(CH_VEL, n);                 // Velocity_avg
-      rangeFeats[7]  = chanStd(CH_VEL, n);                  // Velocity_std
-      rangeFeats[8]  = chanMax(CH_VEL, n);                  // Velocity_max
-      rangeFeats[9]  = chanPercentile(CH_VEL, n, 25.0f);   // Velocity_p25
-      rangeFeats[10] = chanPercentile(CH_VEL, n, 75.0f);   // Velocity_p75
-      rangeFeats[11] = chanMean(CH_ACCEL, n);               // Accel_avg
-      rangeFeats[12] = chanStd(CH_ACCEL, n);                // Accel_std
-      rangeFeats[13] = chanFracBelow(CH_ACCEL, n, -2.0f);  // Hard_Brake_pct
-      rangeFeats[14] = chanMean(CH_THROTTLE, n);            // Throttle_avg
-      rangeFeats[15] = chanMean(CH_TORQUE, n);              // Torque_avg
-      rangeFeats[16] = chanStd(CH_TORQUE, n);               // Torque_std
-      rangeFeats[17] = rbGet(CH_ELEV, n-1) - rbGet(CH_ELEV, 0);  // Elev_change
-      rangeFeats[18] = chanStd(CH_ELEV, n);                 // Elev_std
-      rangeFeats[19] = chanMean(CH_HVAC, n);                // HVAC_power
-      rangeFeats[20] = rbGet(CH_WINTER, 0);                 // Is_Winter
-      rangeFeats[21] = rbGet(CH_TIME, n-1) - rbGet(CH_TIME, 0);  // Window_time_s
+      rangeFeats[0]  = rbGet(CH_SOC, 0);
+      rangeFeats[1]  = chanMean(CH_VOLT, n);
+      rangeFeats[2]  = chanMean(CH_CURR, n);
+      rangeFeats[3]  = prodMean(CH_VOLT, CH_CURR, n);
+      rangeFeats[4]  = chanMean(CH_BTEMP, n);
+      rangeFeats[5]  = chanMean(CH_ATEMP, n);
+      rangeFeats[6]  = chanMean(CH_VEL, n);
+      rangeFeats[7]  = chanStd(CH_VEL, n);
+      rangeFeats[8]  = chanMax(CH_VEL, n);
+      rangeFeats[9]  = chanPercentile(CH_VEL, n, 25.0f);
+      rangeFeats[10] = chanPercentile(CH_VEL, n, 75.0f);
+      rangeFeats[11] = chanMean(CH_ACCEL, n);
+      rangeFeats[12] = chanStd(CH_ACCEL, n);
+      rangeFeats[13] = chanFracBelow(CH_ACCEL, n, -2.0f);
+      rangeFeats[14] = chanMean(CH_THROTTLE, n);
+      rangeFeats[15] = chanMean(CH_TORQUE, n);
+      rangeFeats[16] = chanStd(CH_TORQUE, n);
+      rangeFeats[17] = rbGet(CH_ELEV, n-1) - rbGet(CH_ELEV, 0);
+      rangeFeats[18] = chanStd(CH_ELEV, n);
+      rangeFeats[19] = chanMean(CH_HVAC, n);
+      rangeFeats[20] = rbGet(CH_WINTER, 0);
+      rangeFeats[21] = rbGet(CH_TIME, n-1) - rbGet(CH_TIME, 0);
 
-      // Regen_pct: fraction of window where regen > 0
       int regenCnt = 0;
       for (int i = 0; i < n; i++) if (rbGet(CH_REGEN, i) > 0) regenCnt++;
       rangeFeats[22] = (float)regenCnt / n * 100.0f;
 
-      rangeFeats[23] = chanMean(CH_BTEMP, n) - chanMean(CH_ATEMP, n);  // Temp_diff
+      rangeFeats[23] = chanMean(CH_BTEMP, n) - chanMean(CH_ATEMP, n);
 
       t0 = micros();
       float rangePred = range_predict(rangeFeats);
       unsigned long rangeUs = micros() - t0;
+
+      lastRange = rangePred;
 
       Serial.print("PRED:RANGE:");
       Serial.print(rangePred, 4);
@@ -296,19 +432,47 @@ void realtimeInference() {
       Serial.println("us");
     }
   }
+
+  // Flag for deferred push in loop() (avoids blocking serial while HTTPS is in flight)
+  pendingFirebasePush = true;
 }
 
 // ─── Process a realtime sensor row ───────────────────────────────────────────
 
 void processRT(const char *data) {
-  float vals[RT_N_RAW];
-  int n = parseFloats(data, vals, RT_N_RAW);
-  if (n != RT_N_RAW) {
-    Serial.print("ERR:RT expects ");
+  float vals[RT_N_SERIAL];
+  int n = parseFloats(data, vals, RT_N_SERIAL);
+  if (n < RT_N_RAW) {
+    Serial.print("ERR:RT expects at least ");
     Serial.print(RT_N_RAW);
     Serial.print(" channels, got ");
     Serial.println(n);
     return;
+  }
+
+  // Update latest sensor values for Firebase push
+  lastVoltage    = vals[CH_VOLT];
+  lastCurrent    = vals[CH_CURR];
+  lastPackTemp   = vals[CH_BTEMP];
+  lastAmbientTemp = vals[CH_ATEMP];
+  lastVelocity   = vals[CH_VEL];
+  lastThrottle   = vals[CH_THROTTLE];
+  lastElevation  = vals[CH_ELEV];
+  lastMotorTorque = vals[CH_TORQUE];
+  lastAccel      = vals[CH_ACCEL];
+  lastHvac       = vals[CH_HVAC];
+  lastRegen      = vals[CH_REGEN];
+  lastFanStatus  = lastPackTemp > 35;
+  lastFanRpm     = lastFanStatus ? 3000 : 0;
+  lastIsCharging = false;  // RT mode = driving
+
+  // Extra display-only channels (indices 14-18, if present)
+  if (n >= RT_N_SERIAL) {
+    lastCoolantHC     = vals[14];
+    lastCoolantIn     = vals[15];
+    lastHeatExchanger = vals[16];
+    lastCabinTemp     = vals[17];
+    lastAirconKW      = vals[18];
   }
 
   // Update cumulative accumulators
@@ -331,7 +495,6 @@ void processRT(const char *data) {
   for (int ch = 0; ch < RT_N_RAW; ch++) {
     rtBuf[ch][rtHead] = vals[ch];
   }
-  // Store cumulative snapshots at this sample position
   rtBuf[CH_CUM_AH][rtHead]   = cumAh;
   rtBuf[CH_CUM_WH][rtHead]   = cumWh;
   rtBuf[CH_CUM_DIST][rtHead] = cumDistKm;
@@ -341,7 +504,9 @@ void processRT(const char *data) {
   if (rtFilled < RT_WINDOW) rtFilled++;
   rtCount++;
 
-  // Check if we should run inference (every STRIDE samples, once buffer is full)
+  // Always flag a push so sensor values update on the dashboard continuously
+  pendingFirebasePush = true;
+
   if (rtFilled >= RT_WINDOW && (rtCount % RT_STRIDE) == 0) {
     realtimeInference();
   }
@@ -350,20 +515,14 @@ void processRT(const char *data) {
 // ─── Cycle mode: SoH + RUL ──────────────────────────────────────────────────
 
 void processCycle(const char *data) {
-  // Parse: battery_id(ignored),cycle,capacity,v_mean,...,Rct  (20 values total)
-  // battery_id is a string — we skip it and parse the rest
-  // Format: "B0005,1,1.856,3.48,..."
-  //          ^skip  ^parse 19 floats
-
-  // Skip battery_id (find first comma)
   const char *p = strchr(data, ',');
   if (!p) {
     Serial.println("ERR:CYC missing battery_id separator");
     return;
   }
-  p++;  // skip past comma
+  p++;
 
-  float vals[19];  // cycle, capacity, v_mean..Rct
+  float vals[19];
   int n = parseFloats(p, vals, 19);
   if (n != 19) {
     Serial.print("ERR:CYC expects 19 numeric fields after battery_id, got ");
@@ -371,7 +530,6 @@ void processCycle(const char *data) {
     return;
   }
 
-  // Store in cycle history
   int idx = cycCount % CYC_MAX_HISTORY;
   cycHist[idx][CF_CYCLE]       = vals[0];
   cycHist[idx][CF_CAPACITY]    = vals[1];
@@ -394,19 +552,17 @@ void processCycle(const char *data) {
   cycHist[idx][CF_RCT]         = vals[18];
 
   float capacity = vals[1];
-  float soh = (capacity / 2.0f) * 100.0f;  // RATED_CAPACITY = 2.0 Ah
+  float soh = (capacity / 2.0f) * 100.0f;
   cycHist[idx][CF_SOH] = soh;
 
   cycCount++;
   int total = (cycCount < CYC_MAX_HISTORY) ? cycCount : CYC_MAX_HISTORY;
 
-  // Helper to get field from history (0 = oldest available, total-1 = current)
   #define CHIST(offset, field) cycHist[((cycCount - total + (offset)) % CYC_MAX_HISTORY)][field]
   #define CUR(field) CHIST(total - 1, field)
   #define PREV(field, lag) ((total > (lag)) ? CHIST(total - 1 - (lag), field) : CUR(field))
 
   // ── SoH prediction (10 base features) ──
-  // Top 10: energy, Rct, t_mean, t_max, v_std, discharge_time, i_mean, v_max, t_rise, Re
   float sohFeats[10];
   sohFeats[0] = CUR(CF_ENERGY);
   sohFeats[1] = CUR(CF_RCT);
@@ -423,6 +579,8 @@ void processCycle(const char *data) {
   float sohPred = soh_predict(sohFeats);
   unsigned long sohUs = micros() - t0;
 
+  lastSoH = sohPred;
+
   Serial.print("PRED:SOH:");
   Serial.print(sohPred, 4);
   Serial.print(":");
@@ -430,9 +588,9 @@ void processCycle(const char *data) {
   Serial.println("us");
 
   // ── RUL prediction (42 features) ──
-  // Need enough history for rolling/lag features
   if (total < 3) {
     Serial.println("INFO:RUL needs 3+ cycles, buffering...");
+    pendingFirebasePush = true;
     return;
   }
 
@@ -441,22 +599,18 @@ void processCycle(const char *data) {
   float curCap  = CUR(CF_CAPACITY);
   float curRe   = CUR(CF_RE);
 
-  // Delta features (current - previous)
   float sohDelta    = curSoH - PREV(CF_SOH, 1);
   float capDelta    = curCap - PREV(CF_CAPACITY, 1);
   float reDelta     = curRe  - PREV(CF_RE, 1);
   float energyDelta = CUR(CF_ENERGY) - PREV(CF_ENERGY, 1);
 
-  // SoH_rate: (first_SoH - current_SoH) / (cycle - first_cycle + 1)
   float firstSoH   = CHIST(0, CF_SOH);
   float firstCycle  = CHIST(0, CF_CYCLE);
   float sohRate = (firstSoH - curSoH) / (cycle - firstCycle + 1.0f);
 
-  // cap_fade: (first_cap - current_cap) / first_cap
   float firstCap = CHIST(0, CF_CAPACITY);
   float capFade = (firstCap > 0) ? (firstCap - curCap) / firstCap : 0;
 
-  // Rolling means/stds for capacity (window 3 and 5)
   float capRoll3 = 0, capRoll5 = 0, capStd3 = 0, capStd5 = 0;
   {
     int w3 = (total < 3) ? total : 3;
@@ -480,7 +634,6 @@ void processCycle(const char *data) {
     capStd5 = (w5 > 1) ? sqrtf(var5 / (w5 - 1)) : 0;
   }
 
-  // Lag features
   float sohLag1 = PREV(CF_SOH, 1);
   float sohLag2 = PREV(CF_SOH, 2);
   float sohLag3 = (total > 3) ? CHIST(total - 4, CF_SOH) : curSoH;
@@ -490,14 +643,12 @@ void processCycle(const char *data) {
   float reLag1  = PREV(CF_RE, 1);
   float reLag2  = PREV(CF_RE, 2);
 
-  // Interaction features
   float sohXrate  = curSoH * sohRate;
   float sohXdelta = curSoH * sohDelta;
   float capXRe    = curCap * curRe;
   float sohSq     = curSoH * curSoH;
   float capFadeSq = capFade * capFade;
 
-  // Build the 42-feature vector (exact order from train_and_export.py)
   float rulFeats[42];
   rulFeats[0]  = cycle;
   rulFeats[1]  = curSoH;
@@ -546,11 +697,15 @@ void processCycle(const char *data) {
   float rulPred = max(0.0f, rul_predict(rulFeats));
   unsigned long rulUs = micros() - t0;
 
+  lastRUL = rulPred;
+
   Serial.print("PRED:RUL:");
   Serial.print(rulPred, 4);
   Serial.print(":");
   Serial.print(rulUs);
   Serial.println("us");
+
+  pendingFirebasePush = true;
 
   #undef CHIST
   #undef CUR
@@ -564,9 +719,48 @@ void resetAll() {
   cumAh = 0; cumWh = 0; cumDistKm = 0;
   tripStarted = false;
   cycCount = 0;
+  lastSoC = -1; lastRange = -1; lastSoH = -1; lastRUL = -1;
+  lastIsCharging = false;
   memset(rtBuf, 0, sizeof(rtBuf));
   memset(cycHist, 0, sizeof(cycHist));
   Serial.println("OK:reset");
+}
+
+// ─── Telemetry snapshot (dashboard display during charging) ──────────────────
+
+void processTelemetry(const char *data) {
+  // TEL:voltage,current,packTemp,isCharging,airconPower
+  float vals[5];
+  int n = parseFloats(data, vals, 5);
+  if (n < 3) {
+    Serial.print("ERR:TEL expects at least 3 fields, got ");
+    Serial.println(n);
+    return;
+  }
+
+  lastVoltage     = vals[0];
+  lastCurrent     = vals[1];
+  lastPackTemp    = vals[2];
+
+  // Charging mode: zero out movement values
+  lastVelocity    = 0;
+  lastThrottle    = 0;
+  lastAccel       = 0;
+  lastMotorTorque = 0;
+  lastRegen       = 0;
+
+  // Charging-specific
+  bool isCharging  = (n >= 4) ? (vals[3] > 0.5f) : true;
+  lastAirconKW     = (n >= 5) ? vals[4] : 0;
+  lastHvac         = lastAirconKW * 1000.0f;
+
+  lastFanStatus    = lastPackTemp > 35;
+  lastFanRpm       = lastFanStatus ? 3000 : 0;
+
+  // Store charging flag for Firebase push
+  lastIsCharging   = isCharging;
+
+  pendingFirebasePush = true;
 }
 
 // ─── Process incoming line ───────────────────────────────────────────────────
@@ -574,6 +768,8 @@ void resetAll() {
 void processLine(const char *line) {
   if (strncmp(line, "RT:", 3) == 0) {
     processRT(line + 3);
+  } else if (strncmp(line, "TEL:", 4) == 0) {
+    processTelemetry(line + 4);
   } else if (strncmp(line, "CYC:", 4) == 0) {
     processCycle(line + 4);
   } else if (strcmp(line, "RESET") == 0) {
@@ -586,7 +782,9 @@ void processLine(const char *line) {
     Serial.print(",rt_total=");
     Serial.print(rtCount);
     Serial.print(",cycles=");
-    Serial.println(cycCount);
+    Serial.print(cycCount);
+    Serial.print(",wifi=");
+    Serial.println(wifiConnected ? "connected" : "disconnected");
   } else {
     Serial.print("ERR:unknown command '");
     Serial.print(line);
@@ -597,11 +795,16 @@ void processLine(const char *line) {
 // ─── Arduino entry points ────────────────────────────────────────────────────
 
 void setup() {
+  Serial.setRxBufferSize(4096);  // Default is 128 — too small when HTTPS blocks
   Serial.begin(SERIAL_BAUD);
   while (!Serial) { delay(10); }
 
   Serial.println("READY");
-  Serial.println("CyphEV Edge Inference v2.0 — On-Device Feature Extraction");
+  Serial.println("CyphEV Edge Inference v3.0 — On-Device Feature Extraction + Firebase Push");
+
+  // Connect to WiFi
+  setupWiFi();
+
   Serial.println("Modes:");
   Serial.println("  RT:<time,volt,curr,soc,vel,accel,torque,btemp,atemp,hvac,elev,throttle,regen,is_winter>");
   Serial.println("  CYC:<battery_id,cycle,cap,v_mean,v_std,v_min,v_max,v_range,i_mean,i_std,i_min,i_max,t_mean,t_std,t_max,t_rise,dtime,energy,Re,Rct>");
@@ -612,6 +815,7 @@ void setup() {
 }
 
 void loop() {
+  // Drain all available serial data first (non-blocking)
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n' || c == '\r') {
@@ -628,5 +832,11 @@ void loop() {
         linePos = 0;
       }
     }
+  }
+
+  // Push to Firebase only when serial is idle (no data waiting)
+  if (pendingFirebasePush && !Serial.available()) {
+    pendingFirebasePush = false;
+    firebasePush();
   }
 }

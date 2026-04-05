@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { chartColors, fonts, colors } from '../../../lib/styles'
+import type { HistoryPoint } from '../../../types/bms'
 
 interface SocPoint { time: string; soc: number }
 
@@ -30,10 +31,12 @@ function buildHistory(): SocPoint[] {
   })
 }
 
-export function SocTimeChart() {
+export function SocTimeChart({ liveHistory }: { liveHistory?: HistoryPoint[] }) {
   const [points, setPoints] = useState<SocPoint[]>(buildHistory)
 
+  // Demo mode: self-updating random data
   useEffect(() => {
+    if (liveHistory) return  // skip if using live data
     const timer = setInterval(() => {
       const markTime = fmt(toMinMark(new Date()))
       setPoints((prev) => {
@@ -44,12 +47,30 @@ export function SocTimeChart() {
       })
     }, 15_000) // check every 15s
     return () => clearInterval(timer)
-  }, [])
+  }, [liveHistory])
+
+  // Live data from history
+  const displayPoints = liveHistory
+    ? liveHistory.map(h => ({ time: h.time, soc: h.soc }))
+    : points
+
+  // 5 evenly-spaced unique ticks (first, 3 middle, last)
+  const xTicks = (() => {
+    const n = displayPoints.length - 1
+    if (n < 1) return displayPoints.map(p => p.time)
+    const indices = [0, Math.round(n/4), Math.round(n/2), Math.round(3*n/4), n]
+    const seen = new Set<string>()
+    return indices.map(i => displayPoints[i]?.time).filter((t): t is string => {
+      if (!t || seen.has(t)) return false
+      seen.add(t)
+      return true
+    })
+  })()
 
   return (
     <div style={{ width: '100%', height: 'clamp(180px, 20vh, 280px)' }}>
       <ResponsiveContainer>
-        <AreaChart data={points} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
+        <AreaChart data={displayPoints} margin={{ top: 8, right: 28, bottom: 10, left: -16 }}>
           <defs>
             <linearGradient id="socGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={chartColors.secondary} stopOpacity={0.25} />
@@ -59,7 +80,7 @@ export function SocTimeChart() {
           <CartesianGrid stroke={chartColors.grid} strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="time"
-            ticks={(() => { const n = points.length - 1; return [points[0], points[Math.round(n/4)], points[Math.round(n/2)], points[Math.round(3*n/4)], points[n]].filter(Boolean).map(p => p.time) })()}
+            ticks={xTicks}
             tick={{ fill: chartColors.axis, fontSize: 10, fontFamily: fonts.mono, dy: 8 }}
             axisLine={{ stroke: chartColors.grid }} tickLine={false}
           />

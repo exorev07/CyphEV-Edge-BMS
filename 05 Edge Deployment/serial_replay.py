@@ -104,6 +104,11 @@ def load_bmw_trip(filepath):
         'heating': find_col(df, 'Heating Power CAN') or find_col(df, 'Heating'),
         'aircon': find_col(df, 'AirCon'),
         'atemp': find_col(df, 'Ambient Temp'),
+        # Extra telemetry columns (not used by ML, passed through for dashboard display)
+        'coolant_heatercore': find_col(df, 'Coolant Temperature Heatercore') or find_col(df, 'Heatercore'),
+        'coolant_inlet': find_col(df, 'Coolant Temperature Inlet') or find_col(df, 'Coolant Inlet'),
+        'heat_exchanger': find_col(df, 'Heat Exchanger'),
+        'cabin_temp': find_col(df, 'Cabin Temperature') or find_col(df, 'Cabin Temp'),
     }
     return df, cm
 
@@ -176,7 +181,14 @@ def stream_realtime(ser, trip_filter=None, max_rows=None, delay_ms=0, dry_run=Fa
             throttle = float(row[cm['throttle']]) if cm['throttle'] and pd.notna(row[cm['throttle']]) else 0.0
             regen = float(row[cm['regen']]) if cm['regen'] and pd.notna(row[cm['regen']]) else 0.0
 
-            line = f"RT:{t:.4f},{volt:.4f},{curr:.4f},{soc:.4f},{vel:.4f},{acc:.4f},{torq:.4f},{btemp:.4f},{atemp:.4f},{hvac:.4f},{elev:.4f},{throttle:.4f},{regen:.4f},{is_winter:.1f}"
+            coolant_hc = float(row[cm['coolant_heatercore']]) if cm['coolant_heatercore'] and pd.notna(row[cm['coolant_heatercore']]) else 0.0
+            coolant_in = float(row[cm['coolant_inlet']]) if cm['coolant_inlet'] and pd.notna(row[cm['coolant_inlet']]) else 0.0
+            heat_ex = float(row[cm['heat_exchanger']]) if cm['heat_exchanger'] and pd.notna(row[cm['heat_exchanger']]) else 0.0
+            cabin_t = float(row[cm['cabin_temp']]) if cm['cabin_temp'] and pd.notna(row[cm['cabin_temp']]) else 0.0
+            aircon_kw = abs(aircon)  # raw A/C power in kW for dashboard display
+
+            # 14 ML channels + 5 extra display channels = 19 total
+            line = f"RT:{t:.4f},{volt:.4f},{curr:.4f},{soc:.4f},{vel:.4f},{acc:.4f},{torq:.4f},{btemp:.4f},{atemp:.4f},{hvac:.4f},{elev:.4f},{throttle:.4f},{regen:.4f},{is_winter:.1f},{coolant_hc:.1f},{coolant_in:.1f},{heat_ex:.1f},{cabin_t:.1f},{aircon_kw:.4f}"
             send_line(ser, line, dry_run)
             total_sent += 1
 
@@ -284,6 +296,18 @@ def stream_cycles(ser, battery_filter=None, max_cycles=None, dry_run=False):
             re_val = impedance_re[-1] if impedance_re and not np.isnan(impedance_re[-1]) else 0.0
             rct_val = impedance_rct[-1] if impedance_rct and not np.isnan(impedance_rct[-1]) else 0.0
             energy = np.trapezoid(v * np.abs(i), time_s) / 3600 if len(time_s) > 1 else 0
+
+            # Send telemetry snapshot first (dashboard display during charging)
+            # TEL:voltage,current,packTemp,isCharging,airconPower
+            # Use last sample from discharge cycle as representative snapshot
+            tel_volt = float(v[-1])      # end-of-discharge voltage (will rise during charge)
+            tel_curr = float(np.mean(i)) # charging current (negative = charging in)
+            tel_temp = float(t[-1])      # battery temperature at end of cycle
+            # Simulate charging: use mean voltage bumped up, negative current (charging)
+            charge_volt = float(np.max(v))       # voltage near full
+            charge_curr = float(-abs(np.mean(i)))  # negative current = charging
+            tel_line = f"TEL:{charge_volt:.4f},{charge_curr:.4f},{tel_temp:.4f},1,0.0"
+            send_line(ser, tel_line, dry_run)
 
             # Build cycle summary line
             # CYC:battery_id,cycle,capacity,v_mean,v_std,v_min,v_max,v_range,
