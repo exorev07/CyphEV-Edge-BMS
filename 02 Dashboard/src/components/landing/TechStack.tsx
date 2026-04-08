@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Cpu, Layers, Database, Lock, Code2, FileCode, Zap, BarChart2, Brain } from 'lucide-react'
+import BorderGlow from './BorderGlow'
 
 const techItems = [
   { icon: Cpu,       name: 'ESP32',           category: 'EDGE',     desc: 'Dual-core microcontroller running all sensor polling, ML inference, and relay control on-device.' },
@@ -14,7 +15,6 @@ const techItems = [
 ]
 
 export function TechStack() {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -70,31 +70,28 @@ export function TechStack() {
         {/* Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
           {techItems.map((t) => (
-            <div
+            <BorderGlow
               key={t.name}
-              onMouseEnter={() => setHoveredCard(t.name)}
-              onMouseLeave={() => setHoveredCard(null)}
-              style={{
-                borderRadius: '12px',
-                border: '1px solid rgba(141, 110, 179, 0.58)',
-                background: 'rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                boxShadow: hoveredCard === t.name ? '0 0 24px rgba(121,71,189,0.65), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.07)',
-                padding: '20px',
-                transition: 'border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s',
-                transform: hoveredCard === t.name ? 'translateY(-3px)' : 'translateY(0)',
-                cursor: 'default',
-              }}
+              backgroundColor="#0c0a12"
+              borderRadius={12}
+              glowColor="270 60 65"
+              colors={['#6d28d9', '#c4b5fd', '#a78bfa']}
+              edgeSensitivity={5}
+              glowRadius={40}
+              glowIntensity={2}
+              coneSpread={25}
+              animated={true}
+              fillOpacity={0.5}
             >
-              {/* Category badge — top left */}
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', color: '#6b7280', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '2px 8px', display: 'inline-block', marginBottom: '12px' }}>
-                {t.category}
-              </span>
-              <t.icon size={24} style={{ color: '#9ca3af', display: 'block', margin: '0 auto 12px' }} />
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px', textAlign: 'center' }}>{t.name}</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'center' }}>{t.desc}</p>
-            </div>
+              <div style={{ padding: '14px 20px 20px', cursor: 'default' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', color: '#6b7280', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '2px 8px', display: 'inline-block', marginBottom: '8px' }}>
+                  {t.category}
+                </span>
+                <t.icon size={24} style={{ color: '#9ca3af', display: 'block', margin: '0 auto 10px' }} />
+                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px', textAlign: 'center' }}>{t.name}</h3>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'center' }}>{t.desc}</p>
+              </div>
+            </BorderGlow>
           ))}
         </div>
 
