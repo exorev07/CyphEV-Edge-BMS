@@ -63,6 +63,12 @@ body {
   background: rgba(121, 71, 189, 0.7);
 }
 
+/* ── Hide Edge/IE native password reveal button ── */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 /* ── Glow animation ── */
 .relay-pwd-input[type="password"]:not(:placeholder-shown) { font-size: 18px !important; letter-spacing: 1px !important; line-height: 1 !important; }
 
