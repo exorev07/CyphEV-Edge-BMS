@@ -79,10 +79,10 @@ export function Hero() {
       style={{ paddingTop: '10rem', paddingBottom: '6rem' }}
     >
       {/* Aurora background */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '25%', pointerEvents: 'none', zIndex: 0 }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '23%', pointerEvents: 'none', zIndex: 0 }}>
         <Aurora
-          colorStops={['#615177', '#2f1a4a', '#776195']}
-          amplitude={1.2}
+          colorStops={['#6b6195', '#382770', '#4f476f']}
+          amplitude={1.4}
           blend={0.6}
           speed={0.8}
         />
