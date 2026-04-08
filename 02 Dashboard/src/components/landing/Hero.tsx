@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import dashboardPreview from '../../assets/dashboard_preview.gif'
+import Aurora from './Aurora'
 
 const phrases = [
   { before: 'Tired of constant ',    bold: 'Range Anxiety', after: '?' },
@@ -77,13 +78,15 @@ export function Hero() {
       className="relative w-full overflow-hidden flex flex-col items-center"
       style={{ paddingTop: '10rem', paddingBottom: '6rem' }}
     >
-      {/* Background glow */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '900px', height: '500px',
-        background: 'radial-gradient(ellipse, rgba(121,71,189,0.08) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+      {/* Aurora background */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '25%', pointerEvents: 'none', zIndex: 0 }}>
+        <Aurora
+          colorStops={['#615177', '#2f1a4a', '#776195']}
+          amplitude={1.2}
+          blend={0.6}
+          speed={0.8}
+        />
+      </div>
 
       <style>{`
         @keyframes heroFadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
