@@ -17,6 +17,8 @@ const techItems = [
 export function TechStack() {
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
+  const [animKey, setAnimKey] = useState(0)
+  const [animated, setAnimated] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
   const cancelRef = useRef(false)
 
@@ -28,6 +30,12 @@ export function TechStack() {
           cancelRef.current = false
           setHeadingText('')
           setTypingDone(false)
+          setAnimated(false)
+          // slight delay so BorderGlow remounts before animated fires
+          setTimeout(() => {
+            setAnimKey(k => k + 1)
+            setAnimated(true)
+          }, 100)
           let i = 0
           const tick = () => {
             if (cancelRef.current) return
@@ -41,6 +49,7 @@ export function TechStack() {
           cancelRef.current = true
           setHeadingText('')
           setTypingDone(false)
+          setAnimated(false)
         }
       },
       { threshold: 0.3 }
@@ -71,7 +80,7 @@ export function TechStack() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
           {techItems.map((t) => (
             <BorderGlow
-              key={t.name}
+              key={`${t.name}-${animKey}`}
               backgroundColor="#0c0a12"
               borderRadius={12}
               glowColor="270 60 65"
@@ -80,7 +89,7 @@ export function TechStack() {
               glowRadius={40}
               glowIntensity={2}
               coneSpread={25}
-              animated={true}
+              animated={animated}
               fillOpacity={0.5}
             >
               <div style={{ padding: '14px 20px 20px', cursor: 'default' }}>
