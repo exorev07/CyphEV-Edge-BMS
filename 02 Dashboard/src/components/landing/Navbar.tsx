@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
@@ -13,6 +13,13 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', justifyContent: 'center', padding: '16px 24px', pointerEvents: 'none' }}>
@@ -20,7 +27,7 @@ export function Navbar() {
         @keyframes navFadeDown { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
 
-      <div style={{ width: '95%', pointerEvents: 'auto', background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: '1px solid rgba(141,110,179,0.58)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)', borderRadius: '16px', padding: '0 24px', display: 'flex', alignItems: 'center', height: '56px', fontFamily: "'DM Sans', sans-serif", animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
+      <div style={{ width: '95%', pointerEvents: 'auto', background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: scrolled ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)' : 'inset 0 1px 0 rgba(255,255,255,0.07)', transition: 'box-shadow 0.3s ease', borderRadius: '16px', padding: '0 24px', display: 'flex', alignItems: 'center', height: '56px', fontFamily: "'DM Sans', sans-serif", animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
         {/* Logo */}
         <a href="#" style={{ textDecoration: 'none', flexShrink: 0 }}>
           <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '22px', fontWeight: 700, letterSpacing: '0.05em', color: '#ffffff' }}>
@@ -48,7 +55,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA buttons */}
-        <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0 }}>
+        <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0, marginRight: '-8px' }}>
           <div style={{ position: 'relative' }}>
             <a
               href="/auth?demo=true"
