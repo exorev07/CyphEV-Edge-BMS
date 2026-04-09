@@ -27,7 +27,7 @@
 }
 
 .border-glow-card:hover {
-  animation: border-rotate 5s linear infinite;
+  animation: border-rotate 3s linear infinite;
 }
 
 .border-glow-card {

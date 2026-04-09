@@ -45,7 +45,7 @@ export function Navbar() {
         borderWidth={0.07}
         style={{
           pointerEvents: 'auto',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '2px solid rgba(200,200,210,0.15)',
           boxShadow: scrolled
             ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)'
             : 'inset 0 1px 0 rgba(255,255,255,0.07)',
