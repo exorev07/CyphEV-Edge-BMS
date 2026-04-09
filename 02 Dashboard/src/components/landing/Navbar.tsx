@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import GlassSurface from './GlassSurface'
 
 const navLinks = [
   { label: 'Product Preview', href: '#product' },
@@ -27,7 +28,36 @@ export function Navbar() {
         @keyframes navFadeDown { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
 
-      <div style={{ width: '95%', pointerEvents: 'auto', background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: scrolled ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)' : 'inset 0 1px 0 rgba(255,255,255,0.07)', transition: 'box-shadow 0.3s ease', borderRadius: '16px', padding: '0 24px', display: 'flex', alignItems: 'center', height: '56px', fontFamily: "'DM Sans', sans-serif", animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
+      <GlassSurface
+        width="95%"
+        height={60}
+        borderRadius={16}
+        brightness={20}
+        opacity={0.9}
+        blur={5}
+        displace={2}
+        distortionScale={-30}
+        redOffset={0.}
+        greenOffset={0}
+        blueOffset={0}
+        backgroundOpacity={0}
+        saturation={1}
+        borderWidth={0.07}
+        style={{
+          pointerEvents: 'auto',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: scrolled
+            ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)'
+            : 'inset 0 1px 0 rgba(255,255,255,0.07)',
+          transition: 'box-shadow 0.3s ease',
+          fontFamily: "'DM Sans', sans-serif",
+          animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          display: 'flex',
+        }}
+      >
         {/* Logo */}
         <a href="#" style={{ textDecoration: 'none', flexShrink: 0 }}>
           <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '22px', fontWeight: 700, letterSpacing: '0.05em', color: '#ffffff' }}>
@@ -91,7 +121,7 @@ export function Navbar() {
         >
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </div>
+      </GlassSurface>
 
       {/* Mobile menu */}
       {mobileOpen && (
