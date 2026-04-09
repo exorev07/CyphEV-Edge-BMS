@@ -64,7 +64,7 @@ export function Contact() {
     const el = bgDivRef.current
     if (!el) return
     el.style.transition = transition ? 'opacity 0.4s ease' : 'none'
-    el.style.opacity = (!isReadyRef.current ? 0.08 : isHoveredRef.current ? 0.22 : 0.08).toString()
+    el.style.opacity = (!isReadyRef.current ? 0.25 : isHoveredRef.current ? 0.45 : 0.25).toString()
   }
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export function Contact() {
       {/* GradientBlinds background — opacity controlled via direct DOM ref */}
       <div
         ref={bgDivRef}
-        style={{ position: 'absolute', top: '-90px', left: 0, right: 0, bottom: 0, zIndex: 0, opacity: 0.08, transition: 'none', pointerEvents: 'none' }}
+        style={{ position: 'absolute', top: '-90px', left: 0, right: 0, bottom: 0, zIndex: 0, opacity: 0.25, transition: 'none', pointerEvents: 'none' }}
       >
         <ContactBackground mouseRef={mouseRef} />
       </div>
