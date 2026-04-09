@@ -76,7 +76,7 @@ export function Hero() {
   return (
     <section
       className="relative w-full overflow-hidden flex flex-col items-center"
-      style={{ paddingTop: '10rem', paddingBottom: '6rem' }}
+      style={{ paddingTop: '13rem', paddingBottom: '6rem' }}
     >
       {/* Aurora background */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '23%', pointerEvents: 'none', zIndex: 0 }}>
@@ -84,7 +84,7 @@ export function Hero() {
           colorStops={['#6b6195', '#382770', '#4f476f']}
           amplitude={1.4}
           blend={0.6}
-          speed={0.8}
+          speed={0.8  }
         />
       </div>
 
@@ -120,7 +120,7 @@ export function Hero() {
         }}>
           Give your EV the Battery Intelligence it deserves!
         </div>
-        <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.75s both' }}>
+        <p style={{ fontSize: '20px', fontFamily: "'DM Serif Display', serif", fontStyle: 'italic', color: '#ddceefae', marginTop: '0px', marginBottom: '50px', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.75s both' }}>
           Edge-based, All Private, with Sub-Millisecond Inference time - all on a single Device
         </p>
       </div>

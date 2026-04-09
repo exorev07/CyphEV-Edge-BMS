@@ -36,6 +36,21 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #b18ddd;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7947BD;
+}
+
 body {
   font-family: var(--font-sans);
   background: #08080a;
