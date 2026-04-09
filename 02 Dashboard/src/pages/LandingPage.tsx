@@ -8,14 +8,16 @@ import { Footer } from '../components/landing/Footer'
 import ClickSpark from '../components/landing/ClickSpark'
 export function LandingPage() {
   return (
-    <ClickSpark sparkColor="#b18ddd" sparkSize={10} sparkRadius={30} sparkCount={8} duration={400}>
+    <>
+      <ClickSpark sparkColor="#b18ddd" sparkSize={10} sparkRadius={30} sparkCount={8} duration={400}>
+        <Hero />
+        <Features />
+        <TechStack />
+        <About />
+        <Contact />
+        <Footer />
+      </ClickSpark>
       <Navbar />
-      <Hero />
-      <Features />
-      <TechStack />
-      <About />
-      <Contact />
-      <Footer />
-    </ClickSpark>
+    </>
   )
 }

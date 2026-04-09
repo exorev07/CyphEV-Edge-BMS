@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
@@ -13,28 +13,23 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   return (
-    <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(8,8,10,0.05)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: scrolled ? '0 8px 32px rgba(0,0,0,0.4)' : 'none', transition: 'box-shadow 0.3s', animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
-      <style>{`@keyframes navFadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', justifyContent: 'center', padding: '16px 24px', pointerEvents: 'none' }}>
+      <style>{`
+        @keyframes navFadeDown { from { opacity: 0; } to { opacity: 1; } }
+      `}</style>
 
-      <div style={{ display: 'flex', alignItems: 'center', height: '64px', padding: '0 24px', width: '100%', position: 'relative', fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ width: '95%', pointerEvents: 'auto', background: 'rgba(8,8,10,0.35)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: '1px solid rgba(141,110,179,0.58)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)', borderRadius: '16px', padding: '0 24px', display: 'flex', alignItems: 'center', height: '56px', fontFamily: "'DM Sans', sans-serif", animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}>
         {/* Logo */}
-        <a href="#" style={{ textDecoration: 'none' }}>
+        <a href="#" style={{ textDecoration: 'none', flexShrink: 0 }}>
           <span style={{ fontFamily: "'Bitcount Grid Single', monospace", fontSize: '22px', fontWeight: 700, letterSpacing: '0.05em', color: '#ffffff' }}>
             CYPH<span style={{ color: '#b18ddd' }}>EV</span>
           </span>
         </a>
 
-        {/* Desktop nav links — absolutely centered */}
-        <div className="hidden md:flex" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
+        {/* Desktop nav links — centered */}
+        <div className="hidden md:flex" style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center' }}>
           {navLinks.map((link, i) => (
             <div key={link.label} style={{ display: 'flex', alignItems: 'center' }}>
               <a
@@ -53,13 +48,13 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA buttons */}
-        <div className="hidden md:flex items-center gap-3" style={{ marginLeft: 'auto' }}>
+        <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
             <a
               href="/auth?demo=true"
               onMouseEnter={() => setHoveredBtn('demo')}
               onMouseLeave={() => setHoveredBtn(null)}
-              style={{ color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '16px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
+              style={{ color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
             >
               Demo
             </a>
@@ -75,7 +70,7 @@ export function Navbar() {
             href="/auth"
             onMouseEnter={() => setHoveredBtn('getstarted')}
             onMouseLeave={() => setHoveredBtn(null)}
-            style={{ background: '#ffffff', color: '#08080a', borderRadius: '15px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
+            style={{ background: '#ffffff', color: '#08080a', borderRadius: '12px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
           >
             Get Started
           </a>
@@ -93,22 +88,22 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden relative bg-surface-800/95 backdrop-blur-xl border-t border-white/[0.06] px-6 py-4 flex flex-col gap-2">
+        <div className="md:hidden" style={{ position: 'absolute', top: '80px', left: '24px', right: '24px', maxWidth: '1200px', margin: '0 auto', background: 'rgba(18,16,22,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '4px', pointerEvents: 'auto' }}>
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="px-4 py-3 text-sm text-gray-300 hover:text-white rounded-lg hover:bg-white/[0.04] transition-colors"
+              style={{ padding: '10px 12px', fontSize: '14px', color: '#d1d5db', textDecoration: 'none', borderRadius: '10px' }}
             >
               {link.label}
             </a>
           ))}
-          <div className="flex gap-3 mt-3 pt-3 border-t border-white/[0.06]">
-            <a href="/auth?demo=true" className="flex-1 text-center px-4 py-2.5 text-sm text-gray-300 border border-white/[0.1] rounded-lg">
+          <div style={{ display: 'flex', gap: '10px', marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <a href="/auth?demo=true" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', textDecoration: 'none' }}>
               Demo
             </a>
-            <a href="/auth" className="flex-1 text-center px-4 py-2.5 text-sm font-medium text-surface-900 bg-white rounded-lg">
+            <a href="/auth" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '12px', textDecoration: 'none' }}>
               Get Started
             </a>
           </div>
