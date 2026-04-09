@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import GradientBlinds from './GradientBlinds'
 
 const members = [
@@ -22,6 +22,29 @@ const members = [
   },
 ]
 
+// Memoized so typewriter re-renders in Contact don't cause GradientBlinds to repaint
+const ContactBackground = memo(function ContactBackground({
+  mouseRef,
+}: {
+  mouseRef: React.RefObject<{ x: number; y: number } | null>
+}) {
+  return (
+    <GradientBlinds
+      gradientColors={['#08080a', '#6829c1', '#b18ddd', '#6829c1', '#08080a']}
+      angle={-45}
+      noise={0.15}
+      blindCount={10}
+      blindMinWidth={80}
+      spotlightOpacity={0.6}
+      spotlightRadius={0.5}
+      mouseDampening={0.03}
+      mirrorGradient={false}
+      mixBlendMode="normal"
+      mouseRef={mouseRef}
+    />
+  )
+})
+
 export function Contact() {
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
@@ -29,8 +52,20 @@ export function Contact() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const sectionElRef = useRef<HTMLDivElement>(null)
+  const bgDivRef = useRef<HTMLDivElement>(null)
   const cancelRef = useRef(false)
   const mouseRef = useRef<{ x: number; y: number } | null>(null)
+  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isReadyRef = useRef(false)
+  const isHoveredRef = useRef(false)
+
+  // Update background opacity directly via DOM — bypasses React render cycle
+  const updateBgOpacity = (transition: boolean) => {
+    const el = bgDivRef.current
+    if (!el) return
+    el.style.transition = transition ? 'opacity 0.4s ease' : 'none'
+    el.style.opacity = (!isReadyRef.current ? 0.08 : isHoveredRef.current ? 0.22 : 0.08).toString()
+  }
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -39,11 +74,29 @@ export function Contact() {
       const rect = el.getBoundingClientRect()
       const inBounds = e.clientX >= rect.left && e.clientX <= rect.right
         && e.clientY >= rect.top - 90 && e.clientY <= rect.bottom
-      if (inBounds) mouseRef.current = { x: e.clientX, y: e.clientY }
-      else mouseRef.current = null
+      if (inBounds) {
+        if (leaveTimerRef.current) { clearTimeout(leaveTimerRef.current); leaveTimerRef.current = null }
+        mouseRef.current = { x: e.clientX, y: e.clientY }
+        if (!isHoveredRef.current) {
+          isHoveredRef.current = true
+          updateBgOpacity(true)
+        }
+      } else {
+        mouseRef.current = null
+        if (!leaveTimerRef.current) {
+          leaveTimerRef.current = setTimeout(() => {
+            isHoveredRef.current = false
+            updateBgOpacity(true)
+            leaveTimerRef.current = null
+          }, 200)
+        }
+      }
     }
     document.addEventListener('pointermove', onMove)
-    return () => document.removeEventListener('pointermove', onMove)
+    return () => {
+      document.removeEventListener('pointermove', onMove)
+      if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -54,19 +107,31 @@ export function Contact() {
           cancelRef.current = false
           setHeadingText('')
           setTypingDone(false)
+          isReadyRef.current = false
+          isHoveredRef.current = false
+          updateBgOpacity(false)
           let i = 0
           const tick = () => {
             if (cancelRef.current) return
             i++
             setHeadingText(full.slice(0, i))
-            if (i < full.length) setTimeout(tick, 80)
-            else setTypingDone(true)
+            if (i < full.length) {
+              setTimeout(tick, 80)
+            } else {
+              setTypingDone(true)
+              isReadyRef.current = true
+              // Small delay before enabling transitions so hover state is stable
+              setTimeout(() => updateBgOpacity(true), 50)
+            }
           }
           setTimeout(tick, 80)
         } else {
           cancelRef.current = true
           setHeadingText('')
           setTypingDone(false)
+          isReadyRef.current = false
+          isHoveredRef.current = false
+          updateBgOpacity(false)
         }
       },
       { threshold: 0.3 }
@@ -81,21 +146,12 @@ export function Contact() {
       id="contact"
       style={{ padding: '0px 0px 96px', scrollMarginTop: '75px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}
     >
-      {/* GradientBlinds background */}
-      <div style={{ position: 'absolute', top: '-90px', left: 0, right: 0, bottom: 0, zIndex: 0, opacity: 0.08, pointerEvents: 'none' }}>
-        <GradientBlinds
-          gradientColors={['#08080a', '#6829c1', '#b18ddd', '#6829c1', '#08080a']}
-          angle={-45}
-          noise={0.15}
-          blindCount={10}
-          blindMinWidth={80}
-          spotlightOpacity={0.6}
-          spotlightRadius={0.5}
-          mouseDampening={0.03}
-          mirrorGradient={false}
-          mixBlendMode="normal"
-          mouseRef={mouseRef}
-        />
+      {/* GradientBlinds background — opacity controlled via direct DOM ref */}
+      <div
+        ref={bgDivRef}
+        style={{ position: 'absolute', top: '-90px', left: 0, right: 0, bottom: 0, zIndex: 0, opacity: 0.08, transition: 'none', pointerEvents: 'none' }}
+      >
+        <ContactBackground mouseRef={mouseRef} />
       </div>
       <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 1 }}>
 
