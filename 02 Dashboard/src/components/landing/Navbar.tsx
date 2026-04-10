@@ -96,9 +96,9 @@ export function Navbar() {
                 <span style={{
                   display: 'block',
                   width: '100%',
-                  height: '3px',
+                  height: '2px',
                   borderRadius: '1px',
-                  background: '#ffffff',
+                  background: '#ddb5ff',
                   opacity: activeSection === link.href.slice(1) ? 0.5 : 0,
                   transition: 'opacity 0.3s ease',
                 }} />
