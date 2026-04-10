@@ -62,7 +62,7 @@ export function Navbar() {
         borderWidth={0.07}
         style={{
           pointerEvents: 'auto',
-          border: '2px solid rgba(200,200,210,0.15)',
+          border: '2px solid rgba(255, 255, 255, 0.23)',
           boxShadow: scrolled
             ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)'
             : 'inset 0 1px 0 rgba(255,255,255,0.07)',
@@ -90,7 +90,7 @@ export function Navbar() {
                 href={link.href}
                 onMouseEnter={() => setHoveredLink(link.label)}
                 onMouseLeave={() => setHoveredLink(null)}
-                style={{ color: hoveredLink === link.label ? '#b18ddd' : '#9ca3af', fontSize: '14px', padding: '8px 10px', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}
+                style={{ color: hoveredLink === link.label ? '#b18ddd' : '#ffffffc2', fontSize: '14px', padding: '8px 10px', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}
               >
                 {link.label}
                 <span style={{
@@ -117,7 +117,7 @@ export function Navbar() {
               href="/auth?demo=true"
               onMouseEnter={() => setHoveredBtn('demo')}
               onMouseLeave={() => setHoveredBtn(null)}
-              style={{ color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
+              style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
             >
               Demo
             </a>
