@@ -121,7 +121,7 @@ export function Navbar() {
                 href="/auth?demo=true"
                 onMouseEnter={() => setHoveredBtn('demo')}
                 onMouseLeave={() => setHoveredBtn(null)}
-                style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
+                style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(51, 51, 51, 0.63)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
               >
                 Demo
               </a>
