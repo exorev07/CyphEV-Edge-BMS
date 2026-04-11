@@ -163,7 +163,7 @@ export function Hero() {
           <span style={{ color: '#ffffff' }}>Intelligent Battery Management for </span>
           <span style={{ color: '#b18ddd' }}>EVs</span>
         </h1>
-        <p style={{ fontSize: '16px', fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: '#9ca3af', lineHeight: 1.4, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'justify' }}>
+        <p style={{ fontSize: '18px', fontFamily: "'Playfair Display', serif", fontWeight: 400, color: '#9ca3af', lineHeight: 1.4, maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'justify', letterSpacing: '0.025em' }}>
           CyphEV is an edge-native Battery Management System (BMS) built on the ESP32, running TinyML inference models entirely on-device, it requires no cloud dependency, and has no latency and privacy concerns. Raw sensor data from the battery pack is processed locally in real-time, streamed to a Firebase backend, and surfaced on this dashboard - giving fleet operators and owners complete visibility into the vehicle's battery conditions, every second.
         </p>
       </div>

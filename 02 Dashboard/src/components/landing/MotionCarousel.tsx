@@ -159,17 +159,19 @@ export function MotionCarousel({ slides, active = true }: PropType) {
                     <Icon size={24} style={{ color: '#9ca3af' }} />
                   </div>
                   <h3 style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '16px', fontWeight: 600,
-                    color: '#ffffff', margin: 0, textAlign: 'center', lineHeight: 1.3,
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: '18px', fontWeight: 400,
+                    letterSpacing: '0.04em',
+                    color: '#ffffff', margin: 0, textAlign: 'center', lineHeight: 1.6,
                     padding: '0 16px',
                   }}>
                     {slide.title}
                   </h3>
                   <p style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '13px', color: '#9ca3af',
-                    margin: 0, textAlign: 'justify', lineHeight: 1.6,
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: '16px', color: '#c1c4cac5',
+                    letterSpacing: '0.02em',
+                    margin: 0, textAlign: 'justify', lineHeight: 1.4,
                     padding: '0 60px',
                   }}>
                     {slide.desc}

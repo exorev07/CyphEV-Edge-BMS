@@ -100,7 +100,7 @@ export function Contact() {
   }, [])
 
   useEffect(() => {
-    const full = 'Contact Us'
+    const full = 'CONTACT US'
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -158,7 +158,7 @@ export function Contact() {
         {/* Header */}
         <div ref={sectionRef} style={{ textAlign: 'center', marginBottom: '56px', position: 'relative', zIndex: 1 }}>
           <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
-          <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             {headingText}<span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: '0.75em', color: '#6829c1', marginLeft: '5px', animation: typingDone ? 'blink 1.1s step-start infinite' : 'none', opacity: headingText.length > 0 ? 1 : 0 }}>{'>'}</span>
           </p>
         </div>
@@ -186,11 +186,11 @@ export function Contact() {
                 cursor: 'default',
               }}
             >
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 300, letterSpacing: '0.05em', color: '#ffffff', marginBottom: '0px', textAlign: 'center' }}>{m.name}</p>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#b18ddd', fontWeight: 300, letterSpacing: '0.05em', marginBottom: '0px', textAlign: 'center' }}>{m.discipline}</p>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: '16px', color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '18px', textAlign: 'center' }}>{m.institute}</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '24px', fontWeight: 400, letterSpacing: '0.025em', color: '#ffffff', marginBottom: '4px', textAlign: 'center' }}>{m.name}</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', color: '#b18ddd', fontWeight: 400, letterSpacing: '0.025em', textAlign: 'center' }}>{m.discipline}</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', color: '#b18ddd', letterSpacing: '0.025em', marginBottom: '18px', textAlign: 'center' }}>{m.institute}</p>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontStyle: "italic", fontSize: '14px', color: '#d1d5db', marginBottom: '16px', textAlign: 'center' }}>{m.email}</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9ca3af', lineHeight: 1.6, textAlign: 'justify', marginBottom: '20px' }}>{m.desc}</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '14px', fontWeight: 400, color: '#c1c4cac5', lineHeight: 1.4, textAlign: 'justify', letterSpacing: '0.025em', padding: '2px 24px', marginBottom: '20px' }}>{m.desc}</p>
 
               {/* Buttons */}
               <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>

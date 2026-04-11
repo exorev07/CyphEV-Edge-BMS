@@ -22,7 +22,7 @@ export function TechStack() {
   const cancelRef = useRef(false)
 
   useEffect(() => {
-    const full = 'Tech Stack'
+    const full = 'TECH STACK'
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -64,7 +64,7 @@ export function TechStack() {
           <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(2.5rem, 3vw, 4rem)', fontWeight: 600, color: '#b18ddd', letterSpacing: '0.05em', marginBottom: '12px' }}>
             {headingText}<span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: '0.75em', color: '#6829c1', marginLeft: '5px', animation: typingDone ? 'blink 1.1s step-start infinite' : 'none', opacity: headingText.length > 0 ? 1 : 0 }}>{'>'}</span>
           </p>
-          <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 300, color: '#9ca3af', textAlign: 'justify', maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.4 }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', fontWeight: 400, color: '#9ca3af', textAlign: 'justify', maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.4, letterSpacing: '0.025em' }}>
             CyphEV is built on a deliberately minimal stack with every layer chosen to keep inference on the edge, data in real-time, and the UI responsive without compromise. The ESP32 handles everything from raw sensor acquisition to ML model execution and relay actuation. Firebase bridges the gap between edge hardware and the web, while React and Recharts surface that stream as a live, interactive dashboard.
           </h2>
         </div>
@@ -112,8 +112,8 @@ export function TechStack() {
                   {t.category}
                 </span>
                 <t.icon size={24} style={{ color: '#9ca3af', display: 'block', margin: '0 auto 10px' }} />
-                <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px', textAlign: 'center' }}>{t.name}</h3>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#6b7280', lineHeight: 1.6, textAlign: 'center' }}>{t.desc}</p>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', fontWeight: 400, color: '#ffffff', marginBottom: '4px', textAlign: 'center', letterSpacing: '0.025em' }}>{t.name}</h3>
+                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '14px', fontWeight: 400, color: '#c1c4cac5', lineHeight: 1.5, textAlign: 'justify', letterSpacing: '0.025em', padding: '2px 24px' }}>{t.desc}</p>
               </div>
             </BorderGlow>
           ))}
