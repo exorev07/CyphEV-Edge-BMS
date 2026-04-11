@@ -10,7 +10,7 @@ import { Footer } from '../components/landing/Footer'
 import ClickSpark from '../components/landing/ClickSpark'
 export function LandingPage() {
   useEffect(() => {
-    const lenis = new Lenis({ duration: 0.8, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
+    const lenis = new Lenis({ duration: 1, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
     const raf = (time: number) => { lenis.raf(time); requestAnimationFrame(raf) }
     requestAnimationFrame(raf)
     return () => lenis.destroy()
