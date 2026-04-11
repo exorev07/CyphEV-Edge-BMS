@@ -1,10 +1,7 @@
-'use client';
-
 import * as React from 'react';
 import { motion, type Transition } from 'motion/react';
 import type { EmblaCarouselType } from 'embla-carousel';
 import useEmblaCarousel from 'embla-carousel-react';
-;
 
 export type CarouselSlide = {
   icon: React.ElementType

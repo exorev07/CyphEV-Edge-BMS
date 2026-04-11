@@ -100,7 +100,7 @@ export function Contact() {
   }, [])
 
   useEffect(() => {
-    const full = 'CONTACT US'
+    const full = 'Contact Us'
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

@@ -49,7 +49,7 @@ export function Navbar() {
       `}</style>
 
       <GlassSurface
-        width="95%"
+        width={scrolled ? 'calc(100vw - 48px)' : 'calc(75vw)'}
         height={60}
         borderRadius={16}
         brightness={20}
@@ -69,7 +69,7 @@ export function Navbar() {
           boxShadow: scrolled
             ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)'
             : 'inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 24px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2)',
-          transition: 'box-shadow 0.3s ease',
+          transition: 'box-shadow 0.3s ease, width 0.4s cubic-bezier(0.22,1,0.36,1)',
           fontFamily: "'DM Sans', sans-serif",
           animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both',
           alignItems: 'center',
