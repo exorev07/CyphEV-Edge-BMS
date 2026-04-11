@@ -15,6 +15,7 @@ export type CarouselSlide = {
 
 type PropType = {
   slides: CarouselSlide[]
+  active?: boolean
 }
 
 type EmblaControls = {
@@ -78,20 +79,25 @@ const useEmblaControls = (emblaApi: EmblaCarouselType | undefined): EmblaControl
   return { selectedIndex, scrollSnaps, prevDisabled, nextDisabled, onDotClick, onPrev, onNext }
 }
 
-export function MotionCarousel({ slides }: PropType) {
+export function MotionCarousel({ slides, active = true }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', containScroll: false, slidesToScroll: 1 })
   const { selectedIndex, scrollSnaps, onDotClick } = useEmblaControls(emblaApi)
   const viewportRef = React.useRef<HTMLDivElement>(null)
 
+  // Auto-scroll only while section is visible; reset to slide 0 when leaving
   React.useEffect(() => {
     if (!emblaApi) return
+    if (!active) {
+      emblaApi.scrollTo(0)
+      return
+    }
     const interval = setInterval(() => {
       const current = emblaApi.selectedScrollSnap()
       const total = emblaApi.scrollSnapList().length
       emblaApi.scrollTo(current < total - 1 ? current + 1 : 0)
     }, 10000)
     return () => clearInterval(interval)
-  }, [emblaApi])
+  }, [emblaApi, active])
 
   React.useEffect(() => {
     const el = viewportRef.current

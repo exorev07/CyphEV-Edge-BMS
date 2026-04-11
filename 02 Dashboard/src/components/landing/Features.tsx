@@ -23,8 +23,21 @@ const features = [
 export function Features() {
   const [headingText, setHeadingText] = useState('')
   const [typingDone, setTypingDone] = useState(false)
+  const [carouselActive, setCarouselActive] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
+  const sectionElRef = useRef<HTMLElement>(null)
   const cancelRef = useRef(false)
+
+  useEffect(() => {
+    const el = sectionElRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setCarouselActive(entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   useEffect(() => {
     const full = 'Features'
@@ -58,6 +71,7 @@ export function Features() {
   return (
     <section
       id="features"
+      ref={sectionElRef}
       style={{ padding: '0px 0px 96px', scrollMarginTop: '75px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -74,7 +88,7 @@ export function Features() {
         </div>
 
         {/* Motion Carousel */}
-        <MotionCarousel slides={features} />
+        <MotionCarousel slides={features} active={carouselActive} />
 
       </div>
 
