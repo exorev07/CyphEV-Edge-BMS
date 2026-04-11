@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import GlassSurface from './GlassSurface'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './Tooltip'
 
 const navLinks = [
   { label: 'Product Preview', href: '#product' },
@@ -16,6 +17,7 @@ export function Navbar() {
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>(null)
+
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -40,6 +42,7 @@ export function Navbar() {
   }, [])
 
   return (
+    <TooltipProvider>
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', justifyContent: 'center', padding: '16px 24px', pointerEvents: 'none' }}>
       <style>{`
         @keyframes navFadeDown { from { opacity: 0; } to { opacity: 1; } }
@@ -112,23 +115,21 @@ export function Navbar() {
 
         {/* Desktop CTA buttons */}
         <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0, marginRight: '-8px' }}>
-          <div style={{ position: 'relative' }}>
-            <a
-              href="/auth?demo=true"
-              onMouseEnter={() => setHoveredBtn('demo')}
-              onMouseLeave={() => setHoveredBtn(null)}
-              style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
-            >
-              Demo
-            </a>
-            {hoveredBtn === 'demo' && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: '240px', background: 'rgba(10,8,16,0.94)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(141,110,179,0.28)', borderRadius: '10px', padding: '10px 12px', zIndex: 100, pointerEvents: 'none' }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9ca3af', lineHeight: 1.5, textAlign: 'justify', margin: 0 }}>
-                  Try CyphEV without signing up. The demo account gives you full access to the dashboard with simulated battery & sensor data so you can explore all features and dashboard functionality freely.
-                </p>
-              </div>
-            )}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                href="/auth?demo=true"
+                onMouseEnter={() => setHoveredBtn('demo')}
+                onMouseLeave={() => setHoveredBtn(null)}
+                style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
+              >
+                Demo
+              </a>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              Try CyphEV without signing up. The demo account gives you full access to the dashboard with simulated battery & sensor data so you can explore all features and dashboard functionality freely.
+            </TooltipContent>
+          </Tooltip>
           <a
             href="/auth"
             onMouseEnter={() => setHoveredBtn('getstarted')}
@@ -173,5 +174,6 @@ export function Navbar() {
         </div>
       )}
     </nav>
+    </TooltipProvider>
   )
 }

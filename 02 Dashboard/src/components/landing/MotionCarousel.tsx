@@ -81,6 +81,7 @@ const useEmblaControls = (emblaApi: EmblaCarouselType | undefined): EmblaControl
 export function MotionCarousel({ slides }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', containScroll: false, slidesToScroll: 1 })
   const { selectedIndex, scrollSnaps, onDotClick } = useEmblaControls(emblaApi)
+  const viewportRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     if (!emblaApi) return
@@ -92,8 +93,21 @@ export function MotionCarousel({ slides }: PropType) {
     return () => clearInterval(interval)
   }, [emblaApi])
 
+  React.useEffect(() => {
+    const el = viewportRef.current
+    if (!el || !emblaApi) return
+    const onWheel = (e: WheelEvent) => {
+      if (!e.shiftKey) return
+      e.preventDefault()
+      if (e.deltaY > 0) emblaApi.scrollNext()
+      else emblaApi.scrollPrev()
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [emblaApi])
+
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '20px' }}>
+    <div ref={viewportRef} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '20px' }}>
       {/* Slide height matches original: 9rem → 13rem → 18rem (we use 18rem = 288px at desktop) */}
       <div style={{ overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)' }} ref={emblaRef}>
         <div style={{ display: 'flex', touchAction: 'pan-y pinch-zoom', marginLeft: '-24px' }}>
