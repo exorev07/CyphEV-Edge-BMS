@@ -55,20 +55,20 @@ export function Navbar() {
         brightness={20}
         opacity={0.9}
         blur={5}
-        displace={2}
+        displace={4}
         distortionScale={-30}
-        redOffset={0.}
+        redOffset={0}
         greenOffset={0}
         blueOffset={0}
         backgroundOpacity={0}
         saturation={1}
-        borderWidth={0.07}
+        borderWidth={0.12}
         style={{
           pointerEvents: 'auto',
           border: '2px solid rgba(255, 255, 255, 0.23)',
           boxShadow: scrolled
             ? 'inset 0 1px 0 rgba(255,255,255,0.07), 0 -4px 24px rgba(0,0,0,0.4), 0 16px 64px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.7), 0 30px 80px rgba(0,0,0,0.5), 0 24px 70px rgba(60,40,90,0.2)'
-            : 'inset 0 1px 0 rgba(255,255,255,0.07)',
+            : 'inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 24px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2)',
           transition: 'box-shadow 0.3s ease',
           fontFamily: "'DM Sans', sans-serif",
           animation: 'navFadeDown 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both',
@@ -93,7 +93,7 @@ export function Navbar() {
                 href={link.href}
                 onMouseEnter={() => setHoveredLink(link.label)}
                 onMouseLeave={() => setHoveredLink(null)}
-                style={{ color: hoveredLink === link.label ? '#b18ddd' : '#ffffffc2', fontSize: '14px', padding: '8px 10px', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}
+                style={{ color: hoveredLink === link.label ? '#b18ddd' : '#ffffffa4', fontSize: '14px', letterSpacing: "0.025em", fontWeight:400, padding: '8px 10px', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}
               >
                 {link.label}
                 <span style={{
@@ -107,7 +107,7 @@ export function Navbar() {
                 }} />
               </a>
               {i < navLinks.length - 1 && (
-                <span style={{ color: '#efe4ff', fontSize: '16px', lineHeight: 1, display: 'flex', alignItems: 'center' }}>·</span>
+                <span style={{ color: '#efe4ff', fontSize: '18px', lineHeight: 1, display: 'flex', alignItems: 'center' }}>·</span>
               )}
             </div>
           ))}
