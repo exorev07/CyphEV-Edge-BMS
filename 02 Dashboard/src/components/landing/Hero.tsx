@@ -136,8 +136,8 @@ export function Hero() {
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#28c840' }} />
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <div style={{ padding: '2px 16px', borderRadius: '4px', background: 'rgba(255,255,255,0.03)', fontSize: '10px', color: '#6b7280', fontFamily: 'monospace' }}>
-                cyphev-dashboard.vercel.app/dashboard
+              <div style={{ padding: '4px 24px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.11)', fontSize: '12px', color: '#ffffff70', fontFamily: 'monospace' }}>
+                https://cyphev-dashboard.vercel.app
               </div>
             </div>
             <div style={{ width: '48px' }} />
