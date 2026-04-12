@@ -84,11 +84,11 @@ export function Contact() {
               onMouseEnter={() => setHoveredCard(m.name)}
               onMouseLeave={() => setHoveredCard(null)}
               style={{
-                borderRadius: '12px',
-                border: '1px solid rgba(141, 110, 179, 0.58)',
-                background: 'rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
+                borderRadius: '16px',
+                border: '2px solid rgba(255,255,255,0.23)',
+                background: 'rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 boxShadow: hoveredCard === m.name ? '0 0 24px rgba(121,71,189,0.65), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.07)',
                 padding: '28px 24px 24px',
                 display: 'flex',

@@ -34,8 +34,8 @@ export function LandingPage() {
           />
           <About />
           <Contact />
+          <Footer />
         </div>
-        <Footer />
       </ClickSpark>
       <Navbar />
     </>
