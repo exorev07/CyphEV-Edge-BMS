@@ -122,7 +122,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA buttons */}
-        <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0, marginRight: '-8px' }}>
+        <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0, marginRight: '-4px' }}>
           <Tooltip>
             <TooltipTrigger asChild>
               <a
