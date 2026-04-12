@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import dashboardPreview from '../../assets/dashboard_preview.gif'
 import Aurora from './Aurora'
+import { CurtainLink } from './CurtainLink'
 
 const phrases = [
   { before: 'Tired of constant ',    bold: 'Range Anxiety', after: '?' },
@@ -170,14 +171,14 @@ export function Hero() {
 
       {/* CTA Buttons */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '48px', animation: 'heroFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 1.55s both' }}>
-        <a
+        <CurtainLink
           href="/auth"
           onMouseEnter={() => setHoveredBtn('getstarted')}
           onMouseLeave={() => setHoveredBtn(null)}
           style={{ display: 'inline-flex', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '15px', padding: '6px 18px', textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
         >
           Get Started
-        </a>
+        </CurtainLink>
         <a
           href="https://github.com/exorev07/TinyML-based-Battery-Management-System.git"
           target="_blank"

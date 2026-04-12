@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import GlassSurface from './GlassSurface'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './Tooltip'
+import { CurtainLink } from './CurtainLink'
 
 const navLinks = [
   { label: 'Product Preview', href: '#product' },
@@ -119,28 +120,28 @@ export function Navbar() {
         {/* Desktop CTA buttons */}
         <div className="hidden md:flex items-center gap-3" style={{ flexShrink: 0, marginRight: '-4px' }}>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <a
+            <TooltipTrigger>
+              <CurtainLink
                 href="/auth?demo=true"
                 onMouseEnter={() => setHoveredBtn('demo')}
                 onMouseLeave={() => setHoveredBtn(null)}
                 style={{ color: '#ffffffc8', border: '1px solid rgba(255, 255, 255, 0.4)', background: 'rgba(51, 51, 51, 0.63)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '6px 16px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'demo' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'demo' ? 'translateY(-2px)' : 'translateY(0)', display: 'inline-block' }}
               >
                 Demo
-              </a>
+              </CurtainLink>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               Try CyphEV without signing up. The demo account gives you full access to the dashboard with simulated battery & sensor data so you can explore all features and dashboard functionality freely.
             </TooltipContent>
           </Tooltip>
-          <a
+          <CurtainLink
             href="/auth"
             onMouseEnter={() => setHoveredBtn('getstarted')}
             onMouseLeave={() => setHoveredBtn(null)}
             style={{ background: '#ffffff', color: '#08080a', borderRadius: '12px', padding: '6px 18px', fontSize: '14px', fontWeight: 600, textDecoration: 'none', transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: hoveredBtn === 'getstarted' ? '0 0 24px rgba(121,71,189,0.65)' : 'none', transform: hoveredBtn === 'getstarted' ? 'translateY(-2px)' : 'translateY(0)' }}
           >
             Get Started
-          </a>
+          </CurtainLink>
         </div>
 
         {/* Mobile menu toggle */}
@@ -167,12 +168,12 @@ export function Navbar() {
             </a>
           ))}
           <div style={{ display: 'flex', gap: '10px', marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <a href="/auth?demo=true" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', textDecoration: 'none' }}>
+            <CurtainLink href="/auth?demo=true" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', textDecoration: 'none' }}>
               Demo
-            </a>
-            <a href="/auth" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '12px', textDecoration: 'none' }}>
+            </CurtainLink>
+            <CurtainLink href="/auth" style={{ flex: 1, textAlign: 'center', padding: '8px 0', fontSize: '13px', fontWeight: 600, color: '#08080a', background: '#ffffff', borderRadius: '12px', textDecoration: 'none' }}>
               Get Started
-            </a>
+            </CurtainLink>
           </div>
         </div>
       )}
