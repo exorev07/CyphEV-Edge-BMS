@@ -26,6 +26,14 @@ export function Navbar() {
   }, [])
 
   useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY < 80) setActiveSection(null)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
     const sectionIds = navLinks.map(l => l.href.slice(1))
     const observers: IntersectionObserver[] = []
     sectionIds.forEach(id => {

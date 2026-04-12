@@ -72,7 +72,7 @@ export function Features() {
     <section
       id="features"
       ref={sectionElRef}
-      style={{ padding: '0px 0px 96px', scrollMarginTop: '75px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      style={{ padding: '0px 0px 96px', scrollMarginTop: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
 

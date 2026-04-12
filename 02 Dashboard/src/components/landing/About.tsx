@@ -40,9 +40,9 @@ export function About() {
   return (
     <section
       id="about"
-      style={{ padding: '96px 0px 96px', scrollMarginTop: '75px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      style={{ padding: '96px 0px 96px', scrollMarginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}
     >
-      <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 1 }}>
 
         <div ref={sectionRef} style={{ textAlign: 'center' }}>
           <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>

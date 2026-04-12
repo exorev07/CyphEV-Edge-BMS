@@ -9,7 +9,7 @@ export function Footer() {
             CYPH<span style={{ color: '#b18ddd' }}>EV</span>
           </span>
         </a>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4b5563', margin: 0 }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', fontWeight: 200, color: '#ffffffa4', margin: 0 }}>
           © 2025 Akshita Sondhi & Ekansh Arohi. All rights reserved.
         </p>
       </div>
