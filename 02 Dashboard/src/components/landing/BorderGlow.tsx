@@ -4,6 +4,7 @@ import './BorderGlow.css';
 interface BorderGlowProps {
   children?: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   edgeSensitivity?: number;
   glowColor?: string;
   backgroundColor?: string;
@@ -15,6 +16,7 @@ interface BorderGlowProps {
   animIndex?: number;
   colors?: string[];
   fillOpacity?: number;
+  animationDuration?: number;
 }
 
 function parseHSL(hslStr: string): { h: number; s: number; l: number } {
@@ -53,6 +55,7 @@ function buildGradientVars(colors: string[]): Record<string, string> {
 const BorderGlow: React.FC<BorderGlowProps> = ({
   children,
   className = '',
+  style,
   edgeSensitivity = 30,
   glowColor = '40 80 80',
   backgroundColor = '#060010',
@@ -64,6 +67,7 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
   animIndex = 0,
   colors = ['#c084fc', '#f472b6', '#38bdf8'],
   fillOpacity = 0.5,
+  animationDuration,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -107,7 +111,7 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
 
   const glowVars = buildGlowVars(glowColor, glowIntensity);
 
-  const ANIM_DURATION = 5 // seconds, keep in sync with CSS
+  const ANIM_DURATION = animationDuration ?? 3 // seconds, keep in sync with CSS default
 
   const handlePointerEnter = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const card = cardRef.current
@@ -134,8 +138,10 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
         '--cone-spread': coneSpread,
         '--fill-opacity': fillOpacity,
         '--anim-index': animIndex,
+        ...(animationDuration !== undefined ? { '--anim-duration': `${animationDuration}s` } : {}),
         ...glowVars,
         ...buildGradientVars(colors),
+        ...style,
       } as React.CSSProperties}
     >
       <span className="edge-light" />

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import akshitaImg from '../../assets/CyphEV_Dev_Akshita.png'
 import ekanshImg from '../../assets/CyphEV_Dev_Ekansh.png'
 import { Dock, DockIcon } from './Dock'
+import BorderGlow from './BorderGlow'
 
 const members = [
   {
@@ -71,6 +72,10 @@ export function Contact() {
       style={{ padding: '0px 0px 96px', scrollMarginTop: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}
     >
       <style>{`
+        .contact-glow .border-glow-inner {
+          overflow: hidden;
+          border-radius: inherit;
+        }
         /* Leave: photo fades back in after info has slid back down (~0.6s total) */
         .contact-photo {
           transition: opacity 0.25s ease 0.55s, transform 0.3s cubic-bezier(0.22,1,0.36,1) 0.55s;
@@ -117,28 +122,40 @@ export function Contact() {
 
         {/* Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', maxWidth: '860px', margin: '0 auto' }}>
-          {members.map((m) => {
+          {members.map((m, i) => {
             const hovered = hoveredCard === m.name
             return (
-              <div
+              <BorderGlow
                 key={m.name}
+                className="contact-glow"
+                backgroundColor="#0c0a12"
+                borderRadius={16}
+                glowColor="270 60 65"
+                colors={['#6d28d9', '#c4b5fd', '#a78bfa']}
+                edgeSensitivity={5}
+                glowRadius={40}
+                glowIntensity={2}
+                coneSpread={45}
+                animIndex={i}
+                fillOpacity={0.5}
+                animationDuration={6}
+              >
+              <div
                 className="contact-card"
                 onMouseEnter={() => setHoveredCard(m.name)}
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{
-                  borderRadius: '16px',
-                  border: '2px solid rgba(255,255,255,0.23)',
                   background: 'rgba(255,255,255,0.04)',
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
-                  boxShadow: hovered ? '0 0 24px rgba(121,71,189,0.65), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.07)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
                   padding: '72px 24px 24px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   overflow: 'hidden',
                   height: '460px',
-                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  transition: 'transform 0.2s',
                   transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
                   cursor: 'default',
                   position: 'relative',
@@ -154,7 +171,7 @@ export function Contact() {
                     height: '120px',
                     borderRadius: '50%',
                     objectFit: 'cover',
-                    marginBottom: '16px',
+                    marginBottom: '32px',
                     flexShrink: 0,
                   }}
                 />
@@ -203,6 +220,7 @@ export function Contact() {
                   </Dock>
                 </div>
               </div>
+              </BorderGlow>
             )
           })}
         </div>

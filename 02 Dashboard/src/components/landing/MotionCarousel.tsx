@@ -80,8 +80,10 @@ export function MotionCarousel({ slides, active = true }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', containScroll: false, slidesToScroll: 1 })
   const { selectedIndex, scrollSnaps, onDotClick } = useEmblaControls(emblaApi)
   const viewportRef = React.useRef<HTMLDivElement>(null)
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
 
   // Auto-scroll only while section is visible; reset to slide 0 when leaving
+  // Pauses when pointer is over the active card
   React.useEffect(() => {
     if (!emblaApi) return
     if (!active) {
@@ -90,23 +92,50 @@ export function MotionCarousel({ slides, active = true }: PropType) {
     }
     const interval = setInterval(() => {
       const current = emblaApi.selectedScrollSnap()
+      if (hoveredIndex === current) return
       const total = emblaApi.scrollSnapList().length
       emblaApi.scrollTo(current < total - 1 ? current + 1 : 0)
     }, 10000)
     return () => clearInterval(interval)
-  }, [emblaApi, active])
+  }, [emblaApi, active, hoveredIndex])
 
   React.useEffect(() => {
     const el = viewportRef.current
     if (!el || !emblaApi) return
+
+    let cooldown = false
+
     const onWheel = (e: WheelEvent) => {
-      if (!e.shiftKey) return
-      e.preventDefault()
-      if (e.deltaY > 0) emblaApi.scrollNext()
+      const inside = el.contains(e.target as Node)
+
+      // Block vertical scroll while Shift is held inside carousel
+      if (inside && e.shiftKey) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+
+      // Block horizontal scroll inside carousel to prevent browser back/forward
+      if (inside && Math.abs(e.deltaX) > 2) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+
+      const isTrackpadH = Math.abs(e.deltaX) > Math.abs(e.deltaY) && !e.shiftKey && Math.abs(e.deltaX) > 10
+      const isMouseShift = e.shiftKey && Math.abs(e.deltaY) > 0
+
+      if (!inside || (!isTrackpadH && !isMouseShift)) return
+
+      if (cooldown) return
+      cooldown = true
+      setTimeout(() => { cooldown = false }, 500)
+
+      const delta = isTrackpadH ? e.deltaX : e.deltaY
+      if (delta > 0) emblaApi.scrollNext()
       else emblaApi.scrollPrev()
     }
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
+
+    document.addEventListener('wheel', onWheel, { passive: false, capture: true })
+    return () => document.removeEventListener('wheel', onWheel, { capture: true })
   }, [emblaApi])
 
   return (
@@ -120,6 +149,8 @@ export function MotionCarousel({ slides, active = true }: PropType) {
             return (
               <motion.div
                 key={slide.title}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
                 style={{
                   height: '288px',           /* md:[--slide-height:18rem] */
                   paddingLeft: '24px',       /* [--slide-spacing:1.5rem] */

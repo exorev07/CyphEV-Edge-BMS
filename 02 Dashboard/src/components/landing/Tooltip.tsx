@@ -30,7 +30,7 @@ function TooltipContent({
           background: 'rgba(10,8,16,0.94)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '2px solid rgba(255,255,255,0.28)',
           padding: '10px 12px',
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '12px',
