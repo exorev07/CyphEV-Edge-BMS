@@ -9,8 +9,8 @@
 
 - [Prerequisites](#-prerequisites)
 - [1️⃣ Train Models & Export C Headers](#1️⃣-train-models--export-c-headers)
-- [2️⃣ Upload Firmware](#2️⃣-upload-firmware)
-- [3️⃣ Find Your COM Port](#3️⃣-find-your-com-port)
+- [2️⃣ Find Your COM Port](#2️⃣-find-your-com-port)
+- [3️⃣ Upload Firmware](#3️⃣-upload-firmware)
 - [4️⃣ Test SoC + Range (Realtime Mode)](#4️⃣-test-soc--range-realtime-mode)
 - [5️⃣ Test SoH + RUL (Cycle Mode)](#5️⃣-test-soh--rul-cycle-mode)
 - [6️⃣ Run Both Modes (Full Demo)](#6️⃣-run-both-modes-full-demo)
@@ -39,7 +39,15 @@ python train_and_export.py
 
 > The datasets (`BMW_i3_Dataset/` and `NASA_Cleaned_Dataset/`) are gitignored. Download them from the links in the main README and place them in the correct folders before running this.
 
-## 2️⃣ Upload Firmware
+## 2️⃣ Find Your COM Port
+
+```bash
+python serial_replay.py --list-ports
+```
+
+Look for the port showing `CP210x` or `CH340` — that's the ESP32. Usually `COM4` or `COM5` on Windows.
+
+## 3️⃣ Upload Firmware
 
 1. Open `esp32_firmware/main/main.ino` in Arduino IDE
 2. Select board: **ESP32 Dev Module**
@@ -53,14 +61,6 @@ python train_and_export.py
    ```
 
 6. **Close the Serial Monitor** before running the replay script — only one program can use the port at a time
-
-## 3️⃣ Find Your COM Port
-
-```bash
-python serial_replay.py --list-ports
-```
-
-Look for the port showing `CP210x` or `CH340` — that's the ESP32. Usually `COM4` or `COM5` on Windows.
 
 ## 4️⃣ Test SoC + Range (Realtime Mode)
 
@@ -83,6 +83,7 @@ Expected output (predictions start after 600 samples are buffered):
 - **Latency**: ~950µs per prediction (~1ms)
 
 Other trips to try:
+
 ```bash
 python serial_replay.py --port COM4 --mode realtime --trip TripA03
 python serial_replay.py --port COM4 --mode realtime --trip TripA05
@@ -100,10 +101,10 @@ Expected output:
 ```
 [cyc   1] PRED:SOH:90.1234:61us
 [cyc   1] PRED:RUL:48.3210:17us
-
+...
 [cyc 120] PRED:SOH:72.2674:61us
 [cyc 120] PRED:RUL:9.6935:17us
-
+...
 [cyc 168] PRED:SOH:66.4436:61us
 [cyc 168] PRED:RUL:0.0000:17us
 ```
@@ -113,12 +114,11 @@ Expected output:
 - **Latency**: ~60µs for SoH, ~17µs for RUL
 
 Other batteries to try:
+
 ```bash
 python serial_replay.py --port COM4 --mode cycle --battery B0006
 python serial_replay.py --port COM4 --mode cycle --battery B0007
 ```
-
----
 
 ## 6️⃣ Run Both Modes (Full Demo)
 
@@ -127,8 +127,6 @@ python serial_replay.py --port COM4 --mode all
 ```
 
 Runs realtime mode first (all available trips), then cycle mode (all batteries).
-
----
 
 ## 7️⃣ Firebase Live Dashboard
 
@@ -144,7 +142,7 @@ The ESP32 can push predictions to Firebase Realtime Database over WiFi, which th
    #define WIFI_PASSWORD "YourWiFiPassword"
    ```
 
-3. Upload the firmware as usual (Step 2)
+3. Upload the firmware as usual (Step 3)
 4. Run the serial replay — predictions will appear in the terminal AND on the dashboard
 
 ### How it works
