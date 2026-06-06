@@ -37,34 +37,45 @@ CyphEV is designed as a proof-of-concept aftermarket OBD-II plug-in device for E
 
 ```text
 CyphEV/
-├── 📂 01 Literature Review/          — Reviewed prior research (gitignored)
+├── 📂 01 Literature Review/               — Research papers (gitignored)
 │
-├── 📂 02 Dashboard/                  — React 19 + TypeScript web app (deployed on Vercel)
+├── 📂 02 Dashboard/                       — React 19 + TypeScript web app (Vercel)
 │   ├── src/
-│   │   ├── pages/                    — Landing, Auth, Dashboard pages
-│   │   ├── components/               — UI components (dashboard, landing)
-│   │   ├── services/mockBmsService.ts — Mock data + alert system
-│   │   └── types/bms.ts              — BMS data types
+│   │   ├── pages/                         — Landing, Auth, Dashboard pages
+│   │   ├── components/                    — UI components (dashboard + landing)
+│   │   │   ├── dashboard/                 — Cards, gauges, sidebar, charts
+│   │   │   └── landing/                   — Hero, Features, TechStack, Contact, etc.
+│   │   ├── services/mockBmsService.ts     — Mock data + alert system (2s polling)
+│   │   ├── types/bms.ts                   — BMS data types
+│   │   └── lib/                           — Firebase config, shared styles
+│   ├── .env                               — Firebase keys (gitignored)
 │   └── ...
 │
 ├── 📂 03 SoC + Range Prediction [Benchmark]/
-│   ├── BMW_i3_Dataset/               — 42 valid driving trips (10 Hz CSVs)
-│   ├── SOC_prediction.ipynb          — SoC benchmark notebook
-│   └── Range_prediction.ipynb        — Range benchmark notebook
+│   ├── BMW_i3_Dataset/                    — 42 valid driving trips (gitignored)
+│   ├── BMW_i3_Dataset_analysis.ipynb      — Dataset exploration
+│   ├── SOC_prediction.ipynb               — SoC benchmark notebook
+│   └── Range_prediction.ipynb             — Range benchmark notebook
 │
 ├── 📂 04 SoH + RUL Prediction [Benchmark]/
-│   ├── NASA_Cleaned_Dataset/         — 34 Li-ion batteries
-│   ├── SOH_prediction.ipynb          — SoH benchmark notebook
-│   └── RUL_prediction.ipynb          — RUL benchmark notebook
+│   ├── NASA_Cleaned_Dataset/              — 34 Li-ion batteries (gitignored)
+│   ├── NASA_Dataset_analysis.ipynb        — Dataset exploration
+│   ├── SOH_prediction.ipynb               — SoH benchmark notebook
+│   └── RUL_prediction.ipynb               — RUL benchmark notebook
 │
 ├── 📂 05 Edge Deployment/
-│   ├── train_and_export.py           — Trains models, exports C headers for ESP32
-│   ├── serial_replay.py              — OBD-II simulator (streams CSV data to ESP32)
-│   ├── model_benchmarks.md           — Benchmark vs deployable accuracy comparison
-│   ├── Instructions.md               — Step-by-step deployment guide
-│   └── esp32_firmware/main/          — Arduino firmware (feature extraction + inference)
+│   ├── train_and_export.py                — Trains models, exports C headers for ESP32
+│   ├── serial_replay.py                   — OBD-II simulator (streams CSV data to ESP32)
+│   ├── model_benchmarks.md                — Benchmark vs deployable accuracy comparison
+│   ├── Instructions.md                    — Step-by-step deployment guide
+│   ├── training_metadata/                 — Model metadata JSONs (gitignored)
+│   └── esp32_firmware/main/
+│       ├── main.ino                       — Firmware (feature extraction + inference)
+│       ├── models/                        — Exported C header files (model weights)
+│       ├── wifi_config.example.h          — WiFi config template
+│       └── wifi_config.h                  — WiFi credentials (gitignored)
 │
-└── 📂 06 Paper/                      — IEEE-format paper + plagiarism report (gitignored)
+└── 📂 06 Paper/                           — IEEE-format paper + plagiarism report (gitignored)
 ```
 
 ## 🤖 ML Models
@@ -81,8 +92,10 @@ All models are trained offline and exported as static C header files compiled di
 > 3 of 4 deployable models match or exceed their full-scale benchmark counterparts. Total inference for all 4 models: **<2ms combined**.
 
 **Datasets:**
-- **BMW i3 Trip Data**: 42 valid real-world driving trips at 10 Hz (SoC + Range)
-- **NASA Battery Aging Dataset**: 34 Li-ion cells cycled to end-of-life (SoH + RUL)
+</br>
+*Original links included*
+- **[BMW i3 Trip Data](https://www.kaggle.com/datasets/atechnohazard/battery-and-heating-data-in-real-driving-cycles/data)**: 42 valid real-world driving trips at 10 Hz (SoC + Range)
+- **[NASA Battery Aging Dataset](https://www.kaggle.com/datasets/patrickfleith/nasa-battery-dataset/data)**: 34 Li-ion cells cycled to end-of-life (SoH + RUL)
 
 ## 🚀 Edge Deployment
 
