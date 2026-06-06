@@ -9,8 +9,7 @@
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live%20on%20Vercel-black?logo=vercel)](https://cyphev-dashboard.vercel.app)
 [![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
 
-<!-- Replace with your dashboard GIF -->
-<img src="Assets/dashboard_preview.gif" width="85%" alt="CyphEV Dashboard"/>
+<img src="Assets/dashboard_preview.gif" alt="CyphEV Dashboard Preview"/>
 
 </div>
 
