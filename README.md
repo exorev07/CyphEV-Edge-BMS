@@ -122,8 +122,10 @@ python train_and_export.py
 
 Open `esp32_firmware/main/main.ino` in Arduino IDE, select **ESP32 Dev Module**, and upload. You should see:
 ```
-[CyphEV] ESP32 BMS Edge Device
-[CyphEV] READY | RAM free: ~261000 bytes
+READY
+CyphEV Edge Inference v3.0 — On-Device Feature Extraction + Firebase Push
+...
+RAM free: ~261000 bytes
 ```
 
 **3. Run SoC + Range (realtime mode)**

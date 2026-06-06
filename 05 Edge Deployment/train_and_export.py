@@ -2,7 +2,8 @@
 CyphEV — Train lightweight models and export as C headers for ESP32.
 
 Usage:
-    pip install numpy pandas scikit-learn xgboost lightgbm emlearn
+    pip install numpy pandas scikit-learn xgboost
+    pip install emlearn  # optional: faster XGBoost export; falls back to built-in if absent
     python train_and_export.py
 
 Outputs:

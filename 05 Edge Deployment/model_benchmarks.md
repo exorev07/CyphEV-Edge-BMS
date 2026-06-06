@@ -35,7 +35,7 @@
 | **RUL** | RidgeCV (linear) | 42 input features | C header — scale + dot product |
 
 ## Output Files
-All model headers in `esp32_firmware/models/`:
+All model headers in `esp32_firmware/main/models/`:
 - `model_soc.h` — `soc_predict(raw_features[22])`
 - `model_range.h` — `range_predict(raw_features[24])`
 - `model_soh.h` — `soh_predict(raw_features[10])`

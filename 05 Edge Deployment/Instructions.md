@@ -56,8 +56,10 @@ Look for the port showing `CP210x` or `CH340` — that's the ESP32. Usually `COM
 5. Open Serial Monitor (115200 baud) — you should see:
 
    ```
-   [CyphEV] ESP32 BMS Edge Device
-   [CyphEV] READY | RAM free: ~261000 bytes
+   READY
+   CyphEV Edge Inference v3.0 — On-Device Feature Extraction + Firebase Push
+   ...
+   RAM free: ~261000 bytes
    ```
 
 6. **Close the Serial Monitor** before running the replay script — only one program can use the port at a time
@@ -72,10 +74,10 @@ python serial_replay.py --port COM4 --mode realtime --trip TripA01
 
 Expected output (predictions start after 600 samples are buffered):
 ```
-[RT row 600] PRED:SOC:86.0422:961us
-[RT row 600] PRED:RANGE:217.5783:943us
-[RT row 800] PRED:SOC:85.3812:955us
-[RT row 800] PRED:RANGE:204.1247:948us
+[   600] PRED:SOC:86.0422:961us
+[   600] PRED:RANGE:217.5783:943us
+[   800] PRED:SOC:85.3812:955us
+[   800] PRED:RANGE:204.1247:948us
 ```
 
 - **SoC**: Should start ~85–87% for TripA01 (battery starts nearly full)
@@ -100,7 +102,11 @@ python serial_replay.py --port COM4 --mode cycle --battery B0005
 Expected output:
 ```
 [cyc   1] PRED:SOH:90.1234:61us
-[cyc   1] PRED:RUL:48.3210:17us
+[cyc   1] INFO:RUL needs 3+ cycles, buffering...
+[cyc   2] PRED:SOH:89.7821:61us
+[cyc   2] INFO:RUL needs 3+ cycles, buffering...
+[cyc   3] PRED:SOH:89.3105:61us
+[cyc   3] PRED:RUL:48.3210:17us
 ...
 [cyc 120] PRED:SOH:72.2674:61us
 [cyc 120] PRED:RUL:9.6935:17us
